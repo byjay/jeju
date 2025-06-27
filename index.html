@@ -212,12 +212,11 @@
             color: white;
             border: none;
             border-radius: 10px;
-            padding: 0.5rem 1rem;
+            padding: 0.75rem 1.5rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
             margin: 0.25rem;
-            font-size: 0.875rem;
         }
 
         .control-btn:hover {
@@ -235,11 +234,10 @@
 
         .theme-btn {
             border-radius: 10px;
-            padding: 0.5rem;
+            padding: 0.75rem;
             font-weight: 600;
             transition: all 0.3s ease;
             border: 2px solid transparent;
-            font-size: 0.875rem;
         }
 
         .theme-btn:hover {
@@ -253,12 +251,6 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             margin-bottom: 1.5rem;
             overflow: hidden;
-        }
-
-        .map-container {
-            position: sticky;
-            top: 20px;
-            z-index: 100;
         }
 
         .sidebar-header {
@@ -292,40 +284,8 @@
 
         #map {
             border-radius: 12px;
-            height: 250px;
+            height: 400px;
             width: 100%;
-            position: sticky; /* 지도 플로팅 고정 */
-            top: 0; /* 상단에 고정 */
-            z-index: 999; /* 다른 요소 위에 표시 */
-        }
-
-        .map-controls {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            z-index: 1000;
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-
-        .map-control-btn {
-            background: white;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            width: 30px;
-            height: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            font-size: 14px;
-            font-weight: bold;
-        }
-
-        .map-control-btn:hover {
-            background: #f0f0f0;
         }
 
         .loading-spinner {
@@ -390,62 +350,22 @@
 
         @media (max-width: 768px) {
             .main-container {
-                margin: 0.5rem;
+                margin: 1rem;
                 border-radius: 16px;
             }
             
             .header-gradient {
-                padding: 1rem;
-            }
-            
-            .header-gradient h1 {
-                font-size: 1.5rem;
-            }
-            
-            .header-gradient p {
-                font-size: 0.875rem;
+                padding: 1.5rem;
             }
             
             .day-tab {
-                padding: 0.25rem 0.5rem; /* 버튼 크기 절반 이하로 축소 */
+                padding: 0.5rem 1rem;
                 margin: 0.125rem;
-                font-size: 0.625rem; /* 폰트 크기 축소 */
-            }
-            
-            .control-btn {
-                padding: 0.25rem 0.5rem; /* 버튼 크기 절반 이하로 축소 */
-                font-size: 0.625rem; /* 폰트 크기 축소 */
-            }
-            
-            .theme-btn {
-                padding: 0.25rem; /* 버튼 크기 절반 이하로 축소 */
-                font-size: 0.625rem; /* 폰트 크기 축소 */
+                font-size: 0.875rem;
             }
             
             #map {
-                height: 150px; /* 지도 크기 더 작게 조정 */
-            }
-            
-            .option-card {
-                padding: 0.5rem; /* 카드 패딩 축소 */
-            }
-            
-            .option-card .card-number {
-                width: 20px;
-                height: 20px;
-                font-size: 0.5rem;
-            }
-            
-            .sidebar-card {
-                margin-bottom: 0.75rem;
-            }
-            
-            .control-panel {
-                padding: 0.5rem; /* 패널 패딩 축소 */
-            }
-            
-            .theme-search-panel {
-                padding: 0.75rem; /* 패널 패딩 축소 */
+                height: 300px;
             }
         }
 
@@ -506,7 +426,7 @@
             <!-- 테마 검색 패널 -->
             <div id="theme-search-panel" class="theme-search-panel hidden">
                 <h3 class="text-xl font-bold mb-4">🎯 테마별 장소 검색</h3>
-                <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-2">
+                <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
                     <button onclick="searchByTheme('restaurant')" class="theme-btn bg-red-100 text-red-700 hover:bg-red-200">
                         🍽️ 맛집
                     </button>
@@ -516,26 +436,14 @@
                     <button onclick="searchByTheme('tourist_attraction')" class="theme-btn bg-green-100 text-green-700 hover:bg-green-200">
                         🏞️ 관광지
                     </button>
-                    <button onclick="searchByTheme('lodging')" class="theme-btn bg-blue-100 text-blue-700 hover:bg-blue-200">
-                        🏨 숙박
+                    <button onclick="searchByTheme('beach')" class="theme-btn bg-blue-100 text-blue-700 hover:bg-blue-200">
+                        🏖️ 해수욕장
                     </button>
-                    <button onclick="searchByTheme('shopping_mall')" class="theme-btn bg-purple-100 text-purple-700 hover:bg-purple-200">
+                    <button onclick="searchByTheme('shopping')" class="theme-btn bg-purple-100 text-purple-700 hover:bg-purple-200">
                         🛍️ 쇼핑
                     </button>
-                    <button onclick="searchByTheme('spa')" class="theme-btn bg-pink-100 text-pink-700 hover:bg-pink-200">
-                        🧖‍♀️ 스파/마사지
-                    </button>
-                    <button onclick="searchByTheme('amusement_park')" class="theme-btn bg-orange-100 text-orange-700 hover:bg-orange-200">
-                        🎢 테마파크
-                    </button>
-                    <button onclick="searchByTheme('museum')" class="theme-btn bg-indigo-100 text-indigo-700 hover:bg-indigo-200">
-                        🏛️ 박물관
-                    </button>
-                    <button onclick="searchByTheme('park')" class="theme-btn bg-teal-100 text-teal-700 hover:bg-teal-200">
-                        🌳 공원/멍명소
-                    </button>
-                    <button onclick="searchByTheme('natural_feature')" class="theme-btn bg-emerald-100 text-emerald-700 hover:bg-emerald-200">
-                        🌊 자연명소
+                    <button onclick="searchByTheme('activity')" class="theme-btn bg-pink-100 text-pink-700 hover:bg-pink-200">
+                        🎪 체험
                     </button>
                 </div>
                 <div class="mt-4 p-3 bg-blue-50 rounded-lg">
@@ -556,19 +464,13 @@
                 <div class="lg:col-span-1">
                     <div class="sticky top-6 space-y-6">
                         <!-- 지도 -->
-                        <div class="sidebar-card map-container">
+                        <div class="sidebar-card">
                             <div class="sidebar-header flex items-center">
                                 <i class="fas fa-map-marked-alt mr-3"></i>
                                 <span>실시간 지도 & 경로</span>
                             </div>
                             <div class="p-4">
-                                <div id="map">
-                                    <div class="map-controls">
-                                        <button class="map-control-btn" onclick="zoomIn()" title="확대">+</button>
-                                        <button class="map-control-btn" onclick="zoomOut()" title="축소">-</button>
-                                        <button class="map-control-btn" onclick="resetMapView()" title="초기화">⌂</button>
-                                    </div>
-                                </div>
+                                <div id="map"></div>
                                 <button onclick="openInGoogleMaps()" class="w-full mt-4 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition font-semibold">
                                     <i class="fas fa-directions mr-2"></i>구글맵에서 길찾기
                                 </button>
@@ -1214,7 +1116,8 @@ const itineraryData = {
                             {item: '테우 체험', price: 10000, description: '전통 배'},
                             {item: '주차료', price: 2000, description: '승용차'},
                             {item: '샤워시설', price: 2000, description: '온수'},
-                            {item: '구명조끼', price: 0, description: '무료 대여'}],
+                            {item: '구명조끼', price: 0, description: '무료 대여'}
+                        ],
                         reviews: [
                             {author: '카약러버', rating: 5, text: '투명카약 정말 신기해요! 물이 너무 깨끗해요.', date: '2024-01-24'},
                             {author: '액티비티', rating: 4, text: '아이들도 안전하게 즐길 수 있어요.', date: '2024-01-21'}
@@ -1367,7 +1270,8 @@ const itineraryData = {
                             {item: '장비 대여', price: 10000, description: '마스크, 핀'},
                             {item: '강사 동행', price: 10000, description: '안전 가이드'},
                             {item: '샤워시설', price: 2000, description: '온수'},
-                            {item: '주차료', price: 1000, description: '승용차'}],
+                            {item: '주차료', price: 1000, description: '승용차'}
+                        ],
                         reviews: [
                             {author: '스노클링', rating: 5, text: '물이 정말 깨끗해요! 물고기들이 많아요.', date: '2024-01-24'},
                             {author: '바다러버', rating: 4, text: '초보자도 쉽게 할 수 있어요. 재미있어요.', date: '2024-01-21'}
@@ -1806,11 +1710,11 @@ function generateReviewContent(reviews) {
                     <div class="flex justify-between items-center mb-2">
                         <span class="font-semibold">${review.author}</span>
                         <div class="flex">
-                            <div class="rating-stars mr-2">${'★'.repeat(review.rating)}${'☆'.repeat(5-review.rating)}</div>
+                            <div class="rating-stars mr-2">${'★'.repeat(review.rating)}${'☆'.repeat(5 - review.rating)}</div>
                             <span class="text-sm text-gray-500">${review.date}</span>
                         </div>
                     </div>
-                    <p class="text-gray-700">${review.text.substring(0, 100)}...</p>
+                    <p class="text-gray-700">${review.text}</p>
                 </div>
             `).join('')}
         </div>
@@ -1869,110 +1773,31 @@ function searchByTheme(type) {
     // 제주도 중심에서 검색
     const jejuCenter = { lat: 33.385, lng: 126.55 };
     
-    let searchParams = {};
-    
+    let keyword = '';
     switch(type) {
-        case 'restaurant':
-            searchParams = {
-                location: new google.maps.LatLng(jejuCenter.lat, jejuCenter.lng),
-                radius: 20000,
-                type: 'restaurant',
-                keyword: '제주 맛집'
-            };
-            break;
-        case 'cafe':
-            searchParams = {
-                location: new google.maps.LatLng(jejuCenter.lat, jejuCenter.lng),
-                radius: 20000,
-                type: 'cafe',
-                keyword: '제주 카페'
-            };
-            break;
-        case 'tourist_attraction':
-            searchParams = {
-                location: new google.maps.LatLng(jejuCenter.lat, jejuCenter.lng),
-                radius: 25000,
-                type: 'tourist_attraction',
-                keyword: '제주 관광지'
-            };
-            break;
-        case 'lodging':
-            searchParams = {
-                location: new google.maps.LatLng(jejuCenter.lat, jejuCenter.lng),
-                radius: 25000,
-                type: 'lodging',
-                keyword: '제주 숙박'
-            };
-            break;
-        case 'shopping_mall':
-            searchParams = {
-                location: new google.maps.LatLng(jejuCenter.lat, jejuCenter.lng),
-                radius: 20000,
-                type: 'shopping_mall',
-                keyword: '제주 쇼핑'
-            };
-            break;
-        case 'spa':
-            searchParams = {
-                location: new google.maps.LatLng(jejuCenter.lat, jejuCenter.lng),
-                radius: 20000,
-                type: 'spa',
-                keyword: '제주 스파 마사지'
-            };
-            break;
-        case 'amusement_park':
-            searchParams = {
-                location: new google.maps.LatLng(jejuCenter.lat, jejuCenter.lng),
-                radius: 25000,
-                type: 'amusement_park',
-                keyword: '제주 테마파크'
-            };
-            break;
-        case 'museum':
-            searchParams = {
-                location: new google.maps.LatLng(jejuCenter.lat, jejuCenter.lng),
-                radius: 25000,
-                type: 'museum',
-                keyword: '제주 박물관'
-            };
-            break;
-        case 'park':
-            searchParams = {
-                location: new google.maps.LatLng(jejuCenter.lat, jejuCenter.lng),
-                radius: 25000,
-                type: 'park',
-                keyword: '제주 공원 멍명소'
-            };
-            break;
-        case 'natural_feature':
-            searchParams = {
-                location: new google.maps.LatLng(jejuCenter.lat, jejuCenter.lng),
-                radius: 30000,
-                type: 'natural_feature',
-                keyword: '제주 자연명소 해변'
-            };
-            break;
-        default:
-            searchParams = {
-                location: new google.maps.LatLng(jejuCenter.lat, jejuCenter.lng),
-                radius: 20000,
-                keyword: `제주 ${type}`
-            };
+        case 'restaurant': keyword = '제주 맛집'; break;
+        case 'cafe': keyword = '제주 카페'; break;
+        case 'tourist_attraction': keyword = '제주 관광지'; break;
+        case 'beach': keyword = '제주 해수욕장'; break;
+        case 'shopping': keyword = '제주 쇼핑'; break;
+        case 'activity': keyword = '제주 체험'; break;
     }
     
-    placesService.nearbySearch(searchParams, (results, status) => {
+    const request = {
+        location: new google.maps.LatLng(jejuCenter.lat, jejuCenter.lng),
+        radius: 15000,
+        keyword: keyword,
+        language: 'ko'
+    };
+    
+    placesService.nearbySearch(request, (results, status) => {
         if (status === google.maps.places.PlacesServiceStatus.OK && results) {
-            // 평점 기준으로 필터링 및 정렬
             const filtered = results
-                .filter(p => p.rating && p.rating >= 3.0)
-                .sort((a, b) => {
-                    // 평점 우선, 리뷰 수 보조
-                    if (b.rating !== a.rating) return b.rating - a.rating;
-                    return (b.user_ratings_total || 0) - (a.user_ratings_total || 0);
-                })
-                .slice(0, 25); // 더 많은 결과 표시
+                .filter(p => p.rating && p.rating >= 3.5)
+                .sort((a, b) => b.rating - a.rating)
+                .slice(0, 20);
                 
-            filtered.forEach((place, index) => {
+            filtered.forEach(place => {
                 const marker = new google.maps.Marker({
                     position: place.geometry.location,
                     map: googleMap,
@@ -1980,8 +1805,7 @@ function searchByTheme(type) {
                     icon: {
                         url: getThemeIcon(type),
                         scaledSize: new google.maps.Size(35, 35)
-                    },
-                    zIndex: 1000 - index // 평점 높은 순으로 위에 표시
+                    }
                 });
                 
                 marker.addListener('click', () => {
@@ -1996,16 +1820,7 @@ function searchByTheme(type) {
                 const bounds = new google.maps.LatLngBounds();
                 filtered.forEach(place => bounds.extend(place.geometry.location));
                 googleMap.fitBounds(bounds);
-                
-                // 너무 확대되지 않도록 제한
-                google.maps.event.addListenerOnce(googleMap, 'bounds_changed', () => {
-                    if (googleMap.getZoom() > 15) {
-                        googleMap.setZoom(15);
-                    }
-                });
             }
-        } else {
-            alert(`${getThemeDisplayName(type)} 검색 결과가 없습니다. 다른 카테고리를 시도해보세요.`);
         }
     });
 }
@@ -2015,31 +1830,11 @@ function getThemeIcon(type) {
         'restaurant': 'https://maps.google.com/mapfiles/ms/icons/restaurant.png',
         'cafe': 'https://maps.google.com/mapfiles/ms/icons/coffeehouse.png',
         'tourist_attraction': 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png',
-        'lodging': 'https://maps.google.com/mapfiles/ms/icons/lodging.png',
-        'shopping_mall': 'https://maps.google.com/mapfiles/ms/icons/shopping.png',
-        'spa': 'https://maps.google.com/mapfiles/ms/icons/pink-dot.png',
-        'amusement_park': 'https://maps.google.com/mapfiles/ms/icons/orange-dot.png',
-        'museum': 'https://maps.google.com/mapfiles/ms/icons/purple-dot.png',
-        'park': 'https://maps.google.com/mapfiles/ms/icons/green-dot.png',
-        'natural_feature': 'https://maps.google.com/mapfiles/ms/icons/blue.png'
+        'beach': 'https://maps.google.com/mapfiles/ms/icons/blue.png',
+        'shopping': 'https://maps.google.com/mapfiles/ms/icons/shopping.png',
+        'activity': 'https://maps.google.com/mapfiles/ms/icons/green-dot.png'
     };
     return icons[type] || 'https://maps.google.com/mapfiles/ms/icons/red-dot.png';
-}
-
-function getThemeDisplayName(type) {
-    const names = {
-        'restaurant': '맛집',
-        'cafe': '카페',
-        'tourist_attraction': '관광지',
-        'lodging': '숙박',
-        'shopping_mall': '쇼핑',
-        'spa': '스파/마사지',
-        'amusement_park': '테마파크',
-        'museum': '박물관',
-        'park': '공원/멍명소',
-        'natural_feature': '자연명소'
-    };
-    return names[type] || type;
 }
 
 function showThemeInfoWindow(marker, place, type) {
@@ -2052,36 +1847,12 @@ function showThemeInfoWindow(marker, place, type) {
     // 장소 상세 정보 가져오기
     placesService.getDetails({
         placeId: place.place_id,
-        fields: ['reviews', 'url', 'formatted_phone_number', 'opening_hours', 'photos', 'price_level', 'website', 'formatted_address']
+        fields: ['reviews', 'url', 'formatted_phone_number', 'opening_hours', 'photos', 'price_level']
     }, (details, status) => {
         let menuHtml = '';
         let reviewsHtml = '';
-        let contactHtml = '';
-        let hoursHtml = '';
         
         if (status === google.maps.places.PlacesServiceStatus.OK && details) {
-            // 연락처 정보
-            if (details.formatted_phone_number || details.website) {
-                contactHtml = `
-                    <div class="mt-3 text-sm">
-                        ${details.formatted_phone_number ? `<p><i class="fas fa-phone text-blue-600"></i> ${details.formatted_phone_number}</p>` : ''}
-                        ${details.website ? `<p><i class="fas fa-globe text-blue-600"></i> <a href="${details.website}" target="_blank" class="text-blue-600 hover:underline">웹사이트</a></p>` : ''}
-                        ${details.formatted_address ? `<p><i class="fas fa-map-marker-alt text-blue-600"></i> ${details.formatted_address}</p>` : ''}
-                    </div>
-                `;
-            }
-            
-            // 운영시간
-            if (details.opening_hours && details.opening_hours.weekday_text) {
-                const today = new Date().getDay();
-                const todayHours = details.opening_hours.weekday_text[today === 0 ? 6 : today - 1]; // 일요일=0을 토요일=6으로 조정
-                hoursHtml = `
-                    <div class="mt-3 text-sm">
-                        <p><i class="fas fa-clock text-green-600"></i> <strong>오늘:</strong> ${todayHours || '정보 없음'}</p>
-                    </div>
-                `;
-            }
-            
             // 메뉴 정보 (예상)
             if (type === 'restaurant' || type === 'cafe') {
                 const sampleMenu = generateSampleMenu(type, details.price_level || 2);
@@ -2098,38 +1869,6 @@ function showThemeInfoWindow(marker, place, type) {
                         </div>
                     </div>
                 `;
-            } else if (type === 'tourist_attraction' || type === 'museum' || type === 'amusement_park') {
-                // 관광지/박물관/테마파크 입장료 정보
-                const ticketInfo = generateTicketInfo(type, details.price_level || 2);
-                menuHtml = `
-                    <div class="mt-3">
-                        <h5 class="font-semibold mb-2">입장료 정보 (예상)</h5>
-                        <div class="menu-list">
-                            ${ticketInfo.map(item => `
-                                <div class="menu-item">
-                                    <span>${item.item}</span>
-                                    <span>₩${item.price.toLocaleString()}</span>
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
-                `;
-            } else if (type === 'spa') {
-                // 스파/마사지 서비스 정보
-                const spaServices = generateSpaServices(details.price_level || 2);
-                menuHtml = `
-                    <div class="mt-3">
-                        <h5 class="font-semibold mb-2">서비스 정보 (예상)</h5>
-                        <div class="menu-list">
-                            ${spaServices.map(item => `
-                                <div class="menu-item">
-                                    <span>${item.item}</span>
-                                    <span>₩${item.price.toLocaleString()}</span>
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
-                `;
             }
             
             // 리뷰 정보
@@ -2138,12 +1877,9 @@ function showThemeInfoWindow(marker, place, type) {
                     <div class="mt-3">
                         <h5 class="font-semibold mb-2">최근 리뷰</h5>
                         ${details.reviews.slice(0, 2).map(review => `
-                            <div class="text-sm mb-2 p-2 bg-gray-50 rounded">
-                                <div class="rating flex items-center mb-1">
-                                    <span class="rating-stars text-yellow-500">${'★'.repeat(review.rating)}${'☆'.repeat(5-review.rating)}</span>
-                                    <span class="ml-2 font-medium">${review.author_name}</span>
-                                </div>
-                                <p class="text-gray-600">${review.text.substring(0, 120)}${review.text.length > 120 ? '...' : ''}</p>
+                            <div class="text-sm mb-2">
+                                <div class="rating">${'★'.repeat(review.rating)}${'☆'.repeat(5-review.rating)} ${review.author_name}</div>
+                                <p class="text-gray-600">${review.text.substring(0, 100)}...</p>
                             </div>
                         `).join('')}
                     </div>
@@ -2155,24 +1891,18 @@ function showThemeInfoWindow(marker, place, type) {
             content: `
                 <div class="info-window">
                     <h4>${place.name}</h4>
-                    <div class="rating flex items-center mb-2">
-                        <span class="rating-stars text-yellow-500">${'★'.repeat(Math.floor(place.rating))}</span>
-                        <span class="ml-1">${place.rating}/5.0 (${place.user_ratings_total || 0} 리뷰)</span>
+                    <div class="rating">
+                        <span class="rating-stars">${'★'.repeat(Math.floor(place.rating))}</span>
+                        <span>${place.rating}/5.0 (${place.user_ratings_total || 0} 리뷰)</span>
                     </div>
-                    <p class="text-sm text-gray-600 mb-2">
-                        <i class="fas fa-tag text-green-600"></i> 
-                        카테고리: ${getThemeDisplayName(type)} | 예상 비용: ₩${cost.toLocaleString()}
-                    </p>
-                    ${hoursHtml}
-                    ${contactHtml}
+                    <p class="text-sm text-gray-600 mb-2">예상 비용: ₩${cost.toLocaleString()}</p>
                     ${menuHtml}
                     ${reviewsHtml}
-                    <button class="btn-add-itinerary mt-3" onclick="addToItinerary('${place.place_id}', '${place.name.replace(/'/g, "\\'")}', ${cost}, '${type}', ${place.geometry.location.lat()}, ${place.geometry.location.lng()})">
+                    <button class="btn-add-itinerary" onclick="addToItinerary('${place.place_id}', '${place.name.replace(/'/g, "\\'")}', ${cost}, '${type}', ${place.geometry.location.lat()}, ${place.geometry.location.lng()})">
                         일정에 추가
                     </button>
                 </div>
-            `,
-            maxWidth: 350
+            `
         });
         
         infoWindow.open(googleMap, marker);
@@ -2200,44 +1930,14 @@ function generateSampleMenu(type, priceLevel) {
     return type === 'restaurant' ? restaurantMenus : cafeMenus;
 }
 
-function generateTicketInfo(type, priceLevel) {
-    const basePrice = type === 'amusement_park' ? 30000 : type === 'museum' ? 8000 : 15000;
-    const multiplier = priceLevel || 2;
-    
-    return [
-        {item: '성인', price: basePrice * multiplier},
-        {item: '청소년', price: Math.floor(basePrice * multiplier * 0.7)},
-        {item: '어린이', price: Math.floor(basePrice * multiplier * 0.5)},
-        {item: '주차료', price: Math.floor(basePrice * multiplier * 0.2)},
-        {item: '가이드 투어', price: Math.floor(basePrice * multiplier * 0.8)}
-    ];
-}
-
-function generateSpaServices(priceLevel) {
-    const basePrice = 80000;
-    const multiplier = priceLevel || 2;
-    
-    return [
-        {item: '전신 마사지 (60분)', price: basePrice * multiplier},
-        {item: '부분 마사지 (30분)', price: Math.floor(basePrice * multiplier * 0.6)},
-        {item: '아로마 테라피', price: Math.floor(basePrice * multiplier * 1.2)},
-        {item: '사우나 이용', price: Math.floor(basePrice * multiplier * 0.3)},
-        {item: '커플 패키지', price: Math.floor(basePrice * multiplier * 1.8)}
-    ];
-}
-
 function estimateDynamicCost(types, category) {
     const baseCosts = {
         'restaurant': 80000,
         'cafe': 35000,
         'tourist_attraction': 25000,
-        'lodging': 150000,
-        'shopping_mall': 40000,
-        'spa': 120000,
-        'amusement_park': 100000,
-        'museum': 20000,
-        'park': 5000,
-        'natural_feature': 10000
+        'beach': 5000,
+        'shopping': 40000,
+        'activity': 60000
     };
     
     const variation = Math.random() * 0.5 + 0.75; // 0.75 ~ 1.25
@@ -2407,33 +2107,11 @@ function updateMapForDay(day) {
             zIndex: 1000 + index
         });
         
-        // 마커 클릭 시 상세 정보 표시
-        marker.addListener('click', () => {
-            const infoWindow = new google.maps.InfoWindow({
-                content: `
-                    <div class="p-2">
-                        <h4 class="font-bold">${index + 1}. ${sel.name}</h4>
-                        <p class="text-sm text-gray-600">예상 비용: ₩${sel.cost.toLocaleString()}</p>
-                        <p class="text-sm text-gray-600">카테고리: ${sel.type}</p>
-                    </div>
-                `,
-                maxWidth: 250
-            });
-            
-            // 기존 정보창 닫기
-            if (window.currentInfoWindow) {
-                window.currentInfoWindow.close();
-            }
-            
-            infoWindow.open(googleMap, marker);
-            window.currentInfoWindow = infoWindow;
-        });
-        
         window.dayMarkers = window.dayMarkers || [];
         window.dayMarkers.push(marker);
     });
 
-    // 경로 그리기 및 거리/시간 계산
+    // 경로 그리기
     if (daySelections.length > 1) {
         const request = {
             origin: { lat: daySelections[0].lat, lng: daySelections[0].lng },
@@ -2445,41 +2123,6 @@ function updateMapForDay(day) {
         directionsService.route(request, (result, status) => {
             if (status === 'OK') {
                 directionsRenderer.setDirections(result);
-                
-                // 총 거리와 시간 계산
-                let totalDistance = 0;
-                let totalDuration = 0;
-                
-                result.routes[0].legs.forEach(leg => {
-                    totalDistance += leg.distance.value;
-                    totalDuration += leg.duration.value;
-                });
-                
-                // 거리/시간 정보를 지도 하단에 표시
-                displayRouteInfo(totalDistance, totalDuration, result.routes[0].legs);
-            }
-        });
-        
-        // 도보 경로도 계산 (참고용)
-        const walkingRequest = {
-            origin: { lat: daySelections[0].lat, lng: daySelections[0].lng },
-            destination: { lat: daySelections[daySelections.length - 1].lat, lng: daySelections[daySelections.length - 1].lng },
-            waypoints: daySelections.slice(1, -1).map(s => ({ location: { lat: s.lat, lng: s.lng } })),
-            travelMode: google.maps.TravelMode.WALKING
-        };
-        
-        directionsService.route(walkingRequest, (result, status) => {
-            if (status === 'OK') {
-                let walkingDistance = 0;
-                let walkingDuration = 0;
-                
-                result.routes[0].legs.forEach(leg => {
-                    walkingDistance += leg.distance.value;
-                    walkingDuration += leg.duration.value;
-                });
-                
-                // 도보 정보 추가 표시
-                displayWalkingInfo(walkingDistance, walkingDuration);
             }
         });
     }
@@ -2492,69 +2135,6 @@ function updateMapForDay(day) {
     googleMap.fitBounds(bounds);
     if (daySelections.length === 1 && !userLocationMarker) {
         googleMap.setZoom(14);
-    }
-}
-
-// 경로 정보 표시 함수
-function displayRouteInfo(totalDistance, totalDuration, legs) {
-    const distanceKm = (totalDistance / 1000).toFixed(1);
-    const durationMin = Math.round(totalDuration / 60);
-    const durationHour = Math.floor(durationMin / 60);
-    const remainingMin = durationMin % 60;
-    
-    let durationText = '';
-    if (durationHour > 0) {
-        durationText = `${durationHour}시간 ${remainingMin}분`;
-    } else {
-        durationText = `${durationMin}분`;
-    }
-    
-    // 지도 하단에 정보 표시
-    const mapContainer = document.getElementById('map').parentElement;
-    let routeInfoDiv = mapContainer.querySelector('.route-info');
-    
-    if (!routeInfoDiv) {
-        routeInfoDiv = document.createElement('div');
-        routeInfoDiv.className = 'route-info mt-2 p-2 bg-blue-50 rounded-lg text-sm';
-        mapContainer.appendChild(routeInfoDiv);
-    }
-    
-    routeInfoDiv.innerHTML = `
-        <div class="flex justify-between items-center">
-            <div>
-                <i class="fas fa-car text-blue-600"></i>
-                <strong>차량:</strong> ${distanceKm}km • ${durationText}
-            </div>
-            <div id="walking-info" class="text-gray-600">
-                <i class="fas fa-walking"></i> 도보 정보 계산 중...
-            </div>
-        </div>
-        <div class="mt-1 text-xs text-gray-500">
-            총 ${legs.length}개 구간 • 실시간 교통상황 반영
-        </div>
-    `;
-}
-
-// 도보 정보 표시 함수
-function displayWalkingInfo(walkingDistance, walkingDuration) {
-    const walkingInfoDiv = document.getElementById('walking-info');
-    if (walkingInfoDiv) {
-        const distanceKm = (walkingDistance / 1000).toFixed(1);
-        const durationMin = Math.round(walkingDuration / 60);
-        const durationHour = Math.floor(durationMin / 60);
-        const remainingMin = durationMin % 60;
-        
-        let durationText = '';
-        if (durationHour > 0) {
-            durationText = `${durationHour}시간 ${remainingMin}분`;
-        } else {
-            durationText = `${durationMin}분`;
-        }
-        
-        walkingInfoDiv.innerHTML = `
-            <i class="fas fa-walking"></i>
-            <strong>도보:</strong> ${distanceKm}km • ${durationText}
-        `;
     }
 }
 
@@ -2675,30 +2255,6 @@ function openInGoogleMaps() {
     window.open(url, '_blank');
 }
 
-// 지도 확대/축소 및 초기화 기능
-function zoomIn() {
-    if (googleMap) {
-        const currentZoom = googleMap.getZoom();
-        googleMap.setZoom(currentZoom + 1);
-    }
-}
-
-function zoomOut() {
-    if (googleMap) {
-        const currentZoom = googleMap.getZoom();
-        googleMap.setZoom(currentZoom - 1);
-    }
-}
-
-function resetMapView() {
-    if (googleMap) {
-        // 제주도 중심으로 초기화
-        const jejuCenter = { lat: 33.385, lng: 126.55 };
-        googleMap.setCenter(jejuCenter);
-        googleMap.setZoom(10);
-    }
-}
-
 // 윈도우 로드 이벤트
 window.addEventListener('load', () => {
     if (typeof google === 'undefined') {
@@ -2708,4 +2264,7 @@ window.addEventListener('load', () => {
 </script>
 </body>
 </html>
-
+이코드기준에서 업데이트해 기존기능. 버리지마
+그외에 제목만넣고 지도는상단에 플로팅 
+이전요청사항. 모두 재검토해
+포인트 낭비한거같다
