@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>제주여행 플래너 스타일시트</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* ===========================================
+           제주여행 플래너 - 메인 스타일시트
+           =========================================== */
+        
+        :root {
+            --primary-blue: #3b82f6;
+            --primary-purple: #7c3aed;
+            --jeju-orange: #f97316;
+            --jeju-green: #10b981;
+            --ocean-blue: #0ea5e9;
+            --sunset-pink: #f472b6;
+            --mountain-gray: #6b7280;
+            --sand-beige: #fef3c7;
+        }
+
+        * {
+            font-family: 'Noto Sans KR', sans-serif;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #f0f9ff 100%);
+            min-height: 100vh;
+        }
+
+        /* ===========================================
+           헤더 & 네비게이션 스타일
+           =========================================== */
+        
+        .main-header {
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-purple) 100%);
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .main-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="40" r="1.5" fill="rgba(255,255,255,0.15)"/><circle cx="40" cy="60" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="70" cy="80" r="2.5" fill="rgba(255,255,255,0.08)"/></svg>');
+            animation: float 20s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(180deg); }
+        }
+
+        .day-tab {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .day-tab::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .day-tab:hover::before {
+            left: 100%;
+        }
+
+        .day-tab.active {
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-purple) 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+        }
+
+        .day-tab:not(.active) {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            color: var(--mountain-gray);
+        }
+
+        .day-tab:not(.active):hover {
+            background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(107, 114, 128, 0.2);
+        }
+
+        /* ===========================================
+           카드 & 옵션 스타일
+           =========================================== */
+        
+        .option-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 2px solid #e5e7eb;
+            background: linear-gradient(135deg, #ffffff 0%, #f9fafb 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .option-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(124, 58, 237, 0.05) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .option-card:hover {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+            border-color: var(--primary-blue);
+        }
+
+        .option-card:hover::before {
+            opacity: 1;
+        }
+
+        .option-card.selected {
+            border-color: var(--primary-blue);
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .option-card.selected::after {
+            content: '✓';
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 24px;
+            height: 24px;
+            background: var(--primary-blue);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            animation: checkmark 0.5s ease-out;
+        }
+
+        @keyframes checkmark {
+            0% { transform: scale(0) rotate(-180deg); opacity: 0; }
+            50% { transform: scale(1.2) rotate(0deg); opacity: 1; }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+
+        /* ===========================================
+           상세 패널 애니메이션
+           =========================================== */
+        
+        .details-panel {
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: translateY(-20px);
+        }
+
+        .details-panel.open {
+            max-height: 800px;
+            opacity: 1;
+            transform: translateY(0);
+            margin-top: 1rem;
+        }
+
+        .details-tab {
+            transition: all 0.3s ease;
+            cursor: pointer;
+            padding: 0.75rem 1.5rem;
+            border-bottom: 3px solid transparent;
+            position: relative;
+        }
+
+        .details-tab::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 3px;
+            background: var(--primary-blue);
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+        }
+
+        .details-tab.active::before {
+            width: 100%;
+        }
+
+        .details-tab.active {
+            color: var(--primary-blue);
+            font-weight: 600;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(124, 58, 237, 0.05) 100%);
+        }
+
+        /* ===========================================
+           지도 & 사이드바 스타일
+           =========================================== */
+        
+        .map-container {
+            border-radius: 1rem;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .map-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, rgba(59, 130, 246, 0.1) 0%, rgba(124, 58, 237, 0.1) 100%);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .sidebar-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border-radius: 1rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        .sidebar-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+        }
+
+        .sidebar-header {
+            background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sidebar-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            animation: shimmer 3s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        /* ===========================================
+           비용 계산기 스타일
+           =========================================== */
+        
+        .cost-calculator {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde047 100%);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cost-calculator::before {
+            content: '💰';
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            font-size: 3rem;
+            opacity: 0.2;
+            animation: bounce 2s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .total-cost {
+            background: linear-gradient(135deg, var(--jeju-green) 0%, #059669 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: pulse-glow 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { text-shadow: 0 0 10px rgba(16, 185, 129, 0.3); }
+            50% { text-shadow: 0 0 20px rgba(16, 185, 129, 0.6); }
+        }
+
+        /* ===========================================
+           날씨 위젯 스타일
+           =========================================== */
+        
+        .weather-widget {
+            background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .weather-widget::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: weather-float 4s ease-in-out infinite;
+        }
+
+        @keyframes weather-float {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            50% { transform: translate(-20px, -20px) rotate(180deg); }
+        }
+
+        .weather-icon {
+            font-size: 3rem;
+            animation: weather-bounce 3s ease-in-out infinite;
+        }
+
+        @keyframes weather-bounce {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(5deg); }
+        }
+
+        /* ===========================================
+           차트 & 분석 스타일
+           =========================================== */
+        
+        .chart-container {
+            background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            position: relative;
+        }
+
+        .age-preference-chart {
+            transition: all 0.3s ease;
+        }
+
+        .age-preference-chart:hover {
+            transform: scale(1.02);
+        }
+
+        /* ===========================================
+           로딩 애니메이션
+           =========================================== */
+        
+        .loading-spinner {
+            border: 4px solid rgba(59, 130, 246, 0.1);
+            border-top: 4px solid var(--primary-blue);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-dots::after {
+            content: '';
+            animation: dots 1.5s steps(5, end) infinite;
+        }
+
+        @keyframes dots {
+            0%, 20% { content: ''; }
+            40% { content: '.'; }
+            60% { content: '..'; }
+            80%, 100% { content: '...'; }
+        }
+
+        /* ===========================================
+           버튼 & 인터랙션 스타일
+           =========================================== */
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-purple) 100%);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-primary:hover::before {
+            left: 100%;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            color: var(--mountain-gray);
+            border: 2px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+            border-color: #cbd5e1;
+            transform: translateY(-1px);
+        }
+
+        .navi-toggle.active {
+            background: linear-gradient(135deg, var(--jeju-green) 0%, #059669 100%);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+            50% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+        }
+
+        /* ===========================================
+           타임라인 스타일
+           =========================================== */
+        
+        .timeline-container {
+            position: relative;
+        }
+
+        .timeline-line {
+            position: absolute;
+            left: 1rem;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: linear-gradient(180deg, var(--primary-blue) 0%, var(--primary-purple) 100%);
+            border-radius: 1.5px;
+        }
+
+        .timeline-dot {
+            position: absolute;
+            left: 0.5rem;
+            width: 1rem;
+            height: 1rem;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-purple) 100%);
+            border: 3px solid white;
+            box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
+            animation: timeline-pulse 3s ease-in-out infinite;
+        }
+
+        @keyframes timeline-pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .timeline-item {
+            margin-left: 2.5rem;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -2.5rem;
+            top: 0.5rem;
+            width: 1px;
+            height: calc(100% + 2rem);
+            background: linear-gradient(180deg, transparent 0%, var(--primary-blue) 20%, var(--primary-blue) 80%, transparent 100%);
+        }
+
+        /* ===========================================
+           테마 검색 스타일
+           =========================================== */
+        
+        .theme-search-container {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .theme-button {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border: 2px solid #e5e7eb;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .theme-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        .theme-button:hover {
+            transform: translateY(-3px) scale(1.05);
+            border-color: var(--primary-blue);
+            box-shadow: 0 15px 30px rgba(59, 130, 246, 0.2);
+        }
+
+        .theme-button:hover::before {
+            left: 100%;
+        }
+
+        .theme-button.active {
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-purple) 100%);
+            color: white;
+            border-color: var(--primary-blue);
+            transform: translateY(-2px);
+        }
+
+        /* ===========================================
+           반응형 디자인
+           =========================================== */
+        
+        @media (max-width: 768px) {
+            .day-tab {
+                font-size: 0.875rem;
+                padding: 0.5rem 1rem;
+            }
+
+            .option-card {
+                margin-bottom: 1rem;
+            }
+
+            .sidebar-card {
+                margin-bottom: 1rem;
+            }
+
+            .timeline-item {
+                margin-left: 1.5rem;
+            }
+
+            .timeline-line {
+                left: 0.5rem;
+            }
+
+            .timeline-dot {
+                left: 0rem;
+                width: 0.75rem;
+                height: 0.75rem;
+            }
+
+            .weather-widget {
+                padding: 1rem;
+            }
+
+            .cost-calculator {
+                padding: 1rem;
+            }
+
+            .theme-button {
+                padding: 0.75rem;
+                margin-bottom: 0.5rem;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .main-header {
+                padding: 1rem;
+            }
+
+            .day-tab {
+                font-size: 0.75rem;
+                padding: 0.5rem 0.75rem;
+                margin: 0.25rem;
+            }
+
+            .option-card {
+                padding: 1rem;
+            }
+
+            .details-panel {
+                padding: 1rem;
+            }
+
+            .sidebar-card {
+                border-radius: 0.75rem;
+            }
+
+            .total-cost {
+                font-size: 1.5rem;
+            }
+        }
+
+        /* ===========================================
+           스크롤바 커스터마이징
+           =========================================== */
+        
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, var(--primary-blue) 0%, var(--primary-purple) 100%);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg, #2563eb 0%, #6d28d9 100%);
+        }
+
+        /* ===========================================
+           접근성 및 포커스 스타일
+           =========================================== */
+        
+        .option-card:focus,
+        .day-tab:focus,
+        .btn-primary:focus,
+        .theme-button:focus {
+            outline: 3px solid rgba(59, 130, 246, 0.5);
+            outline-offset: 2px;
+        }
+
+        /* ===========================================
+           다크 모드 지원 (선택사항)
+           =========================================== */
+        
+        @media (prefers-color-scheme: dark) {
+            body {
+                background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+                color: #f8fafc;
+            }
+
+            .option-card {
+                background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+                border-color: #475569;
+            }
+
+            .sidebar-card {
+                background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            }
+
+            .chart-container {
+                background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            }
+        }
+
+        /* ===========================================
+           프린트 스타일
+           =========================================== */
+        
+         {
+            .sidebar-card,
+            .theme-search-container,
+            .btn-primary,
+            .btn-secondary {
+                display: none !important;
+            }
+
+            .option-card {
+                border: 1px solid #ccc !important;
+                box-shadow: none !important;
+                break-inside: avoid;
+            }
+
+            .timeline-item {
+                break-inside: avoid;
+                margin-bottom: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container mx-auto p-8">
+        <h1 class="text-4xl font-bold text-center mb-8 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            제주여행 플래너 스타일 가이드
+        </h1>
+        
+        <!-- 스타일 샘플들 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- 옵션 카드 샘플 -->
+            <div class="option-card p-4 rounded-lg">
+                <h3 class="font-bold mb-2">샘플 옵션 카드</h3>
+                <p class="text-gray-600">호버 및 선택 효과를 확인해보세요</p>
+                <div class="mt-2">
+                    <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">샘플 태그</span>
+                </div>
+            </div>
+
+            <!-- 선택된 카드 샘플 -->
+            <div class="option-card selected p-4 rounded-lg">
+                <h3 class="font-bold mb-2">선택된 카드</h3>
+                <p class="text-gray-600">선택 상태의 스타일입니다</p>
+                <div class="mt-2">
+                    <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">선택됨</span>
+                </div>
+            </div>
+
+            <!-- 버튼 샘플 -->
+            <div class="space-y-4 p-4">
+                <button class="btn-primary w-full">Primary Button</button>
+                <button class="btn-secondary w-full">Secondary Button</button>
+                <button class="btn-primary navi-toggle active w-full">Active Navi</button>
+            </div>
+        </div>
+
+        <!-- 날씨 위젯 샘플 -->
+        <div class="mt-8">
+            <div class="weather-widget max-w-md mx-auto">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-xl font-bold">제주시 날씨</h3>
+                        <p class="opacity-90">맑음, 24°C</p>
+                    </div>
+                    <div class="weather-icon">☀️</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 비용 계산기 샘플 -->
+        <div class="mt-8">
+            <div class="cost-calculator max-w-md mx-auto">
+                <h3 class="text-lg font-bold mb-4">여행 경비</h3>
+                <div class="total-cost text-3xl font-bold text-center">₩450,000</div>
+                <p class="text-center text-sm opacity-80 mt-2">4인 가족 예상 비용</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+    <script id="html_badge_script1">
+        window.__genspark_remove_badge_link = "https://www.genspark.ai/api/html_badge/" +
+            "remove_badge?token=To%2FBnjzloZ3UfQdcSaYfDu0x4xE6mb7fnZk0GmDlChtwPSOSvYQmp6HsG1Pq5A8unzXXN3h5aNxqv%2Bbkybv9D9h6bFKF%2FU5%2BT0IE4fGa1JomG44PII%2BE9WL3LM8HwXwbaoNfxw3kZP5MvNALj8i1VcBGrmTSR9r0PQXU222Ta7SZcTcuDO%2B7JcHcRU5b%2FYBogQTaiN6sVWOuMaQwGlUCPbls2PtPvs7xBIxv4iVai5skkU2NB4D4Ah%2B2TUH4kRGLryxizV5oG8KwECXXgMb3NMpE7dW72XiqRgHxrAvCJyty3xni9P5QXdkVKHh%2BX9M25LR83uWG8Jb9dtcqDoE97dbRnCRT9rHuPDYz%2BWmijs%2FfevEsvvN9r%2BvNnuG3ZOETopuspMW3q0SHw6L8ypvjvFQTBVNvkhsZ%2BKb8ZkGyi7UM%2F7ERR%2B5CHlYrypOVHCwfriyWGfb5FnPL7fERGpYUyNh24s8CwSJbXJzShP2b9Z49bhMznnXukH9hz8dMiHa3";
+        window.__genspark_locale = "ko-KR";
+        window.__genspark_token = "To/BnjzloZ3UfQdcSaYfDu0x4xE6mb7fnZk0GmDlChtwPSOSvYQmp6HsG1Pq5A8unzXXN3h5aNxqv+bkybv9D9h6bFKF/U5+T0IE4fGa1JomG44PII+E9WL3LM8HwXwbaoNfxw3kZP5MvNALj8i1VcBGrmTSR9r0PQXU222Ta7SZcTcuDO+7JcHcRU5b/YBogQTaiN6sVWOuMaQwGlUCPbls2PtPvs7xBIxv4iVai5skkU2NB4D4Ah+2TUH4kRGLryxizV5oG8KwECXXgMb3NMpE7dW72XiqRgHxrAvCJyty3xni9P5QXdkVKHh+X9M25LR83uWG8Jb9dtcqDoE97dbRnCRT9rHuPDYz+Wmijs/fevEsvvN9r+vNnuG3ZOETopuspMW3q0SHw6L8ypvjvFQTBVNvkhsZ+Kb8ZkGyi7UM/7ERR+5CHlYrypOVHCwfriyWGfb5FnPL7fERGpYUyNh24s8CwSJbXJzShP2b9Z49bhMznnXukH9hz8dMiHa3";
+    </script>
+    
+    <script id="html_notice_dialog_script" src="https://www.genspark.ai/notice_dialog.js"></script>
+    
