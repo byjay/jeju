@@ -2,16 +2,18 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>강귀선님을 위한 제주여행 플래너 - by bong</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>강귀선님을 위한 제주여행 플래너 - 모바일</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAOAEMIvJc9VndXLYgmUnWoAuXjlOYzDtg&callback=initApp&libraries=places,directions&v=weekly" defer></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap');
         
-        * { font-family: 'Noto Sans KR', sans-serif; }
+        * { 
+            font-family: 'Noto Sans KR', sans-serif;
+            box-sizing: border-box;
+        }
         
         :root {
             --primary-blue: #3b82f6;
@@ -30,22 +32,58 @@
             min-height: 100vh;
             padding: 0;
             margin: 0;
+            overflow-x: hidden;
         }
 
+        /* 모바일 최적화: 컨테이너 */
         .main-container {
             background: white;
-            margin: 2rem auto;
-            max-width: 1400px;
-            border-radius: 20px;
-            box-shadow: var(--shadow-lg);
+            margin: 0;
+            min-height: 100vh;
+            border-radius: 0;
+            box-shadow: none;
             overflow: hidden;
         }
 
+        /* 모바일 최적화: 헤더 */
         .header-gradient {
             background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-purple) 100%);
             color: white;
-            padding: 2rem;
+            padding: 1rem;
             text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .header-subtitle {
+            font-size: 0.875rem;
+            opacity: 90%;
+        }
+
+        .header-features {
+            display: none; /* 모바일에서 숨김 */
+        }
+
+        /* 모바일 최적화: 탭 */
+        .day-tabs-container {
+            display: flex;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            padding: 0.5rem;
+            gap: 0.5rem;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .day-tabs-container::-webkit-scrollbar {
+            display: none;
         }
 
         .day-tab {
@@ -53,7 +91,13 @@
             border-radius: 12px;
             padding: 0.75rem 1.5rem;
             font-weight: 600;
-            margin: 0 0.25rem;
+            font-size: 0.875rem;
+            white-space: nowrap;
+            flex-shrink: 0;
+            min-width: 80px;
+            text-align: center;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .day-tab.active {
@@ -67,11 +111,37 @@
             color: var(--gray-800);
         }
 
-        .day-tab:not(.active):hover {
-            background: #e5e7eb;
-            transform: translateY(-2px);
+        /* 모바일 최적화: 컨트롤 패널 */
+        .control-panel {
+            background: white;
+            padding: 1rem;
+            border-bottom: 1px solid #e5e7eb;
+            position: sticky;
+            top: 70px;
+            z-index: 90;
         }
 
+        .control-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 0.25rem;
+            font-size: 0.875rem;
+            min-height: 44px;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .control-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* 모바일 최적화: 옵션 카드 */
         .option-card {
             transition: all 0.3s ease;
             border: 2px solid #e5e7eb;
@@ -81,27 +151,14 @@
             background: white;
             position: relative;
             overflow: hidden;
+            margin-bottom: 0.75rem;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            min-height: 100px;
         }
 
-        .option-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-            transition: left 0.5s;
-        }
-
-        .option-card:hover::before {
-            left: 100%;
-        }
-
-        .option-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-            border-color: var(--primary-blue);
+        .option-card:active {
+            transform: scale(0.98);
         }
 
         .option-card.selected {
@@ -127,6 +184,7 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.2);
         }
 
+        /* 모바일 최적화: 메뉴 패널 */
         .menu-panel {
             background: #f8fafc;
             border-radius: 12px;
@@ -140,7 +198,7 @@
         }
 
         .menu-panel.open {
-            max-height: 500px;
+            max-height: 400px;
             opacity: 1;
         }
 
@@ -148,14 +206,21 @@
             display: flex;
             border-bottom: 2px solid #e2e8f0;
             margin-bottom: 1rem;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
         }
 
         .menu-tab {
-            padding: 0.5rem 1rem;
+            padding: 0.75rem 1rem;
             cursor: pointer;
             border-bottom: 3px solid transparent;
             transition: all 0.2s;
             font-weight: 500;
+            white-space: nowrap;
+            flex-shrink: 0;
+            min-height: 44px;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .menu-tab.active {
@@ -164,136 +229,200 @@
             background: rgba(59, 130, 246, 0.1);
         }
 
-        .menu-content {
-            display: none;
-        }
-
-        .menu-content.active {
-            display: block;
-        }
-
+        /* 모바일 최적화: 타임라인 */
         .timeline-container {
             position: relative;
-            padding-left: 2rem;
+            padding-left: 1rem;
         }
 
         .timeline-line {
             position: absolute;
-            left: 1rem;
+            left: 0.5rem;
             top: 0;
             bottom: 0;
-            width: 3px;
+            width: 2px;
             background: linear-gradient(180deg, var(--primary-blue) 0%, var(--primary-purple) 100%);
         }
 
         .timeline-dot {
             position: absolute;
-            left: -8px;
-            top: 1.5rem;
-            width: 20px;
-            height: 20px;
+            left: -6px;
+            top: 1rem;
+            width: 16px;
+            height: 16px;
             background: var(--primary-blue);
-            border: 4px solid white;
+            border: 3px solid white;
             border-radius: 50%;
             box-shadow: 0 2px 8px rgba(0,0,0,0.2);
             z-index: 2;
         }
 
-        .control-panel {
+        /* 모바일 최적화: 사이드바를 하단으로 */
+        .mobile-bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
             background: white;
-            border-radius: 16px;
-            padding: 1rem;
-            margin-bottom: 1.5rem;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-top: 1px solid #e5e7eb;
+            padding: 0.5rem;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-around;
         }
 
-        .control-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            padding: 0.75rem 1.5rem;
-            font-weight: 600;
+        .bottom-nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0.5rem;
+            font-size: 0.75rem;
+            color: #6b7280;
             cursor: pointer;
-            transition: all 0.3s ease;
-            margin: 0.25rem;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            min-width: 60px;
         }
 
-        .control-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        .bottom-nav-item.active {
+            color: var(--primary-blue);
         }
 
+        .bottom-nav-item i {
+            font-size: 1.25rem;
+            margin-bottom: 0.25rem;
+        }
+
+        /* 모바일 최적화: 모달 */
+        .mobile-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            display: none;
+            padding: 1rem;
+        }
+
+        .mobile-modal.show {
+            display: flex;
+            align-items: end;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 16px 16px 0 0;
+            padding: 1rem;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #6b7280;
+            cursor: pointer;
+            padding: 0.5rem;
+            margin-left: auto;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* 모바일 최적화: 지도 */
+        #map {
+            border-radius: 12px;
+            height: 250px;
+            width: 100%;
+            margin-bottom: 1rem;
+        }
+
+        /* 모바일 최적화: 테마 검색 */
         .theme-search-panel {
             background: white;
             border-radius: 16px;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .theme-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
         }
 
         .theme-btn {
-            border-radius: 10px;
-            padding: 0.75rem;
+            border-radius: 12px;
+            padding: 1rem 0.75rem;
             font-weight: 600;
             transition: all 0.3s ease;
             border: 2px solid transparent;
+            text-align: center;
+            font-size: 0.875rem;
+            min-height: 60px;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
         }
 
-        .theme-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+        .theme-btn:active {
+            transform: scale(0.95);
         }
 
-        .sidebar-card {
+        /* 모바일 최적화: 경비 카드 */
+        .cost-card {
             background: white;
             border-radius: 16px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            margin-bottom: 1.5rem;
-            overflow: hidden;
-        }
-
-        .sidebar-header {
-            background: linear-gradient(135deg, var(--gray-800) 0%, #374151 100%);
-            color: white;
             padding: 1rem;
-            font-weight: 600;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
 
-        .cost-badge {
-            background: linear-gradient(135deg, var(--success-green) 0%, #059669 100%);
-            color: white;
-            padding: 0.25rem 0.75rem;
-            border-radius: 20px;
-            font-size: 0.875rem;
-            font-weight: 600;
-        }
-
-        .rating-stars {
-            color: #fbbf24;
-        }
-
-        .distance-info {
-            background: rgba(16, 185, 129, 0.1);
-            color: var(--success-green);
-            padding: 0.25rem 0.5rem;
-            border-radius: 6px;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-
-        #map {
-            border-radius: 12px;
-            height: 400px;
+        .cost-input {
             width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 1rem;
+            touch-action: manipulation;
         }
 
+        /* 모바일 최적화: 스크롤 개선 */
+        .scrollable {
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .scrollable::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* 모바일 최적화: 로딩 스피너 */
         .loading-spinner {
             display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid var(--primary-blue);
+            width: 16px;
+            height: 16px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid var(--primary-blue);
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
@@ -303,32 +432,86 @@
             100% { transform: rotate(360deg); }
         }
 
-        .info-window {
-            max-width: 300px;
+        /* 모바일 최적화: 콘텐츠 영역 */
+        .content-area {
             padding: 1rem;
+            padding-bottom: 80px; /* 하단 네비 공간 */
+            min-height: calc(100vh - 140px);
         }
 
-        .info-window h4 {
-            margin: 0 0 0.5rem 0;
-            font-weight: 600;
-            color: var(--gray-800);
+        /* 모바일 최적화: 옵션 그리드 */
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 0.75rem;
         }
 
-        .info-window .rating {
-            display: flex;
-            align-items: center;
-            margin-bottom: 0.5rem;
+        /* 태블릿에서 2열 */
+        @media (min-width: 640px) {
+            .options-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .theme-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
         }
 
-        .info-window .menu-list {
-            margin: 0.5rem 0;
+        /* 큰 화면에서는 원래 레이아웃 */
+        @media (min-width: 1024px) {
+            .mobile-bottom-nav {
+                display: none;
+            }
+            
+            .content-area {
+                padding-bottom: 1rem;
+            }
+            
+            .header-features {
+                display: flex;
+            }
+            
+            .options-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            
+            .theme-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
         }
 
-        .info-window .menu-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 0.25rem 0;
-            border-bottom: 1px solid #e5e7eb;
+        /* 추가: 터치 피드백 */
+        .touch-feedback {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .touch-feedback::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+            pointer-events: none;
+        }
+
+        .touch-feedback:active::before {
+            left: 100%;
+        }
+
+        /* 숨김 클래스 */
+        .hidden {
+            display: none !important;
+        }
+
+        /* 모바일 정보창 최적화 */
+        .info-window {
+            max-width: 280px;
+            padding: 0.75rem;
+            font-size: 0.875rem;
         }
 
         .btn-add-itinerary {
@@ -336,56 +519,20 @@
             color: white;
             border: none;
             border-radius: 8px;
-            padding: 0.5rem 1rem;
+            padding: 0.75rem;
             font-weight: 600;
             cursor: pointer;
             width: 100%;
             margin-top: 0.5rem;
             transition: background 0.3s;
+            min-height: 44px;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
         }
 
-        .btn-add-itinerary:hover {
+        .btn-add-itinerary:active {
             background: #2563eb;
-        }
-
-        @media (max-width: 768px) {
-            .main-container {
-                margin: 1rem;
-                border-radius: 16px;
-            }
-            
-            .header-gradient {
-                padding: 1.5rem;
-            }
-            
-            .day-tab {
-                padding: 0.5rem 1rem;
-                margin: 0.125rem;
-                font-size: 0.875rem;
-            }
-            
-            #map {
-                height: 300px;
-            }
-        }
-
-         {
-            body {
-                background: white;
-                margin: 0;
-                padding: 0;
-            }
-            
-            .main-container {
-                margin: 0;
-                box-shadow: none;
-                border-radius: 0;
-            }
-            
-            .control-panel,
-            .theme-search-panel {
-                display: none;
-            }
+            transform: scale(0.98);
         }
     </style>
 </head>
@@ -393,178 +540,193 @@
     <div class="main-container">
         <!-- 헤더 -->
         <div class="header-gradient">
-            <h1 class="text-4xl font-bold mb-2">🏝️ 강귀선님을 위한 제주여행 플래너</h1>
-            <p class="text-xl opacity-90">실시간 GPS • 풍부한 데이터 • 완벽한 동선 관리</p>
-            <div class="flex justify-center mt-4 space-x-6 text-sm opacity-80">
-                <span><i class="fas fa-map-marker-alt mr-1"></i>실시간 위치 추적</span>
-                <span><i class="fas fa-database mr-1"></i>1,000+ 검증된 장소</span>
-                <span><i class="fas fa-route mr-1"></i>최적 경로 계산</span>
+            <h1 class="header-title">🏝️ 제주여행 플래너</h1>
+            <p class="header-subtitle">강귀선님을 위한 맞춤 여행 계획</p>
+            <div class="header-features justify-center mt-2 space-x-4 text-xs opacity-80">
+                <span><i class="fas fa-map-marker-alt mr-1"></i>실시간 위치</span>
+                <span><i class="fas fa-database mr-1"></i>1000+ 장소</span>
+                <span><i class="fas fa-route mr-1"></i>최적 경로</span>
             </div>
         </div>
 
-        <div class="p-6">
-            <!-- 컨트롤 패널 -->
-            <div class="control-panel">
-                <div class="flex flex-wrap justify-between items-center">
-                    <div class="flex flex-wrap justify-center" id="day-tabs-container">
-                        <!-- 탭들이 여기에 동적으로 생성됩니다 -->
+        <!-- 컨트롤 패널 -->
+        <div class="control-panel">
+            <div class="day-tabs-container" id="day-tabs-container">
+                <!-- 탭들이 여기에 동적으로 생성됩니다 -->
+            </div>
+            <div class="flex flex-wrap justify-center gap-2 mt-3">
+                <button id="theme-search-toggle" class="control-btn">
+                    <i class="fas fa-search mr-1"></i>테마 검색
+                </button>
+                <button id="reset-button" class="control-btn">
+                    <i class="fas fa-undo mr-1"></i>리셋
+                </button>
+                <button id="navi-mode-toggle" class="control-btn">
+                    <i class="fas fa-location-arrow mr-1"></i>GPS
+                </button>
+            </div>
+        </div>
+
+        <!-- 테마 검색 패널 -->
+        <div id="theme-search-panel" class="theme-search-panel hidden">
+            <h3 class="text-lg font-bold mb-3">🎯 테마별 장소 검색</h3>
+            <div class="theme-grid">
+                <button onclick="searchByTheme('restaurant')" class="theme-btn bg-red-100 text-red-700 hover:bg-red-200 touch-feedback">
+                    🍽️<br>맛집
+                </button>
+                <button onclick="searchByTheme('cafe')" class="theme-btn bg-yellow-100 text-yellow-700 hover:bg-yellow-200 touch-feedback">
+                    ☕<br>카페
+                </button>
+                <button onclick="searchByTheme('tourist_attraction')" class="theme-btn bg-green-100 text-green-700 hover:bg-green-200 touch-feedback">
+                    🏞️<br>관광지
+                </button>
+                <button onclick="searchByTheme('beach')" class="theme-btn bg-blue-100 text-blue-700 hover:bg-blue-200 touch-feedback">
+                    🏖️<br>해변
+                </button>
+                <button onclick="searchByTheme('shopping')" class="theme-btn bg-purple-100 text-purple-700 hover:bg-purple-200 touch-feedback">
+                    🛍️<br>쇼핑
+                </button>
+                <button onclick="searchByTheme('activity')" class="theme-btn bg-pink-100 text-pink-700 hover:bg-pink-200 touch-feedback">
+                    🎪<br>체험
+                </button>
+            </div>
+            <div class="mt-3 p-3 bg-blue-50 rounded-lg text-sm">
+                <i class="fas fa-info-circle text-blue-600 mr-2"></i>
+                <span class="text-blue-800">지도 마커를 터치하면 상세 정보를 볼 수 있습니다.</span>
+            </div>
+        </div>
+
+        <!-- 메인 콘텐츠 -->
+        <div class="content-area">
+            <div id="itinerary-container">
+                <!-- 일정이 여기에 동적으로 생성됩니다 -->
+            </div>
+        </div>
+
+        <!-- 하단 네비게이션 -->
+        <div class="mobile-bottom-nav">
+            <div class="bottom-nav-item active" onclick="showBottomModal('map-modal')">
+                <i class="fas fa-map"></i>
+                <span>지도</span>
+            </div>
+            <div class="bottom-nav-item" onclick="showBottomModal('schedule-modal')">
+                <i class="fas fa-calendar"></i>
+                <span>일정</span>
+            </div>
+            <div class="bottom-nav-item" onclick="showBottomModal('cost-modal')">
+                <i class="fas fa-calculator"></i>
+                <span>경비</span>
+            </div>
+            <div class="bottom-nav-item" onclick="showBottomModal('hotel-modal')">
+                <i class="fas fa-bed"></i>
+                <span>숙소</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 지도 모달 -->
+    <div id="map-modal" class="mobile-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="text-lg font-bold">실시간 지도 & 경로</h3>
+                <button class="modal-close" onclick="hideBottomModal('map-modal')">&times;</button>
+            </div>
+            <div id="map"></div>
+            <button onclick="openInGoogleMaps()" class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition font-semibold">
+                <i class="fas fa-directions mr-2"></i>구글맵에서 길찾기
+            </button>
+        </div>
+    </div>
+
+    <!-- 일정 모달 -->
+    <div id="schedule-modal" class="mobile-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="text-lg font-bold">오늘의 여행 계획</h3>
+                <button class="modal-close" onclick="hideBottomModal('schedule-modal')">&times;</button>
+            </div>
+            <div id="selected-items-container" class="scrollable">
+                <!-- 선택된 일정이 여기에 표시됩니다 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 경비 모달 -->
+    <div id="cost-modal" class="mobile-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="text-lg font-bold">여행 경비 계산</h3>
+                <button class="modal-close" onclick="hideBottomModal('cost-modal')">&times;</button>
+            </div>
+            <div class="space-y-4">
+                <!-- 사용자 입력 경비 -->
+                <div class="cost-card">
+                    <h4 class="font-semibold text-gray-700 mb-3">✈️ 항공료 & 🏨 숙박비</h4>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-sm text-gray-600 mb-1">항공료 (4인)</label>
+                            <input type="number" id="flight-cost" class="cost-input" placeholder="400,000" step="10000">
+                        </div>
+                        <div>
+                            <label class="block text-sm text-gray-600 mb-1">숙박비 (3박)</label>
+                            <input type="number" id="hotel-cost" class="cost-input" placeholder="500,000" step="10000">
+                        </div>
                     </div>
-                    <div class="flex flex-wrap gap-2">
-                        <button id="theme-search-toggle" class="control-btn">
-                            <i class="fas fa-search mr-2"></i>테마 검색
-                        </button>
-                        <button id="reset-button" class="control-btn">
-                            <i class="fas fa-undo mr-2"></i>리셋
-                        </button>
-                        <button id="navi-mode-toggle" class="control-btn">
-                            <i class="fas fa-location-arrow mr-2"></i>Live GPS
-                        </button>
+                </div>
+
+                <!-- 현지 경비 -->
+                <div class="cost-card">
+                    <h4 class="font-semibold text-gray-700 mb-3">🏝️ 현지 여행 경비</h4>
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">🍴 식비</span>
+                            <span class="font-semibold" id="cost-food">₩0</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">🎟️ 체험/입장료</span>
+                            <span class="font-semibold" id="cost-activity">₩0</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">☕ 기타</span>
+                            <span class="font-semibold" id="cost-etc">₩0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 총 경비 -->
+                <div class="cost-card">
+                    <div class="text-center bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-lg">
+                        <p class="text-sm text-gray-600 mb-1">총 예상 여행 경비</p>
+                        <p class="text-2xl font-bold text-blue-600" id="total-cost">₩0</p>
+                        <p class="text-xs text-gray-500 mt-1">4인 가족 기준</p>
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
 
-            <!-- 테마 검색 패널 -->
-            <div id="theme-search-panel" class="theme-search-panel hidden">
-                <h3 class="text-xl font-bold mb-4">🎯 테마별 장소 검색</h3>
-                <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
-                    <button onclick="searchByTheme('restaurant')" class="theme-btn bg-red-100 text-red-700 hover:bg-red-200">
-                        🍽️ 맛집
-                    </button>
-                    <button onclick="searchByTheme('cafe')" class="theme-btn bg-yellow-100 text-yellow-700 hover:bg-yellow-200">
-                        ☕ 카페
-                    </button>
-                    <button onclick="searchByTheme('tourist_attraction')" class="theme-btn bg-green-100 text-green-700 hover:bg-green-200">
-                        🏞️ 관광지
-                    </button>
-                    <button onclick="searchByTheme('beach')" class="theme-btn bg-blue-100 text-blue-700 hover:bg-blue-200">
-                        🏖️ 해수욕장
-                    </button>
-                    <button onclick="searchByTheme('shopping')" class="theme-btn bg-purple-100 text-purple-700 hover:bg-purple-200">
-                        🛍️ 쇼핑
-                    </button>
-                    <button onclick="searchByTheme('activity')" class="theme-btn bg-pink-100 text-pink-700 hover:bg-pink-200">
-                        🎪 체험
-                    </button>
-                </div>
-                <div class="mt-4 p-3 bg-blue-50 rounded-lg">
-                    <i class="fas fa-info-circle text-blue-600 mr-2"></i>
-                    <span class="text-blue-800">지도에서 마커를 클릭하면 상세 정보와 메뉴를 확인할 수 있습니다.</span>
-                </div>
+    <!-- 숙소 모달 -->
+    <div id="hotel-modal" class="mobile-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="text-lg font-bold">추천 숙소 정보</h3>
+                <button class="modal-close" onclick="hideBottomModal('hotel-modal')">&times;</button>
             </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <!-- 일정 패널 -->
-                <div class="lg:col-span-2">
-                    <div id="itinerary-container" class="space-y-6">
-                        <!-- 일정이 여기에 동적으로 생성됩니다 -->
-                    </div>
+            <div class="space-y-4">
+                <div class="cost-card">
+                    <p class="font-semibold text-gray-800 mb-2">1일차 숙소</p>
+                    <a href="https://www.agoda.com/sl/cmP0tfukS0y" target="_blank" class="text-blue-600 hover:underline font-medium">체크인호텔 제주</a>
+                    <p class="text-sm text-gray-500 mt-1">공항 근처 • 무료 주차 • 가성비 우수</p>
                 </div>
-
-                <!-- 사이드바 -->
-                <div class="lg:col-span-1">
-                    <div class="sticky top-6 space-y-6">
-                        <!-- 지도 -->
-                        <div class="sidebar-card">
-                            <div class="sidebar-header flex items-center">
-                                <i class="fas fa-map-marked-alt mr-3"></i>
-                                <span>실시간 지도 & 경로</span>
-                            </div>
-                            <div class="p-4">
-                                <div id="map"></div>
-                                <button onclick="openInGoogleMaps()" class="w-full mt-4 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition font-semibold">
-                                    <i class="fas fa-directions mr-2"></i>구글맵에서 길찾기
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- 선택된 일정 -->
-                        <div class="sidebar-card">
-                            <div class="sidebar-header flex items-center">
-                                <i class="fas fa-list-check mr-3"></i>
-                                <span>오늘의 여행 계획</span>
-                            </div>
-                            <div id="selected-items-container" class="p-4 max-h-80 overflow-y-auto">
-                                <!-- 선택된 일정이 여기에 표시됩니다 -->
-                            </div>
-                        </div>
-
-                        <!-- 경비 계산 -->
-                        <div class="sidebar-card">
-                            <div class="sidebar-header flex items-center">
-                                <i class="fas fa-calculator mr-3"></i>
-                                <span>여행 경비 계산</span>
-                            </div>
-                            <div class="p-4 space-y-4">
-                                <!-- 사용자 입력 경비 -->
-                                <div>
-                                    <h4 class="font-semibold text-gray-700 mb-3">✈️ 항공료 & 🏨 숙박비</h4>
-                                    <div class="grid grid-cols-2 gap-3">
-                                        <div>
-                                            <label class="block text-sm text-gray-600 mb-1">항공료 (4인)</label>
-                                            <input type="number" id="flight-cost" class="w-full p-2 border border-gray-300 rounded-lg text-right" placeholder="400,000" step="10000">
-                                        </div>
-                                        <div>
-                                            <label class="block text-sm text-gray-600 mb-1">숙박비 (3박)</label>
-                                            <input type="number" id="hotel-cost" class="w-full p-2 border border-gray-300 rounded-lg text-right" placeholder="500,000" step="10000">
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- 현지 경비 -->
-                                <div class="border-t pt-4">
-                                    <h4 class="font-semibold text-gray-700 mb-3">🏝️ 현지 여행 경비</h4>
-                                    <div class="space-y-2">
-                                        <div class="flex justify-between items-center">
-                                            <span class="text-gray-600">🍴 식비</span>
-                                            <span class="font-semibold" id="cost-food">₩0</span>
-                                        </div>
-                                        <div class="flex justify-between items-center">
-                                            <span class="text-gray-600">🎟️ 체험/입장료</span>
-                                            <span class="font-semibold" id="cost-activity">₩0</span>
-                                        </div>
-                                        <div class="flex justify-between items-center">
-                                            <span class="text-gray-600">☕ 기타</span>
-                                            <span class="font-semibold" id="cost-etc">₩0</span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- 총 경비 -->
-                                <div class="border-t-2 pt-4">
-                                    <div class="text-center bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-lg">
-                                        <p class="text-sm text-gray-600 mb-1">총 예상 여행 경비</p>
-                                        <p class="text-3xl font-bold text-blue-600" id="total-cost">₩0</p>
-                                        <p class="text-xs text-gray-500 mt-1">4인 가족 기준</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- 추천 숙소 -->
-                        <div class="sidebar-card">
-                            <div class="sidebar-header flex items-center">
-                                <i class="fas fa-bed mr-3"></i>
-                                <span>추천 숙소 정보</span>
-                            </div>
-                            <div class="p-4 space-y-3">
-                                <div class="border-b pb-3">
-                                    <p class="font-semibold text-gray-800">1일차 숙소</p>
-                                    <a href="https://www.agoda.com/sl/cmP0tfukS0y" target="_blank" class="text-blue-600 hover:underline text-sm">체크인호텔 제주</a>
-                                    <p class="text-xs text-gray-500 mt-1">공항 근처 • 무료 주차 • 가성비 우수</p>
-                                </div>
-                                <div class="border-b pb-3">
-                                    <p class="font-semibold text-gray-800">2일차 숙소</p>
-                                    <a href="https://www.agoda.com/sl/GPG0yhcNtzR" target="_blank" class="text-blue-600 hover:underline text-sm">더 퍼스트 70 호텔</a>
-                                    <p class="text-xs text-gray-500 mt-1">서귀포 중심가 • 올레시장 도보 • 깔끔한 시설</p>
-                                </div>
-                                <div>
-                                    <p class="font-semibold text-gray-800">3일차 숙소</p>
-                                    <a href="https://www.genspark.ai/agents?id=27c0c28f-babb-4e5a-a594-7d2b396e6722" target="_blank" class="text-blue-600 hover:underline text-sm">판포포구 프리미엄 스테이</a>
-                                    <p class="text-xs text-gray-500 mt-1">독채형 펜션 • 오션뷰 • 프라이빗 공간</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <div class="cost-card">
+                    <p class="font-semibold text-gray-800 mb-2">2일차 숙소</p>
+                    <a href="https://www.agoda.com/sl/GPG0yhcNtzR" target="_blank" class="text-blue-600 hover:underline font-medium">더 퍼스트 70 호텔</a>
+                    <p class="text-sm text-gray-500 mt-1">서귀포 중심가 • 올레시장 도보 • 깔끔한 시설</p>
+                </div>
+                <div class="cost-card">
+                    <p class="font-semibold text-gray-800 mb-2">3일차 숙소</p>
+                    <a href="https://www.genspark.ai/agents?id=27c0c28f-babb-4e5a-a594-7d2b396e6722" target="_blank" class="text-blue-600 hover:underline font-medium">판포포구 프리미엄 스테이</a>
+                    <p class="text-sm text-gray-500 mt-1">독채형 펜션 • 오션뷰 • 프라이빗 공간</p>
                 </div>
             </div>
         </div>
@@ -1421,20 +1583,20 @@ function initUI() {
         dayContent.id = `day${day}`;
         dayContent.className = `day-content ${index > 0 ? 'hidden' : ''}`;
         dayContent.innerHTML = `
-            <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
-                <h2 class="text-2xl font-bold text-gray-800 mb-6">${dayData.title}</h2>
+            <div class="bg-white rounded-xl shadow-lg p-4 mb-4">
+                <h2 class="text-xl font-bold text-gray-800 mb-4">${dayData.title}</h2>
                 <div class="timeline-container">
                     <div class="timeline-line"></div>
                     ${Object.entries(dayData.slots).map(([time, slot], slotIndex) => `
-                        <div class="relative mb-8">
+                        <div class="relative mb-6">
                             <div class="timeline-dot"></div>
-                            <div class="ml-8">
-                                <div class="flex items-center mb-4">
-                                    <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-semibold mr-4">${time}</span>
-                                    <h3 class="text-xl font-bold text-gray-800">${slot.icon} ${slot.category}</h3>
-                                    <div class="distance-info ml-auto" data-day="${day}" data-time="${time}"></div>
+                            <div class="ml-6">
+                                <div class="flex items-center mb-3">
+                                    <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-semibold mr-3">${time}</span>
+                                    <h3 class="text-lg font-bold text-gray-800">${slot.icon} ${slot.category}</h3>
                                 </div>
-                                <div class="options-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" data-day="${day}" data-time="${time}">
+                                <div class="distance-info mb-3" data-day="${day}" data-time="${time}"></div>
+                                <div class="options-grid" data-day="${day}" data-time="${time}">
                                     ${slot.options ? generateOptionsHtml(day, time, slot.options) : '<div class="text-gray-500">동적 검색 옵션이 로드됩니다...</div>'}
                                 </div>
                             </div>
@@ -1450,7 +1612,7 @@ function initUI() {
 function generateOptionsHtml(day, time, options) {
     let optionNumber = 1;
     return Object.entries(options).map(([id, option]) => `
-        <div class="option-card" 
+        <div class="option-card touch-feedback" 
              data-id="${option.id}" 
              data-name="${option.name}" 
              data-cost="${option.cost}" 
@@ -1462,18 +1624,18 @@ function generateOptionsHtml(day, time, options) {
              onclick="handleOptionSelect(${day}, '${time}', this)">
             <div class="card-number">${optionNumber++}</div>
             <div class="flex justify-between items-start mb-3">
-                <h4 class="font-bold text-gray-800 text-lg pr-2">${option.name}</h4>
-                <span class="cost-badge">₩${option.cost.toLocaleString()}</span>
+                <h4 class="font-bold text-gray-800 text-base pr-2">${option.name}</h4>
+                <span class="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs font-semibold">₩${option.cost.toLocaleString()}</span>
             </div>
             ${option.rating ? `
                 <div class="flex items-center mb-2">
-                    <div class="rating-stars mr-2">
+                    <div class="text-yellow-400 mr-2 text-sm">
                         ${'★'.repeat(Math.floor(option.rating))}${'☆'.repeat(5 - Math.floor(option.rating))}
                     </div>
                     <span class="text-sm text-gray-600">${option.rating} (${option.reviewCount || 0})</span>
                 </div>
             ` : ''}
-            <div class="flex flex-wrap gap-2">
+            <div class="flex flex-wrap gap-1">
                 ${option.tags.map(tag => `<span class="text-xs font-semibold ${getTagColor(tag)} px-2 py-1 rounded-full">${tag}</span>`).join('')}
             </div>
         </div>
@@ -1512,7 +1674,7 @@ function initMap() {
             suppressMarkers: true,
             polylineOptions: {
                 strokeColor: '#4f46e5',
-                strokeWeight: 5,
+                strokeWeight: 4,
                 strokeOpacity: 0.8
             }
         });
@@ -1521,7 +1683,7 @@ function initMap() {
         updateMapForDay(1);
     } catch (e) {
         console.error('Map initialization failed:', e);
-        document.getElementById('map').innerHTML = '<div class="flex items-center justify-center h-full text-red-500">지도 로딩 실패</div>';
+        document.getElementById('map').innerHTML = '<div class="flex items-center justify-center h-full text-red-500 text-sm">지도 로딩 실패</div>';
     }
 }
 
@@ -1541,6 +1703,43 @@ function setupEventListeners() {
     document.getElementById('theme-search-toggle').onclick = toggleThemeSearch;
     document.getElementById('reset-button').onclick = resetToOriginal;
     document.getElementById('navi-mode-toggle').onclick = toggleNaviMode;
+
+    // 모달 백그라운드 클릭으로 닫기
+    document.querySelectorAll('.mobile-modal').forEach(modal => {
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.classList.remove('show');
+            }
+        });
+    });
+
+    // 터치 스와이프로 탭 변경 (간단한 구현)
+    let startX = 0;
+    let endX = 0;
+    
+    document.addEventListener('touchstart', e => {
+        startX = e.touches[0].clientX;
+    });
+    
+    document.addEventListener('touchend', e => {
+        endX = e.changedTouches[0].clientX;
+        handleSwipe();
+    });
+
+    function handleSwipe() {
+        const swipeThreshold = 50;
+        const diff = startX - endX;
+        
+        if (Math.abs(diff) > swipeThreshold) {
+            if (diff > 0 && activeDay < 4) {
+                // 왼쪽 스와이프 - 다음 날
+                switchDay(activeDay + 1);
+            } else if (diff < 0 && activeDay > 1) {
+                // 오른쪽 스와이프 - 이전 날
+                switchDay(activeDay - 1);
+            }
+        }
+    }
 }
 
 function setupInitialState() {
@@ -1556,10 +1755,12 @@ function setupInitialState() {
                 selections[day][time] = { ...optionData };
                 
                 // UI에서 선택 표시
-                const card = document.querySelector(`.option-card[data-day="${day}"][data-time="${time}"]`);
-                if (card) {
-                    card.classList.add('selected');
-                }
+                setTimeout(() => {
+                    const card = document.querySelector(`.option-card[data-day="${day}"][data-time="${time}"]`);
+                    if (card) {
+                        card.classList.add('selected');
+                    }
+                }, 100);
             }
         });
     });
@@ -1654,10 +1855,10 @@ function showMenuPanel(grid, optionData) {
     const menuPanel = document.createElement('div');
     menuPanel.className = 'menu-panel';
     menuPanel.innerHTML = `
-        <div class="menu-tabs">
-            ${hasMenu ? '<div class="menu-tab active" data-tab="menu">메뉴 정보</div>' : ''}
-            ${hasReviews ? `<div class="menu-tab ${!hasMenu ? 'active' : ''}" data-tab="reviews">리뷰 (${optionData.reviewCount || 0})</div>` : ''}
-            <div class="menu-tab" data-tab="info">상세 정보</div>
+        <div class="menu-tabs scrollable">
+            ${hasMenu ? '<div class="menu-tab active" data-tab="menu">메뉴</div>' : ''}
+            ${hasReviews ? `<div class="menu-tab ${!hasMenu ? 'active' : ''}" data-tab="reviews">리뷰</div>` : ''}
+            <div class="menu-tab" data-tab="info">정보</div>
         </div>
         ${hasMenu ? `<div class="menu-content active" data-content="menu">${generateMenuContent(optionData.menu)}</div>` : ''}
         ${hasReviews ? `<div class="menu-content ${!hasMenu ? 'active' : ''}" data-content="reviews">${generateReviewContent(optionData.reviews)}</div>` : ''}
@@ -1685,18 +1886,18 @@ function generateMenuContent(menu) {
     const familyPrice = menu.reduce((sum, item) => sum + item.price, 0) * 1.2;
     return `
         <div class="space-y-2">
-            ${menu.slice(0, 5).map(item => `
+            ${menu.slice(0, 4).map(item => `
                 <div class="flex justify-between items-center py-2 border-b border-gray-200">
                     <div>
-                        <span class="font-semibold">${item.item}</span>
-                        ${item.description ? `<p class="text-sm text-gray-600">${item.description}</p>` : ''}
+                        <span class="font-semibold text-sm">${item.item}</span>
+                        ${item.description ? `<p class="text-xs text-gray-600">${item.description}</p>` : ''}
                     </div>
-                    <span class="font-bold text-blue-600">₩${item.price.toLocaleString()}</span>
+                    <span class="font-bold text-blue-600 text-sm">₩${item.price.toLocaleString()}</span>
                 </div>
             `).join('')}
-            <div class="mt-4 p-3 bg-blue-50 rounded-lg text-center">
-                <p class="text-sm text-gray-600">4인 가족 예상 비용</p>
-                <p class="text-xl font-bold text-blue-600">₩${Math.ceil(familyPrice / 1000) * 1000}</p>
+            <div class="mt-3 p-3 bg-blue-50 rounded-lg text-center">
+                <p class="text-xs text-gray-600 mb-1">4인 가족 예상</p>
+                <p class="text-lg font-bold text-blue-600">₩${Math.ceil(familyPrice / 1000) * 1000}</p>
             </div>
         </div>
     `;
@@ -1704,17 +1905,17 @@ function generateMenuContent(menu) {
 
 function generateReviewContent(reviews) {
     return `
-        <div class="space-y-4">
-            ${reviews.slice(0, 3).map(review => `
-                <div class="border-b border-gray-200 pb-3">
-                    <div class="flex justify-between items-center mb-2">
-                        <span class="font-semibold">${review.author}</span>
-                        <div class="flex">
-                            <div class="rating-stars mr-2">${'★'.repeat(review.rating)}${'☆'.repeat(5 - review.rating)}</div>
-                            <span class="text-sm text-gray-500">${review.date}</span>
+        <div class="space-y-3">
+            ${reviews.slice(0, 2).map(review => `
+                <div class="border-b border-gray-200 pb-2">
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="font-semibold text-sm">${review.author}</span>
+                        <div class="flex items-center">
+                            <div class="text-yellow-400 mr-1 text-xs">${'★'.repeat(review.rating)}${'☆'.repeat(5 - review.rating)}</div>
+                            <span class="text-xs text-gray-500">${review.date}</span>
                         </div>
                     </div>
-                    <p class="text-gray-700">${review.text}</p>
+                    <p class="text-xs text-gray-700">${review.text}</p>
                 </div>
             `).join('')}
         </div>
@@ -1723,29 +1924,52 @@ function generateReviewContent(reviews) {
 
 function generateInfoContent(optionData) {
     return `
-        <div class="space-y-3">
-            <div class="grid grid-cols-2 gap-4">
+        <div class="space-y-2 text-sm">
+            <div class="grid grid-cols-2 gap-3">
                 <div>
-                    <span class="text-gray-600">카테고리</span>
+                    <span class="text-gray-600 text-xs">카테고리</span>
                     <p class="font-semibold">${optionData.type === 'food' ? '음식점' : optionData.type === 'activity' ? '관광/체험' : '기타'}</p>
                 </div>
                 <div>
-                    <span class="text-gray-600">예상 비용</span>
+                    <span class="text-gray-600 text-xs">예상 비용</span>
                     <p class="font-semibold">₩${optionData.cost.toLocaleString()}</p>
                 </div>
             </div>
             ${optionData.rating ? `
                 <div>
-                    <span class="text-gray-600">평점</span>
-                    <p class="font-semibold">${optionData.rating}/5.0 (${optionData.reviewCount || 0}개 리뷰)</p>
+                    <span class="text-gray-600 text-xs">평점</span>
+                    <p class="font-semibold">${optionData.rating}/5.0 (${optionData.reviewCount || 0}개)</p>
                 </div>
             ` : ''}
-            <div>
-                <span class="text-gray-600">위치</span>
-                <p class="font-semibold">위도: ${optionData.lat}, 경도: ${optionData.lng}</p>
-            </div>
         </div>
     `;
+}
+
+// 모바일 모달 함수
+function showBottomModal(modalId) {
+    const modal = document.getElementById(modalId);
+    modal.classList.add('show');
+    
+    // 하단 네비 활성화 상태 업데이트
+    document.querySelectorAll('.bottom-nav-item').forEach(item => {
+        item.classList.remove('active');
+    });
+    
+    const navMap = {
+        'map-modal': 0,
+        'schedule-modal': 1,
+        'cost-modal': 2,
+        'hotel-modal': 3
+    };
+    
+    const activeIndex = navMap[modalId];
+    if (activeIndex !== undefined) {
+        document.querySelectorAll('.bottom-nav-item')[activeIndex].classList.add('active');
+    }
+}
+
+function hideBottomModal(modalId) {
+    document.getElementById(modalId).classList.remove('show');
 }
 
 // 테마 검색 기능
@@ -1757,12 +1981,12 @@ function toggleThemeSearch() {
     
     if (isThemeSearchActive) {
         panel.classList.remove('hidden');
-        toggle.innerHTML = '<i class="fas fa-times mr-2"></i>검색 닫기';
+        toggle.innerHTML = '<i class="fas fa-times mr-1"></i>닫기';
         toggle.style.background = 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
     } else {
         panel.classList.add('hidden');
         clearThemeMarkers();
-        toggle.innerHTML = '<i class="fas fa-search mr-2"></i>테마 검색';
+        toggle.innerHTML = '<i class="fas fa-search mr-1"></i>테마 검색';
         toggle.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
     }
 }
@@ -1795,7 +2019,7 @@ function searchByTheme(type) {
             const filtered = results
                 .filter(p => p.rating && p.rating >= 3.5)
                 .sort((a, b) => b.rating - a.rating)
-                .slice(0, 20);
+                .slice(0, 15);
                 
             filtered.forEach(place => {
                 const marker = new google.maps.Marker({
@@ -1804,7 +2028,7 @@ function searchByTheme(type) {
                     title: place.name,
                     icon: {
                         url: getThemeIcon(type),
-                        scaledSize: new google.maps.Size(35, 35)
+                        scaledSize: new google.maps.Size(30, 30)
                     }
                 });
                 
@@ -1821,6 +2045,9 @@ function searchByTheme(type) {
                 filtered.forEach(place => bounds.extend(place.geometry.location));
                 googleMap.fitBounds(bounds);
             }
+            
+            // 자동으로 지도 모달 표시
+            showBottomModal('map-modal');
         }
     });
 }
@@ -1857,10 +2084,10 @@ function showThemeInfoWindow(marker, place, type) {
             if (type === 'restaurant' || type === 'cafe') {
                 const sampleMenu = generateSampleMenu(type, details.price_level || 2);
                 menuHtml = `
-                    <div class="mt-3">
-                        <h5 class="font-semibold mb-2">대표 메뉴 (예상)</h5>
-                        <div class="menu-list">
-                            ${sampleMenu.map(item => `
+                    <div class="mt-2">
+                        <h5 class="font-semibold text-sm mb-1">대표 메뉴 (예상)</h5>
+                        <div class="menu-list text-xs">
+                            ${sampleMenu.slice(0, 3).map(item => `
                                 <div class="menu-item">
                                     <span>${item.item}</span>
                                     <span>₩${item.price.toLocaleString()}</span>
@@ -1874,14 +2101,12 @@ function showThemeInfoWindow(marker, place, type) {
             // 리뷰 정보
             if (details.reviews && details.reviews.length > 0) {
                 reviewsHtml = `
-                    <div class="mt-3">
-                        <h5 class="font-semibold mb-2">최근 리뷰</h5>
-                        ${details.reviews.slice(0, 2).map(review => `
-                            <div class="text-sm mb-2">
-                                <div class="rating">${'★'.repeat(review.rating)}${'☆'.repeat(5-review.rating)} ${review.author_name}</div>
-                                <p class="text-gray-600">${review.text.substring(0, 100)}...</p>
-                            </div>
-                        `).join('')}
+                    <div class="mt-2">
+                        <h5 class="font-semibold text-sm mb-1">최근 리뷰</h5>
+                        <div class="text-xs">
+                            <div class="rating">${'★'.repeat(details.reviews[0].rating)} ${details.reviews[0].author_name}</div>
+                            <p class="text-gray-600">${details.reviews[0].text.substring(0, 80)}...</p>
+                        </div>
                     </div>
                 `;
             }
@@ -1892,8 +2117,8 @@ function showThemeInfoWindow(marker, place, type) {
                 <div class="info-window">
                     <h4>${place.name}</h4>
                     <div class="rating">
-                        <span class="rating-stars">${'★'.repeat(Math.floor(place.rating))}</span>
-                        <span>${place.rating}/5.0 (${place.user_ratings_total || 0} 리뷰)</span>
+                        <span class="text-yellow-400">${'★'.repeat(Math.floor(place.rating))}</span>
+                        <span class="text-sm">${place.rating}/5.0 (${place.user_ratings_total || 0})</span>
                     </div>
                     <p class="text-sm text-gray-600 mb-2">예상 비용: ₩${cost.toLocaleString()}</p>
                     ${menuHtml}
@@ -1914,17 +2139,13 @@ function generateSampleMenu(type, priceLevel) {
     const restaurantMenus = [
         {item: '대표 메뉴', price: 15000 * priceLevel},
         {item: '인기 요리', price: 12000 * priceLevel},
-        {item: '특선 요리', price: 18000 * priceLevel},
-        {item: '사이드 메뉴', price: 8000 * priceLevel},
-        {item: '음료', price: 3000 * priceLevel}
+        {item: '특선 요리', price: 18000 * priceLevel}
     ];
     
     const cafeMenus = [
         {item: '아메리카노', price: 4000 + (1000 * priceLevel)},
         {item: '카페라떼', price: 5000 + (1000 * priceLevel)},
-        {item: '디저트', price: 6000 + (2000 * priceLevel)},
-        {item: '샌드위치', price: 8000 + (2000 * priceLevel)},
-        {item: '스무디', price: 6000 + (1500 * priceLevel)}
+        {item: '디저트', price: 6000 + (2000 * priceLevel)}
     ];
     
     return type === 'restaurant' ? restaurantMenus : cafeMenus;
@@ -1945,7 +2166,12 @@ function estimateDynamicCost(types, category) {
 }
 
 function addToItinerary(placeId, name, cost, type, lat, lng) {
-    alert(`${name}이(가) 관심 목록에 추가되었습니다!\n원하는 시간대의 옵션을 클릭하여 일정에 포함시켜주세요.`);
+    // 진동 피드백 (지원되는 기기에서)
+    if (navigator.vibrate) {
+        navigator.vibrate(100);
+    }
+    
+    alert(`${name}이(가) 관심 목록에 추가되었습니다!\n원하는 시간대의 옵션을 터치하여 일정에 포함시켜주세요.`);
 }
 
 function clearThemeMarkers() {
@@ -1986,6 +2212,11 @@ function resetToOriginal() {
         }
         
         updateAllDisplays();
+        
+        // 진동 피드백
+        if (navigator.vibrate) {
+            navigator.vibrate(200);
+        }
     }
 }
 
@@ -2032,22 +2263,22 @@ function updateSelectedItemsDisplay() {
     const sortedTimes = Object.keys(daySelections).sort();
 
     if (sortedTimes.length === 0) {
-        container.innerHTML = '<p class="text-center text-gray-500 py-6">선택된 일정이 없습니다.</p>';
+        container.innerHTML = '<p class="text-center text-gray-500 py-4 text-sm">선택된 일정이 없습니다.</p>';
         return;
     }
     
     container.innerHTML = `
-        <div class="space-y-3">
+        <div class="space-y-2">
             ${sortedTimes.map(time => {
                 const sel = daySelections[time];
                 if (sel && sel.type !== 'accommodation') {
                     return `
                         <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                             <div class="flex items-center">
-                                <span class="text-sm font-bold text-blue-600 w-12">${time}</span>
-                                <span class="text-gray-800 font-medium">${sel.name}</span>
+                                <span class="text-xs font-bold text-blue-600 w-12">${time}</span>
+                                <span class="text-gray-800 font-medium text-sm">${sel.name}</span>
                             </div>
-                            <span class="text-sm font-bold text-gray-800">₩${sel.cost.toLocaleString()}</span>
+                            <span class="text-xs font-bold text-gray-800">₩${sel.cost.toLocaleString()}</span>
                         </div>
                     `;
                 }
@@ -2093,15 +2324,15 @@ function updateMapForDay(day) {
                 text: `${index + 1}`,
                 color: 'white',
                 fontWeight: 'bold',
-                fontSize: '14px'
+                fontSize: '12px'
             },
             icon: {
                 path: google.maps.SymbolPath.CIRCLE,
-                scale: 20,
+                scale: 16,
                 fillColor: '#4f46e5',
                 fillOpacity: 1,
                 strokeColor: 'white',
-                strokeWeight: 3
+                strokeWeight: 2
             },
             title: sel.name,
             zIndex: 1000 + index
@@ -2134,7 +2365,7 @@ function updateMapForDay(day) {
     
     googleMap.fitBounds(bounds);
     if (daySelections.length === 1 && !userLocationMarker) {
-        googleMap.setZoom(14);
+        googleMap.setZoom(12);
     }
 }
 
@@ -2145,7 +2376,7 @@ function toggleNaviMode() {
 
     if (isNaviModeActive) {
         if (navigator.geolocation) {
-            toggleButton.innerHTML = '<i class="loading-spinner"></i>GPS 연결 중...';
+            toggleButton.innerHTML = '<i class="loading-spinner"></i>연결중...';
             
             watchId = navigator.geolocation.watchPosition(
                 handleLocationUpdate,
@@ -2171,7 +2402,7 @@ function toggleNaviMode() {
             userLocationMarker = null;
         }
         
-        toggleButton.innerHTML = '<i class="fas fa-location-arrow mr-2"></i>Live GPS';
+        toggleButton.innerHTML = '<i class="fas fa-location-arrow mr-1"></i>GPS';
         document.querySelectorAll('.distance-info').forEach(el => el.innerHTML = '');
     }
 }
@@ -2179,7 +2410,7 @@ function toggleNaviMode() {
 function handleLocationUpdate(position) {
     const userLocation = { lat: position.coords.latitude, lng: position.coords.longitude };
     const toggleButton = document.getElementById('navi-mode-toggle');
-    toggleButton.innerHTML = '<i class="fas fa-location-arrow mr-2"></i>GPS 연결됨';
+    toggleButton.innerHTML = '<i class="fas fa-location-arrow mr-1"></i>연결됨';
     toggleButton.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
 
     if (!userLocationMarker) {
@@ -2188,11 +2419,11 @@ function handleLocationUpdate(position) {
             map: googleMap,
             icon: {
                 path: google.maps.SymbolPath.CIRCLE,
-                scale: 12,
+                scale: 10,
                 fillColor: '#4285F4',
                 fillOpacity: 1,
                 strokeColor: 'white',
-                strokeWeight: 3
+                strokeWeight: 2
             },
             title: "현재 내 위치",
             zIndex: 2000
@@ -2202,6 +2433,11 @@ function handleLocationUpdate(position) {
     }
     
     updateDistances(userLocation);
+    
+    // 진동 피드백
+    if (navigator.vibrate) {
+        navigator.vibrate(50);
+    }
 }
 
 function handleLocationError(error) {
@@ -2229,7 +2465,7 @@ function updateDistances(userLocation) {
                     const leg = result.routes[0].legs[0];
                     const distanceInfoEl = document.querySelector(`.distance-info[data-day="${activeDay}"][data-time="${nextTime}"]`);
                     if (distanceInfoEl) {
-                        distanceInfoEl.innerHTML = `📍 ${leg.distance.text} • ${leg.duration.text}`;
+                        distanceInfoEl.innerHTML = `<span class="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs">📍 ${leg.distance.text} • ${leg.duration.text}</span>`;
                     }
                 }
             });
@@ -2261,16 +2497,21 @@ window.addEventListener('load', () => {
         setTimeout(initApp, 1000);
     }
 });
+
+// PWA 지원을 위한 서비스 워커 등록 (선택사항)
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        // 서비스 워커는 별도 파일이 필요하므로 주석 처리
+        // navigator.serviceWorker.register('/sw.js');
+    });
+}
+
+// 앱 설치 프롬프트 (PWA)
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', (e) => {
+    deferredPrompt = e;
+    // 앱 설치 버튼을 표시할 수 있음
+});
 </script>
-<script defer src="https://static.cloudflareinsights.com/beacon.min.js/vcd15cbe7772f49c399c6a5babf22c1241717689176015" integrity="sha512-ZpsOmlRQV6y907TI0dKBHq9Md29nnaEIPlkf84rnaERnq6zvWvPUqr2ft8M1aS28oN72PdrCzSjY4U6VaAw1EQ==" data-cf-beacon='{"rayId":"95642539993429dd","serverTiming":{"name":{"cfExtPri":true,"cfEdge":true,"cfOrigin":true,"cfL4":true,"cfSpeedBrain":true,"cfCacheStatus":true}},"version":"2025.6.2","token":"4edd5f8ec12a48cfa682ab8261b80a79"}' crossorigin="anonymous"></script>
 </body>
 </html>
-    <script id="html_badge_script1">
-        window.__genspark_remove_badge_link = "https://www.genspark.ai/api/html_badge/" +
-            "remove_badge?token=To%2FBnjzloZ3UfQdcSaYfDq5IJOnec5kaKX3hnVfCQHY5BtTzATDANNW4FKwVCoThsQM0cPnLM1V23hvg3wkVCrlaKuqIIRgiXxp2OMQRPVLID1wCH3ILpG3bfsHCpU1kEUQGur6lHaf1D6iAK1XqDOOHTDdh%2BsXU7XCI%2Feb%2FqbnXu%2Fi%2BVuBB9cZjouk7S6yBvAGJPFLALUPaX88HJYbac5pidXpX8l2DFYW0Ez9cIC4Rabu%2FkPWQcqZ7VferL5D%2F5WmAC54iFKov5smpZLcP6eWgaQ3Sx4h9P6fvoGcutYCEyh9gdDdLxBvQ%2F0onwbZfInNeHESdYecOItzSDvI1vsoUz2I2yZ1ZbIq10QPqmS9pq%2B6mKLvd9hnPQ0FmmZT2e%2FNq9A3agtF6fCHR%2BosW55xaGyX%2FWMRM%2Fkcq96r3qN7jC7GiLrMKqxiXy%2B2T%2FOgfu3iHjmnchChVKFoJXzkw949QJeq04UQoj6b2YiBQQEpZ%2BYg%2F%2BmbWAu686BZagOeEziSlWI6A6pmtm70wZAwY1w%3D%3D";
-        window.__genspark_locale = "ko-KR";
-        window.__genspark_token = "To/BnjzloZ3UfQdcSaYfDq5IJOnec5kaKX3hnVfCQHY5BtTzATDANNW4FKwVCoThsQM0cPnLM1V23hvg3wkVCrlaKuqIIRgiXxp2OMQRPVLID1wCH3ILpG3bfsHCpU1kEUQGur6lHaf1D6iAK1XqDOOHTDdh+sXU7XCI/eb/qbnXu/i+VuBB9cZjouk7S6yBvAGJPFLALUPaX88HJYbac5pidXpX8l2DFYW0Ez9cIC4Rabu/kPWQcqZ7VferL5D/5WmAC54iFKov5smpZLcP6eWgaQ3Sx4h9P6fvoGcutYCEyh9gdDdLxBvQ/0onwbZfInNeHESdYecOItzSDvI1vsoUz2I2yZ1ZbIq10QPqmS9pq+6mKLvd9hnPQ0FmmZT2e/Nq9A3agtF6fCHR+osW55xaGyX/WMRM/kcq96r3qN7jC7GiLrMKqxiXy+2T/Ogfu3iHjmnchChVKFoJXzkw949QJeq04UQoj6b2YiBQQEpZ+Yg/+mbWAu686BZagOeEziSlWI6A6pmtm70wZAwY1w==";
-    </script>
-    
-    <script id="html_notice_dialog_script" src="https://www.genspark.ai/notice_dialog.js"></script>
-    
