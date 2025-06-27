@@ -2,17 +2,16 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>강귀선님을 위한 제주여행 플래너 - by bong</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>강귀선님을 위한 제주여행 플래너</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- 중요: geometry 라이브러리 추가 -->
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAOAEMIvJc9VndXLYgmUnWoAuXjlOYzDtg&callback=initApp&libraries=places,directions,geometry&v=weekly" defer></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap');
         
-        * { font-family: 'Noto Sans KR', sans-serif; }
+        * { font-family: 'Noto Sans KR', sans-serif; box-sizing: border-box; }
         
         :root {
             --primary-blue: #3b82f6;
@@ -21,210 +20,259 @@
             --warning-orange: #f59e0b;
         }
 
-        /* 모바일 최적화 레이아웃 */
+        /* === 전체 레이아웃 === */
         html, body {
             height: 100%;
             margin: 0;
             padding: 0;
+            overflow: hidden; /* 스크롤은 내부에서 처리 */
             background-color: #f3f4f6;
         }
         .main-container {
             display: flex;
             flex-direction: column;
             height: 100vh;
-            max-width: 1400px;
-            margin: 0 auto;
             background: white;
-            box-shadow: 0 0 20px rgba(0,0,0,0.1);
         }
 
-        /* 헤더, 컨트롤 패널 등 */
-        .header-gradient { background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-purple) 100%); color: white; padding: 1.5rem 1rem; text-align: center; flex-shrink: 0; }
-        .control-panel-wrapper { padding: 0.5rem 1rem; background: white; border-bottom: 1px solid #e5e7eb; flex-shrink: 0; }
-        .day-tabs-container { display: flex; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+        /* === 상단 지도 영역 === */
+        #map-area {
+            flex-shrink: 0;
+            position: relative;
+            height: 40vh; /* 화면의 40%를 지도로 사용 */
+            background-color: #e5e7eb;
+        }
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+        
+        /* === 하단 콘텐츠 영역 === */
+        .content-area {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        /* === 고정 컨트롤 패널 === */
+        .control-panel {
+            flex-shrink: 0;
+            z-index: 10;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(5px);
+            padding: 0.5rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .day-tabs-container {
+            display: flex;
+            overflow-x: auto;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
         .day-tabs-container::-webkit-scrollbar { display: none; }
-        .day-tab { transition: all 0.3s ease; border-radius: 12px; padding: 0.5rem 1rem; font-weight: 600; margin: 0.25rem; white-space: nowrap; flex-shrink: 0; }
-        .day-tab.active { background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-purple) 100%); color: white; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4); }
-        .day-tab:not(.active) { background: #f3f4f6; color: #1f2937; }
-        
-        /* 스티키 지도 */
-        #map-container { position: sticky; top: 0; z-index: 10; background: #e5e7eb; padding: 1rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); flex-shrink: 0; }
-        #map { height: 30vh; min-height: 200px; border-radius: 12px; width: 100%; }
-        
-        /* 메인 스크롤 영역 */
-        .main-content-scroll { flex-grow: 1; overflow-y: auto; padding: 1rem; }
+        .day-tab {
+            transition: all 0.2s ease;
+            border-radius: 10px;
+            padding: 0.5rem 1rem;
+            font-weight: 600;
+            font-size: 0.875rem;
+            white-space: nowrap;
+            flex-shrink: 0;
+            margin: 0 0.25rem;
+            cursor: pointer;
+        }
+        .day-tab.active {
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-purple) 100%);
+            color: white;
+            box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
+        }
+        .day-tab:not(.active) { background: #e5e7eb; color: #374151; }
 
-        .option-card { transition: all 0.3s ease; border: 2px solid #e5e7eb; border-radius: 12px; padding: 0.75rem; cursor: pointer; background: white; position: relative; }
-        .option-card:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(0,0,0,0.15); border-color: var(--primary-blue); }
-        .option-card.selected { border-color: var(--primary-blue); background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3); }
+        /* === 스크롤 가능한 일정 영역 === */
+        .itinerary-scroll-wrapper {
+            flex-grow: 1;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            padding: 1rem;
+        }
         
-        /* 실시간 정보 표시 스타일 */
-        .distance-info { background: rgba(16, 185, 129, 0.1); color: var(--success-green); padding: 0.25rem 0.5rem; border-radius: 6px; font-size: 0.75rem; font-weight: 600; }
+        /* === 모바일 최적화 옵션 카드 === */
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); /* 항상 2열 유지 */
+            gap: 0.75rem;
+        }
+        .option-card {
+            transition: all 0.2s ease;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 0.75rem;
+            cursor: pointer;
+            background: white;
+            position: relative;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .option-card.selected {
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+            transform: scale(1.02);
+        }
+        .option-card .card-name { font-weight: 600; font-size: 0.8rem; margin-bottom: 0.25rem; line-height: 1.3; }
+        .option-card .card-tags { display: flex; flex-wrap: wrap; gap: 0.25rem; margin-top: 0.5rem; }
+        .option-card .tag { font-size: 0.65rem; padding: 0.125rem 0.5rem; border-radius: 10px; }
+        
+        /* === 상세 정보 패널 (메뉴/리뷰) === */
+        .menu-panel {
+            background: #f8fafc;
+            border-radius: 12px;
+            margin-top: 0.75rem;
+            border: 1px solid #e2e8f0;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease, opacity 0.4s ease, padding 0.4s ease;
+            opacity: 0;
+            padding: 0 0.75rem;
+        }
+        .menu-panel.open { max-height: 500px; opacity: 1; padding: 0.75rem; }
+        .menu-tabs { display: flex; border-bottom: 2px solid #e2e8f0; margin-bottom: 0.75rem; }
+        .menu-tab { padding: 0.5rem; font-size: 0.875rem; cursor: pointer; border-bottom: 3px solid transparent; }
+        .menu-tab.active { color: var(--primary-blue); border-bottom-color: var(--primary-blue); font-weight: 600; }
+        .menu-content { display: none; }
+        .menu-content.active { display: block; }
+        .menu-item { display: flex; justify-content: space-between; padding: 0.25rem 0; font-size: 0.8rem; border-bottom: 1px solid #e5e7eb; }
+
+        /* === 실시간 정보 UI === */
+        .distance-info { color: var(--success-green); font-size: 0.8rem; font-weight: 600; }
         .loading-spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid #f3f3f3; border-top: 2px solid var(--primary-blue); border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-        /* 다음 목적지 하이라이트 스타일 */
-        .live-next-item {
-            border-radius: 12px;
-            box-shadow: 0 0 0 3px var(--warning-orange);
-            background-color: #fffbeb;
+        .live-next-item .option-card.selected {
+             border-color: var(--warning-orange);
+             background-color: #fffbeb;
         }
         .next-badge {
-            position: absolute;
-            top: 0.75rem;
-            right: 0.75rem;
             background: var(--warning-orange);
             color: white;
-            padding: 0.25rem 0.6rem;
+            padding: 0.2rem 0.5rem;
             border-radius: 20px;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             font-weight: 700;
             animation: pulse 2s infinite;
         }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
         
-        .timeline-container { position: relative; padding-left: 2rem; }
-        .timeline-line { position: absolute; left: 1rem; top: 0; bottom: 0; width: 3px; background: linear-gradient(180deg, var(--primary-blue) 0%, var(--primary-purple) 100%); }
-        .timeline-dot { position: absolute; left: -8px; top: 1.5rem; width: 20px; height: 20px; background: var(--primary-blue); border: 4px solid white; border-radius: 50%; box-shadow: 0 2px 8px rgba(0,0,0,0.2); z-index: 2; }
-        .menu-panel { background: #f8fafc; border-radius: 12px; padding: 1rem; margin-top: 0.75rem; border: 1px solid #e2e8f0; max-height: 0; overflow: hidden; transition: all 0.4s ease; opacity: 0; }
-        .menu-panel.open { max-height: 500px; opacity: 1; }
-        .menu-tabs { display: flex; border-bottom: 2px solid #e2e8f0; margin-bottom: 1rem; }
-        .menu-tab { padding: 0.5rem 1rem; cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.2s; font-weight: 500; }
-        .menu-tab.active { color: var(--primary-blue); border-bottom-color: var(--primary-blue); background: rgba(59, 130, 246, 0.1); }
-        .menu-content { display: none; }
-        .menu-content.active { display: block; }
-        
-        .collapsible-card { background: white; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); margin-bottom: 1rem; overflow: hidden; }
-        .collapsible-header { display: flex; justify-content: space-between; align-items: center; background: linear-gradient(135deg, #1f2937 0%, #374151 100%); color: white; padding: 1rem; font-weight: 600; cursor: pointer; }
-        .collapsible-header .toggle-icon { transition: transform 0.3s ease; }
-        .collapsible-content { max-height: 0; overflow: hidden; transition: max-height 0.5s ease-in-out; }
-        .collapsible-content.open { max-height: 1000px; padding: 1rem; }
+        .hidden { display: none !important; }
+
+        /* 타임라인 스타일 */
+        .timeline-container { position: relative; padding-left: 1rem; }
+        .timeline-line { position: absolute; left: 0.3rem; top: 0.5rem; bottom: 0; width: 3px; background: linear-gradient(180deg, var(--primary-blue) 0%, var(--primary-purple) 100%); }
+        .timeline-dot { position: absolute; left: -2px; top: 0.5rem; width: 14px; height: 14px; background: var(--primary-blue); border: 3px solid white; border-radius: 50%; z-index: 2; }
     </style>
 </head>
 <body>
     <div class="main-container">
-        <!-- 헤더 -->
-        <header class="header-gradient">
-            <h1 class="text-2xl md:text-3xl font-bold mb-1">🏝️ 강귀선님 제주여행 플래너</h1>
-            <p class="text-sm md:text-base opacity-90">실시간 GPS • 풍부한 데이터 • 완벽한 동선 관리</p>
-        </header>
-
-        <!-- 컨트롤 패널 -->
-        <div class="control-panel-wrapper">
-            <div id="day-tabs-container" class="day-tabs-container">
-                <!-- 탭들이 여기에 동적으로 생성됩니다 -->
-            </div>
-        </div>
-
-        <!-- 스티키 지도 -->
-        <div id="map-container">
+        <!-- 상단 고정 지도 영역 -->
+        <div id="map-area">
             <div id="map"></div>
-            <button onclick="openInGoogleMaps()" class="w-full mt-3 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition font-semibold text-sm">
-                <i class="fas fa-directions mr-2"></i>구글맵에서 길찾기
-            </button>
         </div>
 
-        <!-- 메인 스크롤 영역 -->
-        <main class="main-content-scroll">
-            <div class="flex flex-wrap gap-2 mb-4">
-                 <button id="theme-search-toggle" class="text-sm flex-grow bg-gray-200 text-gray-800 py-2 px-3 rounded-lg font-semibold"><i class="fas fa-search mr-1"></i>테마 검색</button>
-                 <button id="reset-button" class="text-sm flex-grow bg-gray-200 text-gray-800 py-2 px-3 rounded-lg font-semibold"><i class="fas fa-undo mr-1"></i>리셋</button>
-                 <button id="navi-mode-toggle" class="text-sm flex-grow bg-blue-100 text-blue-800 py-2 px-3 rounded-lg font-bold"><i class="fas fa-location-arrow mr-1"></i>Live GPS 켜기</button>
-            </div>
-            
-            <div id="theme-search-panel" class="theme-search-panel hidden">
-                <!-- 테마 검색 컨텐츠가 여기에 동적으로 생성됩니다 -->
+        <!-- 하단 콘텐츠 영역 -->
+        <div class="content-area">
+            <!-- 고정 컨트롤 패널 -->
+            <div class="control-panel">
+                <div class="day-tabs-container" id="day-tabs-container">
+                    <!-- 탭들이 여기에 동적으로 생성됩니다 -->
+                </div>
             </div>
 
-            <div id="itinerary-container" class="space-y-6 mb-6">
-                <!-- 일정이 여기에 동적으로 생성됩니다 -->
+            <!-- 스크롤 가능한 일정 영역 -->
+            <div class="itinerary-scroll-wrapper">
+                <div id="itinerary-container">
+                    <!-- 일정이 여기에 동적으로 생성됩니다 -->
+                </div>
             </div>
-            
-            <div class="sidebar-content-wrapper">
-                <!-- ... 기타 Collapsible 카드들 (선택된 일정, 경비 계산 등) ... -->
-            </div>
-
-        </main>
+        </div>
     </div>
 
 <script>
-// 제주도 완전 데이터베이스
+// --- 데이터베이스와 일정 데이터 ---
 const jejuDatabase = {
     restaurants: {
         dongmun_market: {
-            id: 'dongmun_market', name: '동문시장', rating: 4.2, reviewCount: 2847, cost: 30000, type: 'food',
-            lat: 33.5126, lng: 126.5292, tags: ['시장', '포장마차', '야식'],
-            menu: [ {item: '모둠회(소)', price: 20000}, {item: '떡볶이', price: 5000}, {item: '오메기떡', price: 5000} ],
+            id: 'dongmun_market', name: '동문시장 야시장', rating: 4.2, reviewCount: 2847, cost: 30000, type: 'food',
+            lat: 33.5126, lng: 126.5292, tags: ['시장', '야식'],
+            menu: [ {item: '모둠회(소)', price: 20000}, {item: '흑돼지꼬치', price: 5000}, {item: '오메기떡', price: 5000} ],
             reviews: [ {author: '김제주', rating: 5, text: '동문시장은 제주 여행의 필수코스!'}, {author: '박여행', rating: 4, text: '가격도 저렴하고 양도 많아요.'} ]
         },
         dombedon: {
             id: 'dombedon', name: '돔베돈', rating: 4.6, reviewCount: 1247, cost: 130000, type: 'food',
-            lat: 33.5148, lng: 126.5245, tags: ['흑돼지', '고기', '현지맛집'],
+            lat: 33.5148, lng: 126.5245, tags: ['흑돼지', '현지맛집'],
             menu: [ {item: '흑돼지 목살', price: 28000}, {item: '갈매기살', price: 32000} ],
             reviews: [ {author: '고기왕', rating: 5, text: '제주 흑돼지의 진짜 맛을 느낄 수 있는 곳!'} ]
         },
-        // ... (다른 음식점 데이터)
+        jamaeguksu: {
+            id: 'jamaeguksu', name: '자매국수 본점', rating: 4.5, reviewCount: 2891, cost: 45000, type: 'food',
+            lat: 33.5111, lng: 126.5284, tags: ['고기국수', '향토음식'],
+            menu: [{item: '고기국수', price: 8000}, {item: '비빔국수', price: 8000}],
+            reviews: [{author: '국수조아', rating: 5, text: '진짜 제주 맛집! 고기국수 국물이 끝내줍니다.'}]
+        }
     },
     cafes: {
         cafe_orda: {
             id: 'cafe_orda', name: '카페 오르다', rating: 4.7, reviewCount: 1856, cost: 35000, type: 'cafe',
-            lat: 33.4475, lng: 126.9323, tags: ['포토존', '오션뷰', '인스타'],
+            lat: 33.4475, lng: 126.9323, tags: ['포토존', '오션뷰'],
             menu: [ {item: '아메리카노', price: 5500}, {item: '흑임자라떼', price: 6500} ],
             reviews: [ {author: '카페러버', rating: 5, text: '천국의 계단으로 유명한 곳!'} ]
-        },
-        // ... (다른 카페 데이터)
+        }
     },
     attractions: {
         seongsan: {
             id: 'seongsan', name: '성산일출봉', rating: 4.5, reviewCount: 5247, cost: 5000, type: 'activity',
-            lat: 33.4581, lng: 126.9426, tags: ['유네스코', '일출', '필수코스'],
+            lat: 33.4581, lng: 126.9426, tags: ['유네스코', '일출'],
             menu: [ {item: '성인 입장료', price: 5000} ],
             reviews: [ {author: '일출러버', rating: 5, text: '제주 여행 1순위! 일출 시간에 맞춰 가시길 강추합니다.'} ]
         },
         aquaplanet: {
             id: 'aquaplanet', name: '아쿠아플라넷 제주', rating: 4.4, reviewCount: 3892, cost: 120000, type: 'activity',
-            lat: 33.4320, lng: 126.9248, tags: ['수족관', '실내', '가족'],
+            lat: 33.4320, lng: 126.9248, tags: ['수족관', '실내'],
             menu: [ {item: '성인 입장권', price: 38000} ],
             reviews: [ {author: '가족나들이', rating: 5, text: '아이들이 정말 좋아해요!'} ]
-        },
-        // ... (다른 관광지 데이터)
+        }
     }
 };
-
-// 일정 데이터
 const itineraryData = {
     day1: {
         title: "제주 도착 & 설레는 첫날 밤",
         slots: {
-            '18:00': { icon: '✈️', category: '공항 도착', options: { arrival: { id: 'arrival', name: '제주국제공항', cost: 0, type: 'etc', tags: ['필수', '도착'], lat: 33.5104, lng: 126.4913 } } },
-            '19:00': { icon: '🏨', category: '숙소 체크인', options: { checkin_hotel: { id: 'checkin_hotel', name: '체크인호텔 제주', cost: 0, type: 'accommodation', tags: ['1일차 숙소'], lat: 33.5015, lng: 126.5050 } } },
-            '19:30': { icon: '🍴', category: '저녁 식사', options: { dongmun_market: jejuDatabase.restaurants.dongmun_market, dombedon: jejuDatabase.restaurants.dombedon, } },
-            '21:00': { icon: '🌙', category: '야간 활동', options: { night_walk: { id: 'night_walk', name: '이호테우 해변', rating: 4.2, cost: 10000, type: 'etc', lat: 33.5127, lng: 126.4528, tags: ['야경', '해변'] }, } }
+            '18:00': { icon: '✈️', category: '공항 도착', options: { arrival: { id: 'arrival', name: '제주국제공항', cost: 0, type: 'etc', tags: ['필수'], lat: 33.5104, lng: 126.4913 } } },
+            '19:00': { icon: '🏨', category: '숙소 체크인', options: { checkin_hotel: { id: 'checkin_hotel', name: '체크인호텔 제주', cost: 0, type: 'accommodation', tags: ['숙소'], lat: 33.5015, lng: 126.5050 } } },
+            '19:30': { icon: '🍴', category: '저녁 식사', options: { dongmun_market: jejuDatabase.restaurants.dongmun_market, dombedon: jejuDatabase.restaurants.dombedon, jamaeguksu: jejuDatabase.restaurants.jamaeguksu } },
+            '21:00': { icon: '🌙', category: '야간 활동', options: { night_walk: { id: 'night_walk', name: '이호테우 해변', rating: 4.2, cost: 10000, type: 'etc', lat: 33.5127, lng: 126.4528, tags: ['야경', '산책'] } } }
         }
     },
     day2: {
-        title: "환상의 동쪽 해안도로 일주",
+        title: "환상의 동쪽 해안도로",
         slots: {
             '10:30': { icon: '🏞️', category: '오전 활동', options: { seongsan: jejuDatabase.attractions.seongsan } },
             '15:00': { icon: '☕', category: '카페 타임', options: { cafe_orda: jejuDatabase.cafes.cafe_orda } },
             '16:30': { icon: '🌊', category: '오후 활동', options: { aquaplanet: jejuDatabase.attractions.aquaplanet } }
         }
     },
-    // ... (day3, day4 데이터)
+    // ... (day3, day4 데이터는 간결함을 위해 생략, 실제 사용시 추가)
 };
 
 // 전역 변수
-let googleMap, placesService, directionsService, directionsRenderer;
+let googleMap, directionsService, directionsRenderer;
 let activeDay = 1;
 let selections = {};
 let originalSelections = {};
 let isNaviModeActive = false;
 let watchId = null;
 let userLocationMarker = null;
+let dayMarkers = [];
 // !!! 중요: 실제 여행 시작일로 변경해주세요 !!!
 const tripStartDate = new Date('2024-07-25'); 
 
-// 초기화
 function initApp() {
     initUI();
     initMap();
@@ -238,10 +286,8 @@ function autoSelectToday() {
     today.setHours(0, 0, 0, 0);
     const startDate = new Date(tripStartDate.valueOf());
     startDate.setHours(0, 0, 0, 0);
-
     const diffTime = today - startDate;
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
-
     if (diffDays >= 1 && diffDays <= Object.keys(itineraryData).length) {
         switchDay(diffDays);
     }
@@ -257,7 +303,6 @@ function initUI() {
         tab.className = `day-tab ${index === 0 ? 'active' : ''}`;
         tab.textContent = `${day}일차`;
         tab.dataset.day = day;
-        tab.onclick = () => switchDay(day);
         tabsContainer.appendChild(tab);
     });
 
@@ -269,26 +314,29 @@ function initUI() {
         dayContent.id = `day${day}`;
         dayContent.className = `day-content ${index > 0 ? 'hidden' : ''}`;
         dayContent.innerHTML = `
-            <div class="bg-white rounded-xl shadow-lg p-4 mb-6">
-                <h2 class="text-xl font-bold text-gray-800 mb-4">${dayData.title}</h2>
-                <div class="timeline-container">
-                    <div class="timeline-line"></div>
-                    ${Object.entries(dayData.slots).map(([time, slot]) => `
-                        <div class="relative mb-8 p-3" data-timeslot-wrapper="${time}">
-                            <div class="timeline-dot"></div>
-                            <div class="ml-8">
-                                <div class="flex items-center mb-4">
-                                    <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-semibold mr-3">${time}</span>
-                                    <h3 class="text-base font-bold text-gray-800">${slot.icon} ${slot.category}</h3>
-                                    <div class="distance-info ml-auto" data-day="${day}" data-time="${time}"></div>
+            <div class="mb-4">
+                <h2 class="text-xl font-bold text-gray-800">${dayData.title}</h2>
+            </div>
+            <div class="timeline-container">
+                <div class="timeline-line"></div>
+                ${Object.entries(dayData.slots).map(([time, slot]) => `
+                    <div class="relative mb-6" data-timeslot-wrapper="${time}">
+                        <div class="timeline-dot"></div>
+                        <div class="ml-4">
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="flex items-center">
+                                    <span class="text-sm font-bold text-gray-700 mr-2">${time}</span>
+                                    <h3 class="text-base font-semibold text-gray-800">${slot.icon} ${slot.category}</h3>
                                 </div>
-                                <div class="options-grid grid grid-cols-2 md:grid-cols-3 gap-2" data-day="${day}" data-time="${time}">
-                                    ${slot.options ? generateOptionsHtml(day, time, slot.options) : ''}
-                                </div>
+                                <div class="next-badge-container"></div>
+                            </div>
+                            <div class="distance-info mb-2" data-day="${day}" data-time="${time}"></div>
+                            <div class="options-grid" data-day="${day}" data-time="${time}">
+                                ${slot.options ? generateOptionsHtml(day, time, slot.options) : ''}
                             </div>
                         </div>
-                    `).join('')}
-                </div>
+                    </div>
+                `).join('')}
             </div>
         `;
         itineraryContainer.appendChild(dayContent);
@@ -296,29 +344,52 @@ function initUI() {
 }
 
 function generateOptionsHtml(day, time, options) {
-    let optionNumber = 1;
     return Object.entries(options).map(([id, option]) => `
         <div class="option-card" 
-             data-id="${option.id}" data-name="${option.name}" data-cost="${option.cost}" 
-             data-type="${option.type}" data-lat="${option.lat}" data-lng="${option.lng}"
-             data-day="${day}" data-time="${time}"
+             data-id="${id}" 
+             data-lat="${option.lat}" 
+             data-lng="${option.lng}" 
              onclick="handleOptionSelect(${day}, '${time}', this)">
-            <h4 class="font-bold text-gray-800 text-sm mb-2 pr-2">${option.name}</h4>
-            ${option.rating ? `<div class="flex items-center mb-2 text-xs"><div class="rating-stars mr-1 text-yellow-400">${'★'.repeat(Math.floor(option.rating))}</div><span class="text-gray-600">${option.rating}</span></div>` : ''}
-             <div class="flex items-center justify-between">
-                <div class="flex flex-wrap gap-1">
-                    ${(option.tags || []).slice(0, 2).map(tag => `<span class="text-xs font-semibold bg-gray-200 text-gray-700 px-2 py-1 rounded-full">${tag}</span>`).join('')}
-                </div>
-                <span class="text-xs font-bold text-green-600">₩${(option.cost/1000)}K</span>
-             </div>
+            <p class="card-name">${option.name}</p>
+            <div class="card-tags">
+                ${(option.tags || []).slice(0, 2).map(tag => `<span class="tag ${getTagColorClass(tag)}">${tag}</span>`).join('')}
+            </div>
         </div>
     `).join('');
 }
 
+function getTagColorClass(tag) {
+    const colorMap = {
+        '필수': 'bg-red-100 text-red-700', '가성비': 'bg-green-100 text-green-700', '포토존': 'bg-purple-100 text-purple-700',
+        '오션뷰': 'bg-blue-100 text-blue-700', '향토음식': 'bg-orange-100 text-orange-700', '실내': 'bg-cyan-100 text-cyan-700',
+        '시장': 'bg-yellow-100 text-yellow-700', '야식': 'bg-indigo-100 text-indigo-700', '흑돼지': 'bg-gray-200 text-gray-800'
+    };
+    return colorMap[tag] || 'bg-gray-100 text-gray-700';
+}
+
+function initMap() {
+    try {
+        googleMap = new google.maps.Map(document.getElementById('map'), {
+            center: { lat: 33.385, lng: 126.55 }, zoom: 9,
+            styles: [{ featureType: "poi", elementType: "labels", stylers: [{ visibility: "off" }] }],
+            disableDefaultUI: true, zoomControl: true, mapTypeControl: false, streetViewControl: false
+        });
+        directionsService = new google.maps.DirectionsService();
+        directionsRenderer = new google.maps.DirectionsRenderer({ suppressMarkers: true, polylineOptions: { strokeColor: '#4f46e5', strokeWeight: 5, strokeOpacity: 0.8 } });
+        directionsRenderer.setMap(googleMap);
+    } catch (e) {
+        document.getElementById('map').innerHTML = '<div class="flex items-center justify-center h-full text-red-500">지도 로딩 실패</div>';
+    }
+}
+
 function setupEventListeners() {
-    document.getElementById('navi-mode-toggle').onclick = toggleNaviMode;
-    document.getElementById('reset-button').onclick = resetToOriginal;
-    // Add other event listeners for theme search, collapsible cards etc. if needed
+    const tabsContainer = document.getElementById('day-tabs-container');
+    tabsContainer.addEventListener('click', (e) => {
+        const tab = e.target.closest('.day-tab');
+        if (tab && tab.dataset.day) {
+            switchDay(parseInt(tab.dataset.day));
+        }
+    });
 }
 
 function setupInitialState() {
@@ -326,17 +397,28 @@ function setupInitialState() {
         const day = parseInt(dayKey.replace('day', ''));
         selections[day] = {};
         Object.entries(itineraryData[dayKey].slots).forEach(([time, slot]) => {
-            if (slot.options) {
+            if (slot.options && Object.keys(slot.options).length > 0) {
                 const firstOptionKey = Object.keys(slot.options)[0];
-                const optionData = slot.options[firstOptionKey];
-                selections[day][time] = { ...optionData };
-                const card = document.querySelector(`.option-card[data-day="${day}"][data-time="${time}"]`);
-                if (card) { card.classList.add('selected'); }
+                selections[day][time] = { ...slot.options[firstOptionKey], id: firstOptionKey };
             }
         });
     });
     originalSelections = JSON.parse(JSON.stringify(selections));
+    updateUISelections();
     updateMapForDay(activeDay);
+}
+
+function updateUISelections() {
+    document.querySelectorAll('.option-card.selected').forEach(c => c.classList.remove('selected'));
+    const daySelections = selections[activeDay] || {};
+    Object.entries(daySelections).forEach(([time, selection]) => {
+        if(selection && selection.id) {
+            const card = document.querySelector(`.options-grid[data-day="${activeDay}"][data-time="${time}"] .option-card[data-id="${selection.id}"]`);
+            if (card) {
+                card.classList.add('selected');
+            }
+        }
+    });
 }
 
 function switchDay(day) {
@@ -351,81 +433,102 @@ function switchDay(day) {
         content.classList.toggle('hidden', parseInt(content.id.replace('day', '')) !== day);
     });
     
+    updateUISelections();
+    updateMapForDay(day);
+
     if (isNaviModeActive && userLocationMarker) {
         updateLiveStatus(userLocationMarker.getPosition());
     } else {
         clearLiveStatus();
     }
-    updateMapForDay(day);
 }
 
 function handleOptionSelect(day, time, cardElement) {
     const grid = cardElement.closest('.options-grid');
-    grid.querySelectorAll('.option-card').forEach(card => card.classList.remove('selected'));
+    grid.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
     cardElement.classList.add('selected');
     
-    const optionData = {
-        id: cardElement.dataset.id,
-        name: cardElement.dataset.name,
-        cost: parseInt(cardElement.dataset.cost),
-        type: cardElement.dataset.type,
-        lat: parseFloat(cardElement.dataset.lat),
-        lng: parseFloat(cardElement.dataset.lng)
-    };
-    selections[day][time] = optionData;
+    document.querySelectorAll('.menu-panel').forEach(p => p.remove());
+
+    const id = cardElement.dataset.id;
+    let optionData = findDetailData(id) || itineraryData[`day${day}`].slots[time].options[id];
+    
+    selections[day][time] = { ...optionData, id: id };
+    
     updateMapForDay(day);
     if (isNaviModeActive && userLocationMarker) {
         updateLiveStatus(userLocationMarker.getPosition());
     }
+    
+    showMenuPanel(cardElement.parentElement, optionData);
 }
 
-function resetToOriginal() {
-    if (confirm('원래 계획된 일정으로 되돌리시겠습니까?')) {
-        selections = JSON.parse(JSON.stringify(originalSelections));
-        document.querySelectorAll('.option-card').forEach(card => card.classList.remove('selected'));
-        Object.keys(originalSelections).forEach(day => {
-            Object.keys(originalSelections[day]).forEach(time => {
-                const selection = originalSelections[day][time];
-                const card = document.querySelector(`.option-card[data-day="${day}"][data-time="${time}"][data-id="${selection.id}"]`);
-                if (card) card.classList.add('selected');
-            });
-        });
-        updateMapForDay(activeDay);
-        if (isNaviModeActive && userLocationMarker) {
-            updateLiveStatus(userLocationMarker.getPosition());
-        }
+function findDetailData(id) {
+    for (const category of Object.values(jejuDatabase)) {
+        if (category[id]) return category[id];
     }
+    return null;
 }
 
-function initMap() {
-    try {
-        googleMap = new google.maps.Map(document.getElementById('map'), {
-            center: { lat: 33.385, lng: 126.55 }, zoom: 9,
-            styles: [{ featureType: "poi", elementType: "labels", stylers: [{ visibility: "off" }] }],
-            disableDefaultUI: true, zoomControl: true
+function showMenuPanel(gridElement, optionData) {
+    const hasMenu = optionData.menu && optionData.menu.length > 0;
+    const hasReviews = optionData.reviews && optionData.reviews.length > 0;
+    
+    const menuPanel = document.createElement('div');
+    menuPanel.className = 'menu-panel';
+    menuPanel.innerHTML = `
+        <div class="menu-tabs">
+            ${hasMenu ? '<div class="menu-tab active" data-tab="menu">메뉴</div>' : ''}
+            ${hasReviews ? `<div class="menu-tab ${!hasMenu ? 'active' : ''}" data-tab="reviews">리뷰</div>` : ''}
+        </div>
+        ${hasMenu ? `<div class="menu-content active" data-content="menu">${generateMenuContent(optionData.menu)}</div>` : ''}
+        ${hasReviews ? `<div class="menu-content ${!hasMenu ? 'active' : ''}" data-content="reviews">${generateReviewContent(optionData.reviews)}</div>` : ''}
+    `;
+    
+    menuPanel.querySelectorAll('.menu-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            menuPanel.querySelectorAll('.menu-tab, .menu-content').forEach(el => el.classList.remove('active'));
+            tab.classList.add('active');
+            menuPanel.querySelector(`[data-content="${tab.dataset.tab}"]`).classList.add('active');
         });
-        directionsService = new google.maps.DirectionsService();
-        directionsRenderer = new google.maps.DirectionsRenderer({ suppressMarkers: true, polylineOptions: { strokeColor: '#4f46e5', strokeWeight: 5, strokeOpacity: 0.8 } });
-        directionsRenderer.setMap(googleMap);
-    } catch (e) {
-        document.getElementById('map').innerHTML = '<div class="flex items-center justify-center h-full text-red-500">지도 로딩 실패</div>';
-    }
+    });
+    
+    gridElement.appendChild(menuPanel);
+    setTimeout(() => {
+        menuPanel.classList.add('open');
+        menuPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }, 10);
+}
+
+function generateMenuContent(menu) {
+    return `<div class="space-y-1">${menu.slice(0, 4).map(item => `
+        <div class="menu-item"><span>${item.item}</span><span class="font-semibold">₩${item.price.toLocaleString()}</span></div>`).join('')}
+    </div>`;
+}
+
+function generateReviewContent(reviews) {
+    return `<div class="space-y-2">${reviews.slice(0, 2).map(review => `
+        <div class="text-xs">
+            <div class="flex justify-between items-center"><span class="font-semibold">${review.author}</span><span class="text-yellow-400">${'★'.repeat(review.rating)}</span></div>
+            <p class="text-gray-600">${review.text}</p>
+        </div>`).join('')}
+    </div>`;
 }
 
 function updateMapForDay(day) {
     if (!googleMap) return;
     
+    dayMarkers.forEach(m => m.setMap(null));
+    dayMarkers = [];
+    directionsRenderer.setDirections({routes: []});
+    
     const daySelections = Object.values(selections[day] || {}).filter(s => s && s.lat && s.lng);
     daySelections.sort((a, b) => {
-        const timeA = Object.keys(selections[day]).find(key => selections[day][key] && selections[day][key].id === a.id);
-        const timeB = Object.keys(selections[day]).find(key => selections[day][key] && selections[day][key].id === b.id);
+        const timeA = Object.keys(selections[day]).find(key => selections[day][key]?.id === a.id);
+        const timeB = Object.keys(selections[day]).find(key => selections[day][key]?.id === b.id);
         return timeA && timeB ? timeA.localeCompare(timeB) : 0;
     });
 
-    if (window.dayMarkers) { window.dayMarkers.forEach(m => m.setMap(null)); }
-    window.dayMarkers = [];
-    directionsRenderer.setDirections({routes: []});
-    
     if (daySelections.length === 0) return;
 
     const bounds = new google.maps.LatLngBounds();
@@ -434,101 +537,73 @@ function updateMapForDay(day) {
         bounds.extend(pos);
         const marker = new google.maps.Marker({
             position: pos, map: googleMap,
-            label: { text: `${index + 1}`, color: 'white', fontWeight: 'bold' },
+            label: { text: `${index + 1}`, color: 'white', fontWeight: 'bold', fontSize: '12px' },
             title: sel.name, zIndex: 1000 + index
         });
-        window.dayMarkers.push(marker);
+        dayMarkers.push(marker);
     });
 
     if (daySelections.length > 1) {
         const request = {
             origin: { lat: daySelections[0].lat, lng: daySelections[0].lng },
             destination: { lat: daySelections[daySelections.length - 1].lat, lng: daySelections[daySelections.length - 1].lng },
-            waypoints: daySelections.slice(1, -1).map(s => ({ location: { lat: s.lat, lng: s.lng } })),
+            waypoints: daySelections.slice(1, -1).map(s => ({ location: {lat: s.lat, lng: s.lng}, stopover: true })),
             travelMode: google.maps.TravelMode.DRIVING
         };
-        directionsService.route(request, (result, status) => { if (status === 'OK') { directionsRenderer.setDirections(result); } });
+        directionsService.route(request, (result, status) => { if (status === 'OK') directionsRenderer.setDirections(result); });
     }
     
     if (userLocationMarker) bounds.extend(userLocationMarker.getPosition());
-    googleMap.fitBounds(bounds);
-    if (googleMap.getZoom() > 15) googleMap.setZoom(15);
-}
-
-function openInGoogleMaps() {
-    const daySels = Object.values(selections[activeDay] || {}).filter(s => s && s.lat);
-    if (daySels.length < 1) { alert("먼저 장소를 선택해주세요."); return; }
-    
-    let url = 'https://www.google.com/maps/dir/';
-    if (userLocationMarker) {
-        const pos = userLocationMarker.getPosition();
-        url += `${pos.lat()},${pos.lng()}/`;
+    if(!bounds.isEmpty()) {
+        googleMap.fitBounds(bounds, {top: 20, bottom: 20, left: 20, right: 20});
+        if (googleMap.getZoom() > 15) googleMap.setZoom(15);
     }
-    daySels.forEach(sel => { url += `${sel.lat},${sel.lng}/`; });
-    window.open(url, '_blank');
 }
 
-// --- 실시간 위치 정보 관련 로직 ---
+// --- GPS 관련 로직 (기능 유지) ---
 function toggleNaviMode() {
-    const toggleButton = document.getElementById('navi-mode-toggle');
     isNaviModeActive = !isNaviModeActive;
-
     if (isNaviModeActive) {
         if (navigator.geolocation) {
-            toggleButton.innerHTML = '<i class="loading-spinner mr-2"></i>GPS 연결 중...';
-            watchId = navigator.geolocation.watchPosition(handleLocationUpdate, handleLocationError, { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 });
+            watchId = navigator.geolocation.watchPosition(handleLocationUpdate, handleLocationError, { enableHighAccuracy: true });
         } else {
-            alert("이 브라우저는 위치 정보를 지원하지 않습니다.");
+            alert("GPS를 지원하지 않는 브라우저입니다.");
             isNaviModeActive = false;
         }
     } else {
-        if (watchId !== null) navigator.geolocation.clearWatch(watchId);
-        watchId = null;
-        if (userLocationMarker) { userLocationMarker.setMap(null); userLocationMarker = null; }
-        
-        toggleButton.innerHTML = '<i class="fas fa-location-arrow mr-1"></i>Live GPS 켜기';
-        toggleButton.classList.remove('bg-green-600', 'text-white');
-        toggleButton.classList.add('bg-blue-100', 'text-blue-800');
+        if (watchId) navigator.geolocation.clearWatch(watchId);
+        if (userLocationMarker) userLocationMarker.setMap(null);
+        userLocationMarker = null;
         clearLiveStatus();
-        updateMapForDay(activeDay); // 지도 뷰 리프레시
+        updateMapForDay(activeDay);
     }
 }
 
 function handleLocationUpdate(position) {
     const userLocation = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
-    const toggleButton = document.getElementById('navi-mode-toggle');
-    
-    toggleButton.innerHTML = '<i class="fas fa-location-arrow mr-1"></i>Live GPS 끄기';
-    toggleButton.classList.remove('bg-blue-100', 'text-blue-800');
-    toggleButton.classList.add('bg-green-600', 'text-white');
-
     if (!userLocationMarker) {
         userLocationMarker = new google.maps.Marker({
             position: userLocation, map: googleMap,
-            icon: { path: google.maps.SymbolPath.CIRCLE, scale: 10, fillColor: '#4285F4', fillOpacity: 1, strokeColor: 'white', strokeWeight: 2 },
-            title: "현재 내 위치", zIndex: 2000
+            icon: { path: google.maps.SymbolPath.CIRCLE, scale: 8, fillColor: '#4285F4', fillOpacity: 1, strokeColor: 'white', strokeWeight: 2 },
+            zIndex: 2000
         });
-        googleMap.setZoom(14);
     } else {
         userLocationMarker.setPosition(userLocation);
     }
-    
     googleMap.panTo(userLocation);
     updateLiveStatus(userLocation);
 }
 
 function handleLocationError(error) {
-    alert(`위치 정보를 가져올 수 없습니다: ${error.message}`);
+    alert(`GPS 오류: ${error.message}`);
     toggleNaviMode();
 }
 
 function updateLiveStatus(userLocation) {
     clearLiveStatus();
-    
     const daySelections = selections[activeDay] || {};
     const sortedTimes = Object.keys(daySelections).sort();
     let nextDestinationFound = false;
-
     const now = new Date();
     const currentTimeStr = now.toTimeString().substring(0, 5);
 
@@ -541,17 +616,15 @@ function updateLiveStatus(userLocation) {
 
             const distanceEl = document.querySelector(`.distance-info[data-day="${activeDay}"][data-time="${time}"]`);
             if (distanceEl) {
-                distanceEl.innerHTML = `📍 현재 ${distanceInKm}km`;
+                distanceEl.innerHTML = `📍 현재 위치에서 ${distanceInKm}km`;
             }
 
             if (!nextDestinationFound && time > currentTimeStr) {
                 const wrapper = document.querySelector(`[data-timeslot-wrapper="${time}"]`);
                 if (wrapper) {
                     wrapper.classList.add('live-next-item');
-                    const nextBadge = document.createElement('div');
-                    nextBadge.className = 'next-badge';
-                    nextBadge.innerText = 'NEXT';
-                    wrapper.appendChild(nextBadge);
+                    const badgeContainer = wrapper.querySelector(`.next-badge-container`);
+                    if(badgeContainer) badgeContainer.innerHTML = `<span class="next-badge">NEXT</span>`;
                 }
                 nextDestinationFound = true;
             }
@@ -561,9 +634,10 @@ function updateLiveStatus(userLocation) {
 
 function clearLiveStatus() {
     document.querySelectorAll('.distance-info').forEach(el => el.innerHTML = '');
+    document.querySelectorAll('.next-badge-container').forEach(el => el.innerHTML = '');
     document.querySelectorAll('.live-next-item').forEach(el => el.classList.remove('live-next-item'));
-    document.querySelectorAll('.next-badge').forEach(el => el.remove());
 }
 </script>
+
 </body>
 </html>
