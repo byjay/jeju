@@ -126,8 +126,7 @@
     </div>
 
 <script>
-const jejuDatabase = { /* 이전 답변의 데이터베이스를 여기에 복사 */ 
-    // 1일차: 공항
+const jejuDatabase = { 
     arrival: { id: 'arrival', name: '제주국제공항 도착', cost: 0, type: 'etc', tags: ['필수'], lat: 33.5104, lng: 126.4913, menu:[], reviews:[]},
     airport_stay: { id: 'airport_stay', name: '공항 근처 숙소', cost: 150000, type: 'accommodation', tags: ['숙소'], lat: 33.508, lng: 126.5 },
     jamaeguksu: { id: 'jamaeguksu', name: '자매국수', rating: 4.1, reviewCount: 3891, cost: 35000, type: 'food', icon: '🍜', lat: 33.5074, lng: 126.5284, tags: ['고기국수', '향토음식'], menu: [{item:'고기국수',price:9000},{item:'비빔국수',price:9000}], reviews: [{author:'면치기', rating:4, text:'진한 국물맛이 일품. 웨이팅은 기본이에요.'}] },
@@ -138,7 +137,6 @@ const jejuDatabase = { /* 이전 답변의 데이터베이스를 여기에 복�
     abebe_bakery: { id: 'abebe_bakery', name: '아베베 베이커리', rating: 4.6, reviewCount: 1500, cost: 20000, type: 'cafe', icon: '🥯', lat: 33.5122, lng: 126.5281, tags: ['크림빵', '디저트', '선물'], menu: [{item:'우도땅콩크림빵',price:3500},{item:'제주녹차크림빵',price:3500}], reviews: [{author:'빵순이', rating:5, text:'크림이 상상 이상으로 가득하고 종류가 정말 다양해요.'}] },
     yongduam: { id: 'yongduam', name: '용두암&용연구름다리', rating: 4.1, reviewCount: 2100, cost: 0, type: 'activity', icon: '🌉', lat: 33.5153, lng: 126.5219, tags: ['야경', '산책', '무료'], menu:[], reviews: [{author:'산책러', rating:4, text:'공항에서 가깝고 밤에 조명 켜지면 예뻐요. 가볍게 산책하기 좋아요.'}] },
     iho_tewoo: { id: 'iho_tewoo', name: '이호테우 해변', rating: 4.3, reviewCount: 1800, cost: 0, type: 'activity', icon: '🐴', lat: 33.5127, lng: 126.4528, tags: ['말등대', '노을', '공항근처'], menu:[], reviews: [{author:'사진가', rating:4, text:'말 등대와 함께보는 일몰 풍경이 정말 환상적이에요. 인생샷 명소.'}] },
-    // 2일차: 애월/서쪽
     chagwido_stay: { id: 'chagwido_stay', name: '서쪽(차귀도) 숙소', cost: 180000, type: 'accommodation', tags: ['숙소'], lat: 33.3857, lng: 126.2104 },
     aewol_noraba: { id: 'aewol_noraba', name: '노라바', rating: 4.4, reviewCount: 3210, cost: 50000, type: 'food', icon: '🍜', lat: 33.4752, lng: 126.3421, tags: ['해물라면', '오션뷰'], menu: [{item:'해물라면',price:12000},{item:'문어라면',price:15000}], reviews: [{author:'면치기', rating:5, text:'바다 보면서 먹는 라면은 진리. 해물이 정말 싱싱해요.'}] },
     aewol_dwaeji: { id: 'aewol_dwaeji', name: '애월 그때그집', rating: 4.5, reviewCount: 1888, cost: 120000, type: 'food', icon: '🐖', lat: 33.4630, lng: 126.3150, tags: ['흑돼지', '초벌구이'], menu: [{item:'흑돼지근고기',price:69000},{item:'김치찌개',price:8000}], reviews: [{author:'육식맨', rating:5, text:'직원분이 다 구워줘서 편하고 고기 질이 정말 좋아요.'}] },
@@ -155,7 +153,6 @@ const jejuDatabase = { /* 이전 답변의 데이터베이스를 여기에 복�
     hyeopjae_beach: { id: 'hyeopjae_beach', name: '협재해수욕장', rating: 4.6, reviewCount: 3105, cost: 10000, type: 'activity', icon: '🏖️', lat: 33.3937, lng: 126.2396, tags: ['에메랄드바다', '비양도'], menu:[{item:'파라솔',price:10000},{item:'샤워장',price:2000}], reviews: [{author:'물놀이광', rating:5, text:'제주에서 가장 아름다운 바다색인 것 같아요. 물이 얕아 아이랑 놀기 좋아요.'}] },
     sinchang_windmill: { id: 'sinchang_windmill', name: '신창풍차해안도로', rating: 4.6, reviewCount: 1560, cost: 0, type: 'activity', icon: '🌬️', lat: 33.3642, lng: 126.1738, tags: ['드라이브', '노을명소'], menu:[], reviews: [{author:'드라이버', rating:5, text:'해질녘에 가면 정말 환상적인 풍경을 볼 수 있어요. 강력 추천하는 드라이브 코스!'}] },
     chagwido_tour: { id: 'chagwido_tour', name: '차귀도 배낚시/요트', rating: 4.5, reviewCount: 500, cost: 80000, type: 'activity', icon: '🛥️', lat: 33.3082, lng: 126.1633, tags: ['배낚시', '이색체험'], menu:[{item:'배낚시(1인)',price:20000}], reviews: [{author:'강태공', rating:4, text:'초보자도 쉽게 즐길 수 있고, 잡은 고기는 즉석에서 회로 먹을 수 있어요.'}] },
-    // 3일차: 서귀포/중문
     seogwipo_stay: { id: 'seogwipo_stay', name: '서귀포 시내 숙소', cost: 170000, type: 'accommodation', tags: ['숙소'], lat: 33.2476, lng: 126.5615 },
     sanbangsan: { id: 'sanbangsan', name: '산방산&용머리해안', rating: 4.5, reviewCount: 1980, cost: 10000, type: 'activity', icon: '⛰️', lat: 33.2423, lng: 126.3138, tags: ['절경', '지질탐방'], menu:[{item:'통합권',price:2500}], reviews: [{author:'탐험가', rating:5, text:'다른 행성에 온 듯한 느낌. 파도와 바람이 만든 최고의 예술작품!'}] },
     camellia_hill: { id: 'camellia_hill', name: '카멜리아힐', rating: 4.3, reviewCount: 5120, cost: 40000, type: 'activity', icon: '🌺', lat: 33.2913, lng: 126.3688, tags: ['수목원', '꽃구경', '포토스팟'], menu: [{item:'성인',price:10000},{item:'청소년',price:8000}], reviews: [{author:'꽃보다나', rating:4, text:'계절마다 다른 꽃을 볼 수 있어서 좋아요. 사진 찍을 곳이 정말 많아요.'}] },
@@ -167,7 +164,6 @@ const jejuDatabase = { /* 이전 답변의 데이터베이스를 여기에 복�
     suksukdo: { id: 'suksukdo', name: '숙성도 중문점', rating: 4.5, reviewCount: 1900, cost: 120000, type: 'food', icon: '🐖', lat: 33.2541, lng: 126.4258, tags: ['숙성흑돼지', '웨이팅'], menu: [{item:'720숙성 흑목살',price:21000},{item:'동치미열무국수',price:8000}], reviews: [{author:'미식가', rating:5, text:'숙성돼지고기의 끝판왕. 부드러움과 육즙이 차원이 달라요.'}] },
     chunsimine: { id: 'chunsimine', name: '춘심이네 본점', rating: 4.2, reviewCount: 2100, cost: 100000, type: 'food', icon: '🐟', lat: 33.2801, lng: 126.3456, tags: ['통갈치구이', '가족식사'], menu: [{item:'통갈치구이2인',price:78000}], reviews: [{author:'생선매니아', rating:4, text:'엄청난 크기의 통갈치 비주얼이 압도적. 뼈를 다 발라줘서 먹기 편해요.'}] },
     negeori_sikdang: { id: 'negeori_sikdang', name: '네거리식당', rating: 4.1, reviewCount: 980, cost: 80000, type: 'food', icon: '🍲', lat: 33.2480, lng: 126.5601, tags: ['갈치국', '향토음식'], menu:[{item:'갈치국', price:15000},{item:'갈치조림(소)',price:40000}], reviews: [{author:'국물파', rating:4, text:'비릴 것 같지만 전혀 안 비리고 시원한 갈치국이 일품이에요.'}] },
-    // 4일차: 동쪽
     seongsan_ilchulbong: { id: 'seongsan_ilchulbong', name: '성산일출봉', rating: 4.5, reviewCount: 15247, cost: 20000, type: 'activity', icon: '🌋', lat: 33.4581, lng: 126.9426, tags: ['유네스코', '일출'], menu: [{item:'성인',price:5000}], reviews: [{author:'등반가', rating:5, text:'힘들게 올라간 보람이 있는 뷰. 제주에 왔다면 꼭 가봐야 할 곳.'}] },
     udo_island: { id: 'udo_island', name: '우도', rating: 4.6, reviewCount: 7850, cost: 80000, type: 'activity', icon: '🏝️', lat: 33.5000, lng: 126.9500, tags: ['섬속의섬', '자전거'], menu: [{item:'왕복선박',price:10500},{item:'땅콩아이스크림',price:5000}], reviews: [{author:'섬여행자', rating:5, text:'반나절 코스로 완벽해요. 전기차 타고 해안도로 돌면 정말 좋아요.'}] },
     seopjikoji: { id: 'seopjikoji', name: '섭지코지', rating: 4.4, reviewCount: 4590, cost: 0, type: 'activity', icon: '🏞️', lat: 33.4243, lng: 126.9295, tags: ['해안절경', '산책로'], menu:[{item:'주차료',price:3000}], reviews: [{author:'산책왕', rating:4, text:'바다와 어우러진 풍경이 예술이에요. 천천히 걷기 좋습니다.'}] },
@@ -609,7 +605,6 @@ function showThemeInfoWindow(marker, placeId) {
 window.addEventListener('load', () => {
     if (typeof google === 'undefined' || typeof google.maps === 'undefined') {
         console.error("Google Maps script failed to load. Retrying...");
-        // This is a fallback, but the `defer` attribute should handle it.
         setTimeout(initApp, 1500); 
     }
 });
