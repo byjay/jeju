@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>강귀선님을 위한 제주여행 플래너 -BY BONG</title>
+    <title>강귀선님을 위한 제주여행 플래너 - BY BONG</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAOAEMIvJc9VndXLYgmUnWoAuXjlOYzDtg&callback=initApp&libraries=places,directions&v=weekly" defer></script>
@@ -11,19 +11,29 @@
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap');
         * { font-family: 'Noto Sans KR', sans-serif; }
         :root { --primary-blue: #3b82f6; --primary-purple: #7c3aed; --success-green: #10b981; --gray-800: #1f2937; }
+        html { scroll-behavior: smooth; }
         body { background-color: #f3f4f6; }
         .main-container { max-width: 1400px; margin: 0 auto; background-color: white; }
         .header-gradient { background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-purple) 100%); }
         
-        /* Sticky Day Tab Container */
-        .day-tab-container-wrapper { position: sticky; background-color: white; z-index: 900; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
-        @media (max-width: 1023px) { .day-tab-container-wrapper { top: 25vh; } }
-        @media (min-width: 1024px) { .day-tab-container-wrapper { top: 0; } }
+        /* Sticky & Fixed Headers for Mobile */
+        @media (max-width: 1023px) {
+            body { padding-top: calc(25vh + 60px); } /* Map height + Tab height */
+            #map-wrapper { position: fixed; top: 0; left: 0; right: 0; height: 25vh; z-index: 1000; }
+            .day-tab-container-wrapper { position: fixed; top: 25vh; left: 0; right: 0; z-index: 900; }
+        }
+
+        /* Sticky Header for Desktop */
+        @media (min-width: 1024px) {
+            .day-tab-container-wrapper { position: sticky; top: 0; }
+            #map-wrapper { position: sticky; top: 1rem; height: 450px; }
+        }
         
+        .day-tab-container-wrapper { background-color: white; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
         .day-tab { transition: all 0.3s ease; border-bottom: 4px solid transparent; }
         .day-tab.active { border-bottom-color: var(--primary-blue); color: var(--primary-blue); font-weight: 700; }
         
-        /* Horizontal Option Bar Style */
+        /* Option Bar & Details Panel */
         .option-container { margin-bottom: 0.5rem; }
         .option-bar {
             display: flex; align-items: center; padding: 0.8rem 1rem; border: 1px solid #e5e7eb; border-radius: 12px;
@@ -38,14 +48,11 @@
         .option-name { font-weight: 700; flex-grow: 1; margin: 0 0.75rem; color: #374151; }
         .rating-box { display: flex; align-items: center; color: #f59e0b; font-weight: 700; }
         
-        /* Details Panel for Option Bar */
         .details-panel {
             max-height: 0; overflow: hidden; transition: max-height 0.4s ease-out, padding 0.4s ease-out, border 0.4s ease-out;
             background: #f8fafc; border-radius: 0 0 12px 12px; border: 1px solid transparent; padding: 0 1.25rem;
         }
-        .details-panel.open {
-            max-height: 600px; padding: 1.25rem; border-color: #e5e7eb; border-top: none;
-        }
+        .details-panel.open { max-height: 600px; padding: 1.25rem; border-color: #e5e7eb; border-top: none; }
         .details-tabs { display: flex; border-bottom: 2px solid #e2e8f0; margin-bottom: 1rem; }
         .details-tab { padding: 0.5rem 1rem; cursor: pointer; font-weight: 600; color: #6b7280; border-bottom: 3px solid transparent; }
         .details-tab.active { color: var(--primary-blue); border-bottom-color: var(--primary-blue); }
@@ -53,13 +60,9 @@
         .details-content.active { display: block; animation: fadeIn 0.5s; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* Map & Floating Elements */
-        #map-wrapper { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background-color: white; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        #map { height: 25vh; }
-        @media (min-width: 1024px) {
-            #map-wrapper { position: sticky; top: 1rem; height: 450px; border-radius: 12px; }
-            #map { height: 100%; border-radius: 12px; }
-        }
+        /* Map & Other Elements */
+        #map { height: 100%; width: 100%; }
+        @media (min-width: 1024px) { #map { border-radius: 12px; } }
         
         #bottom-nav {
             position: fixed; bottom: -100px; left: 0; right: 0; z-index: 1000; transition: transform 0.4s ease-in-out;
@@ -67,29 +70,23 @@
         }
         #bottom-nav.visible { transform: translateY(-100px); }
         
-        /* InfoWindow Custom Style */
         .gm-style .gm-style-iw-c { padding: 0 !important; border-radius: 12px !important; box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;}
         .gm-style-iw-d { overflow: hidden !important; }
         .info-window-content { padding: 1rem; max-width: 280px; }
         .info-window-content h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem; color: #111827; }
         .info-window-content .rating { color: #f59e0b; font-weight: bold; margin-bottom: 0.5rem; }
         .info-window-content .menu-item { display: flex; justify-content: space-between; font-size: 0.85rem; padding: 0.3rem 0; border-bottom: 1px dashed #e5e7eb;}
-        .info-window-content .menu-item:last-child { border-bottom: none; }
         .info-window-content .menu-title { font-weight: 600; margin-top: 0.75rem; margin-bottom: 0.25rem; color: #4b5563; }
     </style>
 </head>
 <body class="bg-gray-100">
     <div class="main-container">
-        <!-- 헤더 -->
         <div class="header-gradient text-white p-6 text-center">
             <h1 class="text-3xl md:text-4xl font-black mb-2">강귀선님 맞춤 제주여행</h1>
             <p class="text-lg md:text-xl opacity-90">실시간 동선 최적화 플래너</p>
         </div>
-
         <div class="p-2 md:p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <!-- 메인 컨텐츠 (일정, 검색 등) -->
             <div class="lg:col-span-2">
-                <!-- 테마 검색 -->
                 <div class="bg-white rounded-xl p-4 mb-4 shadow-md">
                     <h3 class="font-bold text-lg mb-3 flex items-center"><i class="fas fa-map-signs mr-2 text-blue-500"></i>#테마로 장소 찾기</h3>
                     <div class="grid grid-cols-3 md:grid-cols-6 gap-2">
@@ -101,28 +98,18 @@
                         <button onclick="searchByTheme('activity')" class="theme-btn bg-pink-100 text-pink-700 hover:bg-pink-200 p-2 rounded-lg font-semibold transition">🎪 체험</button>
                     </div>
                 </div>
-
-                <!-- 날짜 탭 -->
                 <div class="day-tab-container-wrapper">
                     <div id="day-tabs-container" class="flex justify-around p-2"></div>
                 </div>
-
-                <!-- 일정 -->
                 <div id="itinerary-container" class="mt-4"></div>
             </div>
-
-            <!-- 사이드바 (데스크탑) / 지도 (모바일) -->
             <div class="lg:col-span-1">
-                <div id="map-wrapper">
-                    <div id="map"></div>
-                </div>
+                <div id="map-wrapper"><div id="map"></div></div>
                 <div class="hidden lg:block space-y-6 mt-6">
-                    <!-- 선택된 일정 -->
                     <div class="bg-white rounded-xl shadow-md">
                         <div class="p-4 font-bold border-b"><i class="fas fa-list-check mr-2 text-green-500"></i>오늘의 여행 계획</div>
                         <div id="selected-items-container" class="p-4 max-h-80 overflow-y-auto"></div>
                     </div>
-                    <!-- 경비 계산 -->
                     <div class="bg-white rounded-xl shadow-md">
                         <div class="p-4 font-bold border-b"><i class="fas fa-calculator mr-2 text-purple-500"></i>여행 경비</div>
                         <div class="p-4 space-y-4" id="cost-calculator"></div>
@@ -132,7 +119,6 @@
         </div>
     </div>
     
-    <!-- 하단 날짜 이동 버튼 -->
     <div id="bottom-nav" class="p-3 border-t border-gray-200 flex justify-between items-center">
         <button id="prev-day-btn" class="font-bold text-gray-700 py-2 px-4 rounded-lg flex items-center transition hover:bg-gray-200 disabled:opacity-50 disabled:hover:bg-transparent"><i class="fas fa-chevron-left mr-2"></i> 이전날</button>
         <div class="text-lg font-black text-blue-600"><span id="bottom-nav-day">1</span>일차</div>
@@ -140,8 +126,7 @@
     </div>
 
 <script>
-// V3 데이터베이스: 200개 이상의 장소 정보 포함
-const jejuDatabase = {
+const jejuDatabase = { /* 이전 답변의 데이터베이스를 여기에 복사 */ 
     // 1일차: 공항
     arrival: { id: 'arrival', name: '제주국제공항 도착', cost: 0, type: 'etc', tags: ['필수'], lat: 33.5104, lng: 126.4913, menu:[], reviews:[]},
     airport_stay: { id: 'airport_stay', name: '공항 근처 숙소', cost: 150000, type: 'accommodation', tags: ['숙소'], lat: 33.508, lng: 126.5 },
@@ -194,7 +179,6 @@ const jejuDatabase = {
     orda_cafe: { id: 'orda_cafe', name: '카페 오르다', rating: 4.2, reviewCount: 1856, cost: 35000, type: 'cafe', icon: '☕', lat: 33.4475, lng: 126.9323, tags: ['천국의계단', '성산뷰'], menu: [{item:'아메리카노',price:7000},{item:'오르다라떼',price:8500}], reviews: [{author:'인생샷', rating:4, text:'천국의계단에서 사진 찍으려면 줄 서야해요. 성산일출봉 뷰가 정말 멋집니다.'}] },
     moumoon_cafe: { id: 'moumoon_cafe', name: '카페 모알보알', rating: 4.4, reviewCount: 950, cost: 30000, type: 'cafe', icon: '☕', lat: 33.5407, lng: 126.8569, tags: ['세화해변뷰', '루프탑'], menu: [{item:'아메리카노',price:6000},{item:'당근케이크',price:7000}], reviews: [{author:'바다멍', rating:5, text:'세화바다를 정면으로 보며 커피 마시기 좋아요. 루프탑이 최고!'}] }
 };
-
 const itineraryData = {
     day1: { title: "1일차: 공항 도착 & 제주시내 맛보기", options: [
         { time: '16:00', icon: '✈️', category: '공항 도착 및 렌트카', places: ['arrival'] },
@@ -620,6 +604,15 @@ function showThemeInfoWindow(marker, placeId) {
         }
     });
 }
+
+// Ensure the app starts after Google Maps script is fully loaded
+window.addEventListener('load', () => {
+    if (typeof google === 'undefined' || typeof google.maps === 'undefined') {
+        console.error("Google Maps script failed to load. Retrying...");
+        // This is a fallback, but the `defer` attribute should handle it.
+        setTimeout(initApp, 1500); 
+    }
+});
 </script>
 </body>
 </html>
