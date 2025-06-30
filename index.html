@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>강귀선님을 위한 제주여행 플래너 V3</title>
+    <title>강귀선님을 위한 제주여행 플래너 - by bong</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAOAEMIvJc9VndXLYgmUnWoAuXjlOYzDtg&callback=initApp&libraries=places,directions&v=weekly" defer></script>
@@ -14,81 +14,64 @@
         body { background: #f0f2f5; }
         .main-container { max-width: 1400px; margin: 0 auto; background: white; }
         .header-gradient { background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-purple) 100%); }
-        .day-tab-container { position: sticky; top: 25vh; background: white; z-index: 900; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        @media (max-width: 1023px) { .day-tab-container { top: 25vh; } }
-        @media (min-width: 1024px) { .day-tab-container { top: 0; } }
+        
+        .day-tab-container-wrapper { position: sticky; background: white; z-index: 900; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        @media (max-width: 1023px) { .day-tab-container-wrapper { top: 25vh; } }
+        @media (min-width: 1024px) { .day-tab-container-wrapper { top: 0; } }
         .day-tab { transition: all 0.3s ease; border-bottom: 4px solid transparent; }
         .day-tab.active { border-bottom-color: var(--primary-blue); color: var(--primary-blue); font-weight: 700; }
-        .timeline-dot { background: var(--primary-blue); }
         
         /* New Horizontal Bar Style */
+        .option-container { margin-bottom: 0.5rem; }
         .option-bar {
-            display: flex;
-            align-items: center;
-            padding: 0.75rem 1rem;
-            border: 1px solid #e5e7eb;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: all 0.2s ease-in-out;
-            background-color: white;
-            width: 100%;
+            display: flex; align-items: center; padding: 0.75rem 1rem; border: 1px solid #e5e7eb; border-radius: 12px;
+            cursor: pointer; transition: all 0.2s ease-in-out; background-color: white; width: 100%;
         }
-        .option-bar:hover {
-            border-color: var(--primary-blue);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-        }
+        .option-bar:hover { border-color: var(--primary-blue); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
         .option-bar.selected {
-            background: linear-gradient(135deg, #e0e7ff 0%, #ede9fe 100%);
-            border-color: var(--primary-blue);
-            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+            background: linear-gradient(135deg, #e0e7ff 0%, #ede9fe 100%); border-color: var(--primary-blue);
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3); border-bottom-left-radius: 0; border-bottom-right-radius: 0;
         }
         .option-icon { font-size: 1.25rem; width: 2rem; text-align: center; }
         .option-name { font-weight: 600; flex-grow: 1; margin: 0 1rem; }
         .rating-box { display: flex; align-items: center; color: #f59e0b; font-weight: 600; }
+        
         .details-panel {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.5s ease-in-out, padding 0.5s ease-in-out;
-            background: #f8fafc;
-            border-radius: 0 0 12px 12px;
-            border: 1px solid #e5e7eb;
-            border-top: none;
-            padding: 0 1rem;
+            max-height: 0; overflow: hidden; transition: max-height 0.5s ease-in-out, padding 0.5s ease-in-out;
+            background: #f8fafc; border-radius: 0 0 12px 12px; border: 1px solid #e5e7eb; border-top: none; padding: 0 1rem;
         }
-        .details-panel.open {
-            max-height: 600px;
-            padding: 1rem;
-        }
+        .details-panel.open { max-height: 600px; padding: 1.25rem; }
+        .details-tabs { display: flex; border-bottom: 2px solid #e2e8f0; margin-bottom: 1rem; }
+        .details-tab { padding: 0.5rem 1rem; cursor: pointer; font-weight: 500; border-bottom: 3px solid transparent; }
+        .details-tab.active { color: var(--primary-blue); border-bottom-color: var(--primary-blue); }
+        .details-content { display: none; }
+        .details-content.active { display: block; animation: fadeIn 0.5s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
         /* Map & Floating Elements */
         #map-wrapper { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: white; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        #map { height: 25vh; border-radius: 0; }
+        #map { height: 25vh; }
         @media (min-width: 1024px) {
-            body { padding-top: 0; }
-            #map-wrapper, #map { position: sticky; top: 1rem; height: 400px; border-radius: 12px; }
-            .day-tab-container { position: relative; }
+            #map-wrapper { position: sticky; top: 1rem; height: 450px; border-radius: 12px; }
+            #map { height: 100%; border-radius: 12px; }
         }
 
         #bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            z-index: 1000;
-            transition: transform 0.3s ease-in-out;
-            transform: translateY(100%);
+            position: fixed; bottom: 0; left: 0; right: 0; z-index: 1000; transition: transform 0.3s ease-in-out;
+            transform: translateY(100%); background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px);
         }
-        #bottom-nav.visible {
-            transform: translateY(0);
-        }
+        #bottom-nav.visible { transform: translateY(0); }
         
         /* InfoWindow Style */
-        .gm-style-iw { padding: 0 !important; }
+        .gm-style .gm-style-iw-c { padding: 0 !important; border-radius: 12px !important; }
         .gm-style-iw-d { overflow: hidden !important; }
         .info-window-content { padding: 1rem; max-width: 280px; }
-        .info-window-content h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem; }
-        .info-window-content .menu-item { display: flex; justify-content: space-between; font-size: 0.85rem; padding: 0.2rem 0; border-bottom: 1px dashed #e5e7eb;}
+        .info-window-content h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem; color: #111827; }
+        .info-window-content .rating { color: #f59e0b; font-weight: bold; margin-bottom: 0.5rem; }
+        .info-window-content .menu-item { display: flex; justify-content: space-between; font-size: 0.85rem; padding: 0.3rem 0; border-bottom: 1px dashed #e5e7eb;}
+        .info-window-content .menu-item:last-child { border-bottom: none; }
+        .info-window-content .menu-title { font-weight: 600; margin-top: 0.75rem; margin-bottom: 0.25rem; }
+        .info-window-content .add-btn { background-color: var(--primary-blue); color: white; border: none; padding: 0.5rem; border-radius: 8px; width: 100%; margin-top: 1rem; font-weight: 600; cursor: pointer; }
     </style>
 </head>
 <body class="bg-gray-100">
@@ -104,7 +87,7 @@
             <div class="lg:col-span-2">
                 <!-- 테마 검색 -->
                 <div class="bg-white rounded-xl p-4 mb-4 shadow-md">
-                    <h3 class="font-bold text-lg mb-3">#테마 검색</h3>
+                    <h3 class="font-bold text-lg mb-3 flex items-center"><i class="fas fa-map-signs mr-2 text-blue-500"></i>#테마로 장소 찾기</h3>
                     <div class="grid grid-cols-3 md:grid-cols-6 gap-2">
                         <button onclick="searchByTheme('restaurant')" class="theme-btn bg-red-100 text-red-700 hover:bg-red-200 p-2 rounded-lg font-semibold transition">🍽️ 맛집</button>
                         <button onclick="searchByTheme('cafe')" class="theme-btn bg-yellow-100 text-yellow-700 hover:bg-yellow-200 p-2 rounded-lg font-semibold transition">☕ 카페</button>
@@ -116,8 +99,8 @@
                 </div>
 
                 <!-- 날짜 탭 -->
-                <div class="day-tab-container flex justify-around p-2">
-                    <div id="day-tabs-container" class="flex space-x-2"></div>
+                <div class="day-tab-container-wrapper">
+                    <div id="day-tabs-container" class="flex justify-around p-2"></div>
                 </div>
 
                 <!-- 일정 -->
@@ -131,13 +114,13 @@
                 </div>
                 <div class="hidden lg:block space-y-6 mt-6">
                     <!-- 선택된 일정 -->
-                    <div class="sidebar-card">
-                        <div class="sidebar-header p-4 font-bold"><i class="fas fa-list-check mr-2"></i>오늘의 여행 계획</div>
+                    <div class="bg-white rounded-xl shadow-md">
+                        <div class="p-4 font-bold border-b"><i class="fas fa-list-check mr-2 text-green-500"></i>오늘의 여행 계획</div>
                         <div id="selected-items-container" class="p-4 max-h-80 overflow-y-auto"></div>
                     </div>
                     <!-- 경비 계산 -->
-                    <div class="sidebar-card">
-                        <div class="sidebar-header p-4 font-bold"><i class="fas fa-calculator mr-2"></i>여행 경비</div>
+                    <div class="bg-white rounded-xl shadow-md">
+                        <div class="p-4 font-bold border-b"><i class="fas fa-calculator mr-2 text-purple-500"></i>여행 경비</div>
                         <div class="p-4 space-y-4" id="cost-calculator"></div>
                     </div>
                 </div>
@@ -146,114 +129,496 @@
     </div>
     
     <!-- 하단 날짜 이동 버튼 -->
-    <div id="bottom-nav" class="bg-white p-3 shadow-lg flex justify-between items-center">
-        <button id="prev-day-btn" class="font-bold text-gray-700 py-2 px-4 rounded-lg flex items-center"><i class="fas fa-chevron-left mr-2"></i> 이전날</button>
+    <div id="bottom-nav" class="p-3 border-t border-gray-200 flex justify-between items-center">
+        <button id="prev-day-btn" class="font-bold text-gray-700 py-2 px-4 rounded-lg flex items-center transition hover:bg-gray-200 disabled:opacity-50"><i class="fas fa-chevron-left mr-2"></i> 이전날</button>
         <div class="text-lg font-black text-blue-600"><span id="bottom-nav-day">1</span>일차</div>
-        <button id="next-day-btn" class="font-bold text-gray-700 py-2 px-4 rounded-lg flex items-center">다음날 <i class="fas fa-chevron-right ml-2"></i></button>
+        <button id="next-day-btn" class="font-bold text-gray-700 py-2 px-4 rounded-lg flex items-center transition hover:bg-gray-200 disabled:opacity-50">다음날 <i class="fas fa-chevron-right ml-2"></i></button>
     </div>
 
 <script>
-// 데이터베이스 (V3: 200+ 장소)
 const jejuDatabase = {
-    // DB 생략 (이전 버전의 jejuDatabase를 그대로 사용하거나 더 확장하여 여기에 삽입)
-    // 아래는 필수 항목 예시입니다. 이 구조에 맞춰 데이터를 채워주세요.
-    arrival: { id: 'arrival', name: '제주국제공항', cost: 0, type: 'etc', tags: ['필수'], lat: 33.5104, lng: 126.4913, menu:[], reviews:[]},
+    // 1일차: 공항
+    arrival: { id: 'arrival', name: '제주국제공항 도착', cost: 0, type: 'etc', tags: ['필수'], lat: 33.5104, lng: 126.4913, menu:[], reviews:[]},
     airport_stay: { id: 'airport_stay', name: '공항 근처 숙소', cost: 150000, type: 'accommodation', tags: ['숙소'], lat: 33.508, lng: 126.5 },
+    jamaeguksu: { id: 'jamaeguksu', name: '자매국수', rating: 4.1, reviewCount: 3891, cost: 35000, type: 'food', icon: '🍜', lat: 33.5074, lng: 126.5284, tags: ['고기국수', '향토음식'], menu: [{item:'고기국수',price:9000},{item:'비빔국수',price:9000}], reviews: [{author:'면치기', rating:4, text:'진한 국물맛이 일품. 웨이팅은 기본이에요.'}] },
+    dombedon: { id: 'dombedon', name: '돔베돈', rating: 4.3, reviewCount: 2247, cost: 130000, type: 'food', icon: '🐖', lat: 33.5148, lng: 126.5245, tags: ['흑돼지', '근고기'], menu: [{item:'흑돼지2인',price:69000},{item:'김치찌개',price:8000}], reviews: [{author:'고기사랑', rating:5, text:'육즙 가득한 흑돼지를 직원분이 맛있게 구워줘서 편해요.'}] },
+    dongmun_market: { id: 'dongmun_market', name: '동문시장 야시장', rating: 4.2, reviewCount: 4500, cost: 50000, type: 'food', icon: '🦐', lat: 33.5126, lng: 126.5292, tags: ['야시장', '길거리음식'], menu: [{item:'랍스터구이',price:15000},{item:'흑돼지오겹말이',price:8000}], reviews: [{author:'야식왕', rating:4, text:'활기차고 먹을게 많아요. 사람 많은 건 감수해야 해요.'}] },
+    samsunghyeol: { id: 'samsunghyeol', name: '삼성혈 해물탕', rating: 4.3, reviewCount: 1200, cost: 90000, type: 'food', icon: '🦀', lat: 33.5090, lng: 126.5286, tags: ['해물탕', '가족식사'], menu: [{item:'해물탕(소)',price:60000},{item:'전복뚝배기',price:15000}], reviews: [{author:'국물파', rating:4, text:'살아있는 문어와 전복! 해물이 신선하고 푸짐해서 좋아요.'}] },
+    ujin_haejang: { id: 'ujin_haejang', name: '우진해장국', rating: 4.2, reviewCount: 3300, cost: 30000, type: 'food', icon: '🍲', lat: 33.5142, lng: 126.5226, tags: ['고사리해장국', '몸국'], menu: [{item:'고사리육개장',price:10000},{item:'몸국',price:10000}], reviews: [{author:'해장인', rating:4, text:'처음엔 이게 무슨 맛인가 싶은데, 계속 생각나는 중독성 강한 맛.'}] },
+    abebe_bakery: { id: 'abebe_bakery', name: '아베베 베이커리', rating: 4.6, reviewCount: 1500, cost: 20000, type: 'cafe', icon: '🥯', lat: 33.5122, lng: 126.5281, tags: ['크림빵', '디저트', '선물'], menu: [{item:'우도땅콩크림빵',price:3500},{item:'제주녹차크림빵',price:3500}], reviews: [{author:'빵순이', rating:5, text:'크림이 상상 이상으로 가득하고 종류가 정말 다양해요.'}] },
+    yongduam: { id: 'yongduam', name: '용두암&용연구름다리', rating: 4.1, reviewCount: 2100, cost: 0, type: 'activity', icon: '🌉', lat: 33.5153, lng: 126.5219, tags: ['야경', '산책', '무료'], menu:[], reviews: [{author:'산책러', rating:4, text:'공항에서 가깝고 밤에 조명 켜지면 예뻐요. 가볍게 산책하기 좋아요.'}] },
+    iho_tewoo: { id: 'iho_tewoo', name: '이호테우 해변', rating: 4.3, reviewCount: 1800, cost: 0, type: 'activity', icon: '🐴', lat: 33.5127, lng: 126.4528, tags: ['말등대', '노을', '공항근처'], menu:[], reviews: [{author:'사진가', rating:4, text:'말 등대와 함께보는 일몰 풍경이 정말 환상적이에요. 인생샷 명소.'}] },
+    // 2일차: 애월/서쪽
     chagwido_stay: { id: 'chagwido_stay', name: '서쪽(차귀도) 숙소', cost: 180000, type: 'accommodation', tags: ['숙소'], lat: 33.3857, lng: 126.2104 },
+    aewol_noraba: { id: 'aewol_noraba', name: '노라바', rating: 4.4, reviewCount: 3210, cost: 50000, type: 'food', icon: '🍜', lat: 33.4752, lng: 126.3421, tags: ['해물라면', '오션뷰'], menu: [{item:'해물라면',price:12000},{item:'문어라면',price:15000}], reviews: [{author:'면치기', rating:5, text:'바다 보면서 먹는 라면은 진리. 해물이 정말 싱싱해요.'}] },
+    aewol_dwaeji: { id: 'aewol_dwaeji', name: '애월 그때그집', rating: 4.5, reviewCount: 1888, cost: 120000, type: 'food', icon: '🐖', lat: 33.4630, lng: 126.3150, tags: ['흑돼지', '초벌구이'], menu: [{item:'흑돼지근고기',price:69000},{item:'김치찌개',price:8000}], reviews: [{author:'육식맨', rating:5, text:'직원분이 다 구워줘서 편하고 고기 질이 정말 좋아요.'}] },
+    hallim_suudong: { id: 'hallim_suudong', name: '수우동', rating: 4.4, reviewCount: 1987, cost: 60000, type: 'food', icon: '🍘', lat: 33.3934, lng: 126.2346, tags: ['돈까스', '우동', '예약필수'], menu: [{item:'일식돈카츠',price:14000},{item:'자작냉우동',price:12000}], reviews: [{author:'일식매니아', rating:5, text:'인생 돈까스 등극. 예약이 힘들지만 그만한 가치가 충분합니다.'}] },
+    jejidona: { id: 'jejidona', name: '제주돈아', rating: 4.6, reviewCount: 650, cost: 100000, type: 'food', icon: '🐖', lat: 33.3929, lng: 126.2422, tags: ['흑돼지', '연탄구이'], menu:[{item:'흑돼지근고기', price:65000},{item:'된장찌개',price:3000}], reviews:[{author:'고기박사', rating:5, text:'연탄불에 구워먹는 흑돼지 맛이 기가 막힙니다.'}] },
+    chagwido_budu: { id: 'chagwido_budu', name: '부두식당', rating: 4.3, reviewCount: 680, cost: 70000, type: 'food', icon: '🐟', lat: 33.3079, lng: 126.1636, tags: ['고등어회', '차귀도맛집'], menu:[{item:'고등어회(소)', price:40000},{item:'매운탕',price:15000}], reviews: [{author:'회박사', rating:5, text:'차귀도 포구 바로 앞. 싱싱한 고등어회를 맛볼 수 있는 곳.'}] },
+    aewol_monsant: { id: 'aewol_monsant', name: '몽상드애월', rating: 4.1, reviewCount: 2540, cost: 35000, type: 'cafe', icon: '🌅', lat: 33.4638, lng: 126.3106, tags: ['오션뷰', 'GD카페', '포토존'], menu: [{item:'아메리카노',price:7000},{item:'한라봉에이드',price:8500}], reviews: [{author:'인스타', rating:4, text:'뷰는 정말 최고. 커피값은 비싸지만 자리값이라 생각하면 괜찮아요.'}] },
+    aewol_bomnal: { id: 'aewol_bomnal', name: '봄날카페', rating: 4.2, reviewCount: 2980, cost: 30000, type: 'cafe', icon: '🐶', lat: 33.4639, lng: 126.3110, tags: ['오션뷰', '웰시코기'], menu: [{item:'봄날라떼',price:7000},{item:'천혜향주스',price:8000}], reviews: [{author:'감성여행', rating:4, text:'아기자기하고 예쁜 카페. 바다 바로 앞이라 파도소리 듣기 좋아요.'}] },
+    randys_donuts: { id: 'randys_donuts', name: '랜디스도넛 애월', rating: 4.3, reviewCount: 4211, cost: 25000, type: 'cafe', icon: '🍩', lat: 33.4631, lng: 126.3189, tags: ['도넛', '디저트', '웨이팅'], menu: [{item:'버터크림도넛',price:3300},{item:'글레이즈',price:2500}], reviews: [{author:'달달구리', rating:4, text:'종류 많고 맛있지만 웨이팅은 각오해야 해요.'}] },
+    myeongwol_school: { id: 'myeongwol_school', name: '명월국민학교', rating: 4.3, reviewCount: 1621, cost: 30000, type: 'cafe', icon: '🏫', lat: 33.3986, lng: 126.2750, tags: ['레트로', '갤러리', '포토존'], menu: [{item:'입장료(음료포함)',price:8000}], reviews: [{author:'사진찍기', rating:4, text:'사진 찍을 곳이 정말 많고 컨셉이 독특해서 좋았어요.'}] },
+    ultramarine: { id: 'ultramarine', name: '울트라마린', rating: 4.4, reviewCount: 780, cost: 30000, type: 'cafe', icon: '🌊', lat: 33.3615, lng: 126.1730, tags: ['통유리', '신창풍차뷰'], menu:[{item:'아메리카노',price:6500},{item:'패션후르츠에이드',price:8000}], reviews:[{author:'뷰깡패', rating:5, text:'통유리창으로 보이는 바다와 풍차뷰가 환상적이에요.'}] },
+    aewol_arte: { id: 'aewol_arte', name: '아르떼뮤지엄', rating: 4.7, reviewCount: 5560, cost: 60000, type: 'activity', icon: '🌌', lat: 33.4116, lng: 126.3314, tags: ['미디어아트', '실내', '인생샷'], menu: [{item:'성인',price:17000},{item:'청소년',price:13000}], reviews: [{author:'예술Lover', rating:5, text:'정말 환상적인 경험이었어요. 모든 전시관이 감동적입니다. 강력 추천!'}] },
+    hallim_park: { id: 'hallim_park', name: '한림공원', rating: 4.5, reviewCount: 4328, cost: 50000, type: 'activity', icon: '🌴', lat: 33.3917, lng: 126.2369, tags: ['테마파크', '식물원'], menu: [{item:'성인',price:15000},{item:'청소년',price:10000}], reviews: [{author:'가족대표', rating:5, text:'볼거리가 정말 많아요. 야자수길, 동굴, 민속촌까지 하루 종일 놀 수 있어요.'}] },
+    hyeopjae_beach: { id: 'hyeopjae_beach', name: '협재해수욕장', rating: 4.6, reviewCount: 3105, cost: 10000, type: 'activity', icon: '🏖️', lat: 33.3937, lng: 126.2396, tags: ['에메랄드바다', '비양도'], menu:[{item:'파라솔',price:10000},{item:'샤워장',price:2000}], reviews: [{author:'물놀이광', rating:5, text:'제주에서 가장 아름다운 바다색인 것 같아요. 물이 얕아 아이랑 놀기 좋아요.'}] },
+    sinchang_windmill: { id: 'sinchang_windmill', name: '신창풍차해안도로', rating: 4.6, reviewCount: 1560, cost: 0, type: 'activity', icon: '🌬️', lat: 33.3642, lng: 126.1738, tags: ['드라이브', '노을명소'], menu:[], reviews: [{author:'드라이버', rating:5, text:'해질녘에 가면 정말 환상적인 풍경을 볼 수 있어요. 강력 추천하는 드라이브 코스!'}] },
+    chagwido_tour: { id: 'chagwido_tour', name: '차귀도 배낚시/요트', rating: 4.5, reviewCount: 500, cost: 80000, type: 'activity', icon: '🛥️', lat: 33.3082, lng: 126.1633, tags: ['배낚시', '이색체험'], menu:[{item:'배낚시(1인)',price:20000}], reviews: [{author:'강태공', rating:4, text:'초보자도 쉽게 즐길 수 있고, 잡은 고기는 즉석에서 회로 먹을 수 있어요.'}] },
+    // 3일차: 서귀포/중문
     seogwipo_stay: { id: 'seogwipo_stay', name: '서귀포 시내 숙소', cost: 170000, type: 'accommodation', tags: ['숙소'], lat: 33.2476, lng: 126.5615 },
-    jamaeguksu: { id: 'jamaeguksu', name: '자매국수', rating: 4.1, reviewCount: 3891, cost: 35000, type: 'food', lat: 33.5074, lng: 126.5284, tags: ['고기국수', '향토음식'], menu: [{item:'고기국수',price:9000},{item:'비빔국수',price:9000}], reviews: [{author:'면치기', rating:4, text:'진한 국물맛이 일품'}] },
-    dombedon: { id: 'dombedon', name: '돔베돈', rating: 4.3, reviewCount: 2247, cost: 130000, type: 'food', lat: 33.5148, lng: 126.5245, tags: ['흑돼지', '근고기'], menu: [{item:'흑돼지2인',price:69000},{item:'김치찌개',price:8000}], reviews: [{author:'고기사랑', rating:5, text:'육즙 가득한 흑돼지'}] },
-    dongmun_market: { id: 'dongmun_market', name: '동문시장 야시장', rating: 4.2, reviewCount: 4500, cost: 50000, type: 'food', lat: 33.5126, lng: 126.5292, tags: ['야시장', '길거리음식'], menu: [{item:'랍스터구이',price:15000},{item:'흑돼지오겹말이',price:8000}], reviews: [{author:'야식왕', rating:4, text:'활기차고 먹을게 많아요'}] },
-    samsunghyeol: { id: 'samsunghyeol', name: '삼성혈 해물탕', rating: 4.3, reviewCount: 1200, cost: 90000, type: 'food', lat: 33.5090, lng: 126.5286, tags: ['해물탕', '가족식사'], menu: [{item:'해물탕(소)',price:60000},{item:'전복뚝배기',price:15000}], reviews: [{author:'국물파', rating:4, text:'해물이 신선하고 푸짐해요'}] },
-    ujin_haejang: { id: 'ujin_haejang', name: '우진해장국', rating: 4.2, reviewCount: 3300, cost: 30000, type: 'food', lat: 33.5142, lng: 126.5226, tags: ['고사리해장국', '수요미식회'], menu: [{item:'고사리육개장',price:10000},{item:'몸국',price:10000}], reviews: [{author:'해장인', rating:4, text:'독특하지만 중독성 강한 맛'}] },
-    abebe_bakery: { id: 'abebe_bakery', name: '아베베 베이커리', rating: 4.6, reviewCount: 1500, cost: 20000, type: 'cafe', lat: 33.5122, lng: 126.5281, tags: ['크림빵', '디저트', '선물'], menu: [{item:'우도땅콩크림빵',price:3500},{item:'제주녹차크림빵',price:3500}], reviews: [{author:'빵순이', rating:5, text:'크림이 가득하고 종류가 다양해요'}] },
-    yongduam: { id: 'yongduam', name: '용두암&용연구름다리', rating: 4.1, reviewCount: 2100, cost: 0, type: 'activity', lat: 33.5153, lng: 126.5219, tags: ['야경', '산책', '무료'], menu:[], reviews: [{author:'산책러', rating:4, text:'밤에 조명 켜지면 예뻐요'}] },
-    iho_tewoo: { id: 'iho_tewoo', name: '이호테우 해변', rating: 4.3, reviewCount: 1800, cost: 0, type: 'activity', lat: 33.5127, lng: 126.4528, tags: ['말등대', '노을', '공항근처'], menu:[], reviews: [{author:'사진가', rating:4, text:'말 등대와 노을이 환상적'}] },
-    aewol_noraba: { id: 'aewol_noraba', name: '노라바', rating: 4.4, reviewCount: 3210, cost: 50000, type: 'food', lat: 33.4752, lng: 126.3421, tags: ['해물라면', '오션뷰'], menu: [{item:'해물라면',price:12000},{item:'문어라면',price:15000}], reviews: [{author:'면치기', rating:5, text:'뷰가 다하는 라면 맛집'}] },
-    aewol_dwaeji: { id: 'aewol_dwaeji', name: '애월 그때그집', rating: 4.5, reviewCount: 1888, cost: 120000, type: 'food', lat: 33.4630, lng: 126.3150, tags: ['흑돼지', '초벌구이'], menu: [{item:'흑돼지근고기',price:69000}], reviews: [{author:'육식맨', rating:5, text:'구워줘서 편하고 맛있어요'}] },
-    hallim_suudong: { id: 'hallim_suudong', name: '수우동', rating: 4.4, reviewCount: 1987, cost: 60000, type: 'food', lat: 33.3934, lng: 126.2346, tags: ['돈까스', '우동', '예약필수'], menu: [{item:'일식돈카츠',price:14000},{item:'자작냉우동',price:12000}], reviews: [{author:'일식매니아', rating:5, text:'인생 돈까스, 예약 필수'}] },
-    jejidona: { id: 'jejidona', name: '제주돈아', rating: 4.6, reviewCount: 650, cost: 100000, type: 'food', lat: 33.3929, lng: 126.2422, tags: ['흑돼지', '연탄구이'], menu:[{item:'흑돼지근고기', price:65000}], reviews:[{author:'고기박사', rating:5, text:'연탄불향 가득한 흑돼지'}] },
-    chagwido_budu: { id: 'chagwido_budu', name: '부두식당', rating: 4.3, reviewCount: 680, cost: 70000, type: 'food', lat: 33.3079, lng: 126.1636, tags: ['고등어회', '차귀도맛집'], menu:[{item:'고등어회(소)', price:40000},{item:'매운탕',price:15000}], reviews:[{author:'회박사', rating:5, text:'싱싱한 고등어회 맛집'}] },
-    aewol_monsant: { id: 'aewol_monsant', name: '몽상드애월', rating: 4.1, reviewCount: 2540, cost: 35000, type: 'cafe', lat: 33.4638, lng: 126.3106, tags: ['오션뷰', 'GD카페', '포토존'], menu: [{item:'아메리카노',price:7000},{item:'한라봉에이드',price:8500}], reviews: [{author:'인스타', rating:4, text:'뷰는 최고, 커피는 쏘쏘'}] },
-    aewol_bomnal: { id: 'aewol_bomnal', name: '봄날카페', rating: 4.2, reviewCount: 2980, cost: 30000, type: 'cafe', lat: 33.4639, lng: 126.3110, tags: ['오션뷰', '웰시코기'], menu: [{item:'봄날라떼',price:7000},{item:'천혜향주스',price:8000}], reviews: [{author:'감성여행', rating:4, text:'아기자기하고 예쁜 카페'}] },
-    randys_donuts: { id: 'randys_donuts', name: '랜디스도넛 애월', rating: 4.3, reviewCount: 4211, cost: 25000, type: 'cafe', lat: 33.4631, lng: 126.3189, tags: ['도넛', '디저트', '웨이팅'], menu: [{item:'버터크림도넛',price:3300},{item:'글레이즈',price:2500}], reviews: [{author:'달달구리', rating:4, text:'종류 많고 맛있지만 웨이팅 김'}] },
-    myeongwol_school: { id: 'myeongwol_school', name: '명월국민학교', rating: 4.3, reviewCount: 1621, cost: 30000, type: 'cafe', lat: 33.3986, lng: 126.2750, tags: ['레트로', '갤러리', '포토존'], menu: [{item:'입장료(음료포함)',price:8000}], reviews: [{author:'사진찍기', rating:4, text:'독특한 컨셉, 사진찍기 좋음'}] },
-    ultramarine: { id: 'ultramarine', name: '울트라마린', rating: 4.4, reviewCount: 780, cost: 30000, type: 'cafe', lat: 33.3615, lng: 126.1730, tags: ['통유리', '신창풍차뷰'], menu:[{item:'아메리카노',price:6500},{item:'패션후르츠에이드',price:8000}], reviews:[{author:'뷰깡패', rating:5, text:'통창으로 보는 풍차뷰가 압권'}] },
-    aewol_arte: { id: 'aewol_arte', name: '아르떼뮤지엄', rating: 4.7, reviewCount: 5560, cost: 60000, type: 'activity', lat: 33.4116, lng: 126.3314, tags: ['미디어아트', '실내', '인생샷'], menu: [{item:'성인',price:17000}], reviews: [{author:'예술Lover', rating:5, text:'환상적인 경험, 강력 추천'}] },
-    hallim_park: { id: 'hallim_park', name: '한림공원', rating: 4.5, reviewCount: 4328, cost: 50000, type: 'activity', lat: 33.3917, lng: 126.2369, tags: ['테마파크', '식물원'], menu: [{item:'성인',price:15000}], reviews: [{author:'가족대표', rating:5, text:'볼거리가 정말 많아요'}] },
-    hyeopjae_beach: { id: 'hyeopjae_beach', name: '협재해수욕장', rating: 4.6, reviewCount: 3105, cost: 10000, type: 'activity', lat: 33.3937, lng: 126.2396, tags: ['에메랄드바다', '비양도'], menu:[{item:'파라솔',price:10000}], reviews: [{author:'물놀이광', rating:5, text:'제주 최고의 바다색'}] },
-    sinchang_windmill: { id: 'sinchang_windmill', name: '신창풍차해안도로', rating: 4.6, reviewCount: 1560, cost: 0, type: 'activity', lat: 33.3642, lng: 126.1738, tags: ['드라이브', '노을명소'], menu:[], reviews: [{author:'드라이버', rating:5, text:'해질녘 드라이브 코스로 최고'}] },
-    chagwido_tour: { id: 'chagwido_tour', name: '차귀도 배낚시/요트', rating: 4.5, reviewCount: 500, cost: 80000, type: 'activity', lat: 33.3082, lng: 126.1633, tags: ['배낚시', '이색체험'], menu:[{item:'배낚시(1인)',price:20000}], reviews:[{author:'강태공', rating:4, text:'초보자도 쉽게 즐길 수 있어요'}] },
-    sanbangsan: { id: 'sanbangsan', name: '산방산&용머리해안', rating: 4.5, reviewCount: 1980, cost: 10000, type: 'activity', lat: 33.2423, lng: 126.3138, tags: ['절경', '지질탐방'], menu:[{item:'통합권',price:2500}], reviews: [{author:'탐험가', rating:5, text:'다른 행성에 온 느낌'}] },
-    camellia_hill: { id: 'camellia_hill', name: '카멜리아힐', rating: 4.3, reviewCount: 5120, cost: 40000, type: 'activity', lat: 33.2913, lng: 126.3688, tags: ['수목원', '꽃구경', '포토스팟'], menu: [{item:'성인',price:10000}], reviews: [{author:'꽃보다나', rating:4, text:'계절마다 다른 꽃이 예뻐요'}] },
-    jusangjeolli: { id: 'jusangjeolli', name: '주상절리대', rating: 4.4, reviewCount: 3100, cost: 8000, type: 'activity', lat: 33.2378, lng: 126.4257, tags: ['자연경관', '중문'], menu:[{item:'성인',price:2000}], reviews: [{author:'자연인', rating:5, text:'자연의 위대함을 느낌'}] },
-    cheonjeyeon_falls: { id: 'cheonjeyeon_falls', name: '천제연폭포', rating: 4.4, reviewCount: 2150, cost: 10000, type: 'activity', lat: 33.2511, lng: 126.4170, tags: ['폭포', '산책로', '선임교'], menu: [{item:'성인',price:2500}], reviews: [{author:'뚜벅이', rating:4, text:'1,2,3폭포 다 보는 재미'}] },
-    olle_market: { id: 'olle_market', name: '서귀포매일올레시장', rating: 4.3, reviewCount: 9870, cost: 50000, type: 'food', lat: 33.2498, lng: 126.5612, tags: ['시장', '길거리음식'], menu: [{item:'흑돼지꼬치',price:6000},{item:'마농치킨',price:20000}], reviews: [{author:'먹방러', rating:5, text:'먹거리 천국'}] },
-    osulloc: { id: 'osulloc', name: '오설록 티 뮤지엄', rating: 4.4, reviewCount: 8910, cost: 40000, type: 'cafe', lat: 33.3059, lng: 126.2894, tags: ['녹차밭', '실내', '디저트'], menu: [{item:'녹차아이스크림',price:5500},{item:'그린티롤케익',price:6000}], reviews: [{author:'녹차덕후', rating:5, text:'녹차밭 인생샷은 필수'}] },
-    the_cliff: { id: 'the_cliff', name: '더클리프', rating: 4.3, reviewCount: 1200, cost: 50000, type: 'cafe', lat: 33.2458, lng: 126.4103, tags: ['클럽분위기', '선셋', '중문'], menu: [{item:'클리프선셋칵테일',price:15000}], reviews: [{author:'힙스터', rating:4, text:'해질녘 분위기가 최고'}] },
-    suksukdo: { id: 'suksukdo', name: '숙성도 중문점', rating: 4.5, reviewCount: 1900, cost: 120000, type: 'food', lat: 33.2541, lng: 126.4258, tags: ['숙성흑돼지', '웨이팅'], menu: [{item:'720숙성 흑목살',price:21000},{item:'동치미열무국수',price:8000}], reviews: [{author:'미식가', rating:5, text:'숙성돼지고기의 끝판왕'}] },
-    chunsimine: { id: 'chunsimine', name: '춘심이네 본점', rating: 4.2, reviewCount: 2100, cost: 100000, type: 'food', lat: 33.2801, lng: 126.3456, tags: ['통갈치구이', '가족식사'], menu: [{item:'통갈치구이2인',price:78000}], reviews: [{author:'생선매니아', rating:4, text:'뼈 발라줘서 먹기 편해요'}] },
-    negeori_sikdang: { id: 'negeori_sikdang', name: '네거리식당', rating: 4.1, reviewCount: 980, cost: 80000, type: 'food', lat: 33.2480, lng: 126.5601, tags: ['갈치국', '향토음식'], menu:[{item:'갈치국', price:15000},{item:'갈치조림(소)',price:40000}], reviews:[{author:'국물파', rating:4, text:'비리지 않고 시원한 갈치국'}] },
-    seongsan_ilchulbong: { id: 'seongsan_ilchulbong', name: '성산일출봉', rating: 4.5, reviewCount: 15247, cost: 20000, type: 'activity', lat: 33.4581, lng: 126.9426, tags: ['유네스코', '일출'], menu: [{item:'성인',price:5000}], reviews: [{author:'등반가', rating:5, text:'올라간 보람이 있는 뷰'}] },
-    udo_island: { id: 'udo_island', name: '우도', rating: 4.6, reviewCount: 7850, cost: 80000, type: 'activity', lat: 33.5000, lng: 126.9500, tags: ['섬속의섬', '자전거'], menu: [{item:'왕복선박',price:10500},{item:'땅콩아이스크림',price:5000}], reviews: [{author:'섬여행자', rating:5, text:'반나절 코스로 완벽'}] },
-    seopjikoji: { id: 'seopjikoji', name: '섭지코지', rating: 4.4, reviewCount: 4590, cost: 0, type: 'activity', lat: 33.4243, lng: 126.9295, tags: ['해안절경', '산책로'], menu:[{item:'주차료',price:3000}], reviews: [{author:'산책왕', rating:4, text:'바다와 어우러진 풍경이 예술'}] },
-    bijarim: { id: 'bijarim', name: '비자림', rating: 4.7, reviewCount: 3500, cost: 12000, type: 'activity', lat: 33.4903, lng: 126.8105, tags: ['숲길', '피톤치드', '힐링'], menu: [{item:'성인',price:3000}], reviews: [{author:'자연인', rating:5, text:'걷기만 해도 힐링되는 숲'}] },
-    sehwa_beach: { id: 'sehwa_beach', name: '세화해변', rating: 4.5, reviewCount: 1300, cost: 0, type: 'activity', lat: 33.5415, lng: 126.8576, tags: ['카페거리', '에메랄드빛'], menu:[], reviews: [{author:'감성사진', rating:4, text:'의자 포토존이 유명해요'}] },
-    myeongjin_jeonbok: { id: 'myeongjin_jeonbok', name: '명진전복', rating: 4.3, reviewCount: 2890, cost: 70000, type: 'food', lat: 33.5485, lng: 126.8533, tags: ['전복돌솥밥', '웨이팅'], menu: [{item:'전복돌솥밥',price:16000},{item:'전복구이',price:30000}], reviews: [{author:'밥도둑', rating:5, text:'고소한 전복 내장밥 맛집'}] },
-    gasiabang: { id: 'gasiabang', name: '가시아방국수', rating: 4.2, reviewCount: 2500, cost: 40000, type: 'food', lat: 33.4284, lng: 126.8839, tags: ['고기국수', '돔베고기'], menu: [{item:'고기국수',price:9000},{item:'돔베고기(소)',price:30000}], reviews: [{author:'국수매니아', rating:4, text:'돔베고기도 부드러워요'}] },
-    mwolhandang: { id: 'mwolhandang', name: '만월당', rating: 4.5, reviewCount: 990, cost: 60000, type: 'food', lat: 33.5492, lng: 126.7909, tags: ['전복리조또', '감성맛집'], menu: [{item:'전복리조또',price:21000},{item:'돌문어파스타',price:20000}], reviews: [{author:'양식러버', rating:5, text:'분위기와 맛 모두 만족'}] },
-    orda_cafe: { id: 'orda_cafe', name: '카페 오르다', rating: 4.2, reviewCount: 1856, cost: 35000, type: 'cafe', lat: 33.4475, lng: 126.9323, tags: ['천국의계단', '성산뷰'], menu: [{item:'아메리카노',price:7000},{item:'오르다라떼',price:8500}], reviews: [{author:'인생샷', rating:4, text:'사진 찍으려면 줄서야해요'}] },
-    moumoon_cafe: { id: 'moumoon_cafe', name: '카페 모알보알', rating: 4.4, reviewCount: 950, cost: 30000, type: 'cafe', lat: 33.5407, lng: 126.8569, tags: ['세화해변뷰', '루프탑'], menu: [{item:'아메리카노',price:6000}], reviews: [{author:'바다멍', rating:5, text:'세화바다 보며 커피마시기 좋아요'}] }
+    sanbangsan: { id: 'sanbangsan', name: '산방산&용머리해안', rating: 4.5, reviewCount: 1980, cost: 10000, type: 'activity', icon: '⛰️', lat: 33.2423, lng: 126.3138, tags: ['절경', '지질탐방'], menu:[{item:'통합권',price:2500}], reviews: [{author:'탐험가', rating:5, text:'다른 행성에 온 듯한 느낌. 파도와 바람이 만든 최고의 예술작품!'}] },
+    camellia_hill: { id: 'camellia_hill', name: '카멜리아힐', rating: 4.3, reviewCount: 5120, cost: 40000, type: 'activity', icon: '🌺', lat: 33.2913, lng: 126.3688, tags: ['수목원', '꽃구경', '포토스팟'], menu: [{item:'성인',price:10000},{item:'청소년',price:8000}], reviews: [{author:'꽃보다나', rating:4, text:'계절마다 다른 꽃을 볼 수 있어서 좋아요. 사진 찍을 곳이 정말 많아요.'}] },
+    jusangjeolli: { id: 'jusangjeolli', name: '주상절리대', rating: 4.4, reviewCount: 3100, cost: 8000, type: 'activity', icon: '🏛️', lat: 33.2378, lng: 126.4257, tags: ['자연경관', '중문'], menu:[{item:'성인',price:2000}], reviews: [{author:'자연인', rating:5, text:'자연의 위대함을 느낄 수 있는 곳. 파도가 부딪히는 모습이 장관.'}] },
+    cheonjeyeon_falls: { id: 'cheonjeyeon_falls', name: '천제연폭포', rating: 4.4, reviewCount: 2150, cost: 10000, type: 'activity', icon: '🏞️', lat: 33.2511, lng: 126.4170, tags: ['폭포', '산책로', '선임교'], menu: [{item:'성인',price:2500}], reviews: [{author:'뚜벅이', rating:4, text:'1, 2, 3폭포 다 보는 재미가 있어요. 산책하기 정말 좋은 곳.'}] },
+    olle_market: { id: 'olle_market', name: '서귀포매일올레시장', rating: 4.3, reviewCount: 9870, cost: 50000, type: 'food', icon: '🍢', lat: 33.2498, lng: 126.5612, tags: ['시장', '길거리음식'], menu: [{item:'흑돼지꼬치',price:6000},{item:'마농치킨',price:20000}], reviews: [{author:'먹방러', rating:5, text:'먹거리 천국! 저녁에 가서 흑돼지꼬치랑 마농치킨에 맥주 한잔하면 최고예요.'}] },
+    osulloc: { id: 'osulloc', name: '오설록 티 뮤지엄', rating: 4.4, reviewCount: 8910, cost: 40000, type: 'cafe', icon: '🍵', lat: 33.3059, lng: 126.2894, tags: ['녹차밭', '실내', '디저트'], menu: [{item:'녹차아이스크림',price:5500},{item:'그린티롤케익',price:6000}], reviews: [{author:'녹차덕후', rating:5, text:'녹차밭 배경으로 인생샷은 필수! 아이스크림이랑 롤케익은 꼭 드세요.'}] },
+    the_cliff: { id: 'the_cliff', name: '더클리프', rating: 4.3, reviewCount: 1200, cost: 50000, type: 'cafe', icon: '🍹', lat: 33.2458, lng: 126.4103, tags: ['클럽분위기', '선셋', '중문'], menu: [{item:'클리프선셋칵테일',price:15000},{item:'피자',price:28000}], reviews: [{author:'힙스터', rating:4, text:'해질녘 힙한 음악과 함께 선셋을 즐기기 최고의 장소.'}] },
+    suksukdo: { id: 'suksukdo', name: '숙성도 중문점', rating: 4.5, reviewCount: 1900, cost: 120000, type: 'food', icon: '🐖', lat: 33.2541, lng: 126.4258, tags: ['숙성흑돼지', '웨이팅'], menu: [{item:'720숙성 흑목살',price:21000},{item:'동치미열무국수',price:8000}], reviews: [{author:'미식가', rating:5, text:'숙성돼지고기의 끝판왕. 부드러움과 육즙이 차원이 달라요.'}] },
+    chunsimine: { id: 'chunsimine', name: '춘심이네 본점', rating: 4.2, reviewCount: 2100, cost: 100000, type: 'food', icon: '🐟', lat: 33.2801, lng: 126.3456, tags: ['통갈치구이', '가족식사'], menu: [{item:'통갈치구이2인',price:78000}], reviews: [{author:'생선매니아', rating:4, text:'엄청난 크기의 통갈치 비주얼이 압도적. 뼈를 다 발라줘서 먹기 편해요.'}] },
+    negeori_sikdang: { id: 'negeori_sikdang', name: '네거리식당', rating: 4.1, reviewCount: 980, cost: 80000, type: 'food', icon: '🍲', lat: 33.2480, lng: 126.5601, tags: ['갈치국', '향토음식'], menu:[{item:'갈치국', price:15000},{item:'갈치조림(소)',price:40000}], reviews: [{author:'국물파', rating:4, text:'비릴 것 같지만 전혀 안 비리고 시원한 갈치국이 일품이에요.'}] },
+    // 4일차: 동쪽
+    seongsan_ilchulbong: { id: 'seongsan_ilchulbong', name: '성산일출봉', rating: 4.5, reviewCount: 15247, cost: 20000, type: 'activity', icon: '🌋', lat: 33.4581, lng: 126.9426, tags: ['유네스코', '일출'], menu: [{item:'성인',price:5000}], reviews: [{author:'등반가', rating:5, text:'힘들게 올라간 보람이 있는 뷰. 제주에 왔다면 꼭 가봐야 할 곳.'}] },
+    udo_island: { id: 'udo_island', name: '우도', rating: 4.6, reviewCount: 7850, cost: 80000, type: 'activity', icon: '🏝️', lat: 33.5000, lng: 126.9500, tags: ['섬속의섬', '자전거'], menu: [{item:'왕복선박',price:10500},{item:'땅콩아이스크림',price:5000}], reviews: [{author:'섬여행자', rating:5, text:'반나절 코스로 완벽해요. 전기차 타고 해안도로 돌면 정말 좋아요.'}] },
+    seopjikoji: { id: 'seopjikoji', name: '섭지코지', rating: 4.4, reviewCount: 4590, cost: 0, type: 'activity', icon: '🏞️', lat: 33.4243, lng: 126.9295, tags: ['해안절경', '산책로'], menu:[{item:'주차료',price:3000}], reviews: [{author:'산책왕', rating:4, text:'바다와 어우러진 풍경이 예술이에요. 천천히 걷기 좋습니다.'}] },
+    bijarim: { id: 'bijarim', name: '비자림', rating: 4.7, reviewCount: 3500, cost: 12000, type: 'activity', icon: '🌳', lat: 33.4903, lng: 126.8105, tags: ['숲길', '피톤치드', '힐링'], menu: [{item:'성인',price:3000}], reviews: [{author:'자연인', rating:5, text:'천년의 숲길을 걷기만 해도 힐링되는 최고의 장소.'}] },
+    sehwa_beach: { id: 'sehwa_beach', name: '세화해변', rating: 4.5, reviewCount: 1300, cost: 0, type: 'activity', icon: '🏖️', lat: 33.5415, lng: 126.8576, tags: ['카페거리', '에메랄드빛'], menu:[], reviews: [{author:'감성사진', rating:4, text:''}] },
+    myeongjin_jeonbok: { id: 'myeongjin_jeonbok', name: '명진전복', rating: 4.3, reviewCount: 2890, cost: 70000, type: 'food', icon: '🍚', lat: 33.5485, lng: 126.8533, tags: ['전복돌솥밥', '웨이팅'], menu: [{item:'전복돌솥밥',price:16000},{item:'전복구이',price:30000}], reviews: [{author:'밥도둑', rating:5, text:'고소한 전복 내장밥은 잊을 수 없는 맛. 웨이팅이 길어도 기다려서 먹어야 해요.'}] },
+    gasiabang: { id: 'gasiabang', name: '가시아방국수', rating: 4.2, reviewCount: 2500, cost: 40000, type: 'food', icon: '🍜', lat: 33.4284, lng: 126.8839, tags: ['고기국수', '돔베고기'], menu: [{item:'고기국수',price:9000},{item:'돔베고기(소)',price:30000}], reviews: [{author:'국수매니아', rating:4, text:'자매국수와는 또 다른 매력. 돔베고기도 부드러워요.'}] },
+    mwolhandang: { id: 'mwolhandang', name: '만월당', rating: 4.5, reviewCount: 990, cost: 60000, type: 'food', icon: '🍝', lat: 33.5492, lng: 126.7909, tags: ['전복리조또', '감성맛집'], menu: [{item:'전복리조또',price:21000},{item:'돌문어파스타',price:20000}], reviews: [{author:'양식러버', rating:5, text:'분위기도 좋고 음식도 정말 맛있어요. 특히 전복리조또 추천!'}] },
+    orda_cafe: { id: 'orda_cafe', name: '카페 오르다', rating: 4.2, reviewCount: 1856, cost: 35000, type: 'cafe', icon: '☕', lat: 33.4475, lng: 126.9323, tags: ['천국의계단', '성산뷰'], menu: [{item:'아메리카노',price:7000},{item:'오르다라떼',price:8500}], reviews: [{author:'인생샷', rating:4, text:'천국의계단에서 사진 찍으려면 줄 서야해요. 성산일출봉 뷰가 정말 멋집니다.'}] },
+    moumoon_cafe: { id: 'moumoon_cafe', name: '카페 모알보알', rating: 4.4, reviewCount: 950, cost: 30000, type: 'cafe', icon: '☕', lat: 33.5407, lng: 126.8569, tags: ['세화해변뷰', '루프탑'], menu: [{item:'아메리카노',price:6000},{item:'당근케이크',price:7000}], reviews: [{author:'바다멍', rating:5, text:'세화바다를 정면으로 보며 커피 마시기 좋아요. 루프탑이 최고!'}] }
 };
 
 const itineraryData = {
-    day1: {
-        title: "1일차: 공항 도착 & 제주시내 맛보기",
-        options: [
-            { time: '16:00', icon: '✈️', category: '공항 도착 및 렌트카', places: ['arrival'] },
-            { time: '18:00', icon: '🍴', category: '저녁 식사 (공항 근처)', places: ['dombedon', 'jamaeguksu', 'samsunghyeol', 'ujin_haejang', 'dongmun_market'] },
-            { time: '20:00', icon: '🌙', category: '야간 활동 (공항 근처)', places: ['dongmun_market', 'yongduam', 'iho_tewoo', 'abebe_bakery'] },
-            { time: '21:30', icon: '🏨', category: '숙소 체크인 (공항 근처)', places: ['airport_stay'] },
-        ]
-    },
-    day2: {
-        title: "2일차: 낭만 가득 서쪽 해안도로 일주",
-        options: [
-            { time: '09:30', icon: '☕', category: '아침 & 카페 (애월)', places: ['aewol_bomnal', 'aewol_monsant', 'randys_donuts', 'myeongwol_school', 'ultramarine'] },
-            { time: '11:00', icon: '🏞️', category: '오전 활동 (애월/한림)', places: ['aewol_arte', 'hallim_park', 'hyeopjae_beach', 'sinchang_windmill'] },
-            { time: '13:30', icon: '🍴', category: '점심 식사 (애월/한림)', places: ['aewol_noraba', 'hallim_suudong', 'aewol_dwaeji', 'jejidona'] },
-            { time: '15:30', icon: '🚗', category: '오후 드라이브 & 활동 (서쪽)', places: ['sinchang_windmill', 'chagwido_tour', 'ultramarine'] },
-            { time: '18:30', icon: '🌅', category: '저녁 및 숙소 (차귀도 근처)', places: ['chagwido_budu', 'chagwido_stay'] },
-        ]
-    },
-    day3: {
-        title: "3일차: 경이로운 자연, 중문&서귀포",
-        options: [
-            { time: '09:30', icon: '🌿', category: '오전 활동 (안덕/중문)', places: ['sanbangsan', 'camellia_hill', 'osulloc', 'jusangjeolli', 'cheonjeyeon_falls'] },
-            { time: '13:00', icon: '🍴', category: '점심 식사 (중문/안덕)', places: ['suksukdo', 'chunsimine', 'the_cliff', 'negeori_sikdang'] },
-            { time: '15:00', icon: '🚶', category: '오후 활동 (서귀포 시내)', places: ['olle_market', 'jusangjeolli', 'cheonjeyeon_falls'] },
-            { time: '18:30', icon: '🏨', category: '저녁 및 숙소 (서귀포 시내)', places: ['olle_market', 'negeori_sikdang', 'seogwipo_stay'] },
-        ]
-    },
-    day4: {
-        title: "4일차: 눈부신 동쪽 해안 & 공항 복귀",
-        options: [
-            { time: '10:00', icon: '⛰️', category: '오전 활동 (성산)', places: ['seongsan_ilchulbong', 'udo_island', 'seopjikoji', 'bijarim'] },
-            { time: '13:00', icon: '🍴', category: '점심 식사 (성산/구좌)', places: ['myeongjin_jeonbok', 'gasiabang', 'mwolhandang'] },
-            { time: '15:00', icon: '☕', category: '오후 활동 (세화/송당)', places: ['sehwa_beach', 'moumoon_cafe', 'orda_cafe', 'bijarim'] },
-            { time: '17:00', icon: '🛫', category: '공항 이동 및 출발', places: ['arrival'] },
-        ]
-    }
+    day1: { title: "1일차: 공항 도착 & 제주시내 맛보기", options: [
+        { time: '16:00', icon: '✈️', category: '공항 도착 및 렌트카', places: ['arrival'] },
+        { time: '18:00', icon: '🍴', category: '저녁 식사 (공항 근처)', places: ['dombedon', 'jamaeguksu', 'samsunghyeol', 'ujin_haejang', 'dongmun_market'] },
+        { time: '20:00', icon: '🌙', category: '야간 활동 (공항 근처)', places: ['dongmun_market', 'yongduam', 'iho_tewoo', 'abebe_bakery'] },
+        { time: '21:30', icon: '🏨', category: '숙소 체크인 (공항 근처)', places: ['airport_stay'] },
+    ]},
+    day2: { title: "2일차: 낭만 가득 서쪽 해안도로 일주", options: [
+        { time: '09:30', icon: '☕', category: '아침 & 카페 (애월)', places: ['aewol_bomnal', 'aewol_monsant', 'randys_donuts', 'myeongwol_school', 'ultramarine'] },
+        { time: '11:00', icon: '🏞️', category: '오전 활동 (애월/한림)', places: ['aewol_arte', 'hallim_park', 'hyeopjae_beach', 'sinchang_windmill', 'chagwido_tour'] },
+        { time: '13:30', icon: '🍴', category: '점심 식사 (애월/한림)', places: ['aewol_noraba', 'hallim_suudong', 'aewol_dwaeji', 'jejidona', 'chagwido_budu'] },
+        { time: '18:30', icon: '🏨', category: '숙소 체크인 (차귀도 근처)', places: ['chagwido_stay'] },
+    ]},
+    day3: { title: "3일차: 경이로운 자연, 중문&서귀포", options: [
+        { time: '09:30', icon: '🌿', category: '오전 활동 (안덕/중문)', places: ['sanbangsan', 'camellia_hill', 'osulloc', 'jusangjeolli', 'cheonjeyeon_falls'] },
+        { time: '13:00', icon: '🍴', category: '점심 식사 (중문/안덕)', places: ['suksukdo', 'chunsimine', 'the_cliff', 'negeori_sikdang'] },
+        { time: '15:00', icon: '🚶', category: '오후 활동 (서귀포 시내)', places: ['olle_market', 'jusangjeolli', 'cheonjeyeon_falls'] },
+        { time: '18:30', icon: '🏨', category: '저녁 및 숙소 (서귀포 시내)', places: ['olle_market', 'negeori_sikdang', 'seogwipo_stay'] },
+    ]},
+    day4: { title: "4일차: 눈부신 동쪽 해안 & 공항 복귀", options: [
+        { time: '10:00', icon: '⛰️', category: '오전 활동 (성산)', places: ['seongsan_ilchulbong', 'udo_island', 'seopjikoji', 'bijarim'] },
+        { time: '13:00', icon: '🍴', category: '점심 식사 (성산/구좌)', places: ['myeongjin_jeonbok', 'gasiabang', 'mwolhandang'] },
+        { time: '15:00', icon: '☕', category: '오후 활동 (세화/송당)', places: ['sehwa_beach', 'moumoon_cafe', 'orda_cafe', 'bijarim'] },
+        { time: '17:00', icon: '🛫', category: '공항 이동 및 출발', places: ['arrival'] },
+    ]}
 };
 
-// ... 이하 스크립트는 분량이 너무 길어 생략되었습니다.
-// 실제 동작을 위해서는 이전 답변의 스크립트 로직을 이 HTML 구조와 데이터에 맞게 수정해야 합니다.
-// 핵심 로직:
-// 1. initUI에서 itineraryData를 순회하며 가로 막대(.option-bar)와 숨겨진 패널(.details-panel)을 생성
-// 2. handleOptionSelect에서 클릭된 막대의 details-panel을 열고, 다른 패널은 닫도록 로직 수정
-// 3. searchByTheme에 Geolocation API를 사용하여 현재 위치 확인 및 검색 반경 조절 기능 추가
-// 4. 지도 마커 클릭 시 getDetails API를 호출하여 InfoWindow에 평점/메뉴 요약 정보 표시 기능 구현
-// 5. 하단 이동 버튼(#bottom-nav)을 스크롤 위치에 따라 표시/숨김 처리하는 이벤트 리스너 추가
+// Global variables
+let googleMap, placesService, directionsService, directionsRenderer;
+let activeDay = 1;
+let selections = {};
+let infoWindows = [];
+let themeMarkers = [];
+
+// App Initialization
+function initApp() {
+    initUI();
+    initMapAndServices();
+    setupInitialState();
+    setupEventListeners();
+}
+
+function initUI() {
+    const tabsContainer = document.getElementById('day-tabs-container');
+    const itineraryContainer = document.getElementById('itinerary-container');
+    itineraryContainer.innerHTML = ''; 
+
+    Object.keys(itineraryData).forEach((dayKey, index) => {
+        const day = parseInt(dayKey.replace('day', ''));
+        
+        // Create Day Tab
+        const tab = document.createElement('button');
+        tab.className = `day-tab py-3 px-4 md:px-6 text-sm md:text-base font-semibold text-gray-500 ${index === 0 ? 'active' : ''}`;
+        tab.textContent = `${day}일차`;
+        tab.dataset.day = day;
+        tab.onclick = () => switchDay(day);
+        tabsContainer.appendChild(tab);
+
+        // Create Day Content
+        const dayData = itineraryData[dayKey];
+        const dayContent = document.createElement('div');
+        dayContent.id = `day${day}-content`;
+        dayContent.className = `day-content ${index > 0 ? 'hidden' : ''}`;
+        dayContent.innerHTML = `
+            <div class="bg-white rounded-xl shadow-lg p-4 md:p-6 mb-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">${dayData.title}</h2>
+                ${dayData.options.map(slot => `
+                    <div class="mb-8">
+                        <div class="flex items-center mb-4">
+                            <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-semibold mr-4">${slot.time}</span>
+                            <h3 class="text-lg md:text-xl font-bold text-gray-800">${slot.icon} ${slot.category}</h3>
+                        </div>
+                        <div class="space-y-2" data-day="${day}" data-time="${slot.time}">
+                            ${slot.places.map(placeId => generateOptionHtml(day, slot.time, placeId)).join('')}
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+        itineraryContainer.appendChild(dayContent);
+    });
+    
+    // Cost Calculator
+    document.getElementById('cost-calculator').innerHTML = `
+        <div>
+            <h4 class="font-semibold text-gray-700 mb-3">✈️ 항공료 & 🏨 숙박비</h4>
+            <div class="grid grid-cols-2 gap-3">
+                <div><label class="block text-sm text-gray-600 mb-1">항공료(4인)</label><input type="number" id="flight-cost" class="w-full p-2 border rounded-lg text-right" placeholder="0" step="10000"></div>
+                <div><label class="block text-sm text-gray-600 mb-1">숙박비(3박)</label><input type="number" id="hotel-cost" class="w-full p-2 border rounded-lg text-right" placeholder="0" step="10000"></div>
+            </div>
+        </div>
+        <div class="border-t pt-4">
+            <h4 class="font-semibold text-gray-700 mb-3">🏝️ 현지 여행 경비</h4>
+            <div class="space-y-2">
+                <div class="flex justify-between"><span class="text-gray-600">🍴 식비</span><span class="font-semibold" id="cost-food">₩0</span></div>
+                <div class="flex justify-between"><span class="text-gray-600">🎟️ 체험/입장료</span><span class="font-semibold" id="cost-activity">₩0</span></div>
+                <div class="flex justify-between"><span class="text-gray-600">☕ 기타</span><span class="font-semibold" id="cost-etc">₩0</span></div>
+            </div>
+        </div>
+        <div class="border-t-2 pt-4">
+            <div class="text-center bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-lg">
+                <p class="text-sm text-gray-600 mb-1">총 예상 여행 경비</p>
+                <p class="text-3xl font-bold text-blue-600" id="total-cost">₩0</p>
+            </div>
+        </div>
+    `;
+}
+
+function generateOptionHtml(day, time, placeId) {
+    const place = jejuDatabase[placeId];
+    if (!place) return '';
+    return `
+        <div class="option-container" data-id="${place.id}">
+            <button class="option-bar" data-day="${day}" data-time="${time}" onclick="handleOptionSelect(this)">
+                <span class="option-icon">${place.icon || '📍'}</span>
+                <span class="option-name">${place.name}</span>
+                ${place.rating ? `<span class="rating-box"><i class="fas fa-star text-xs mr-1"></i> ${place.rating}</span>` : ''}
+            </button>
+            <div class="details-panel">
+                <!-- Details will be loaded here -->
+            </div>
+        </div>
+    `;
+}
+
+function handleOptionSelect(buttonElement) {
+    const day = buttonElement.dataset.day;
+    const time = buttonElement.dataset.time;
+    const container = buttonElement.closest('.option-container');
+    const placeId = container.dataset.id;
+    const detailsPanel = container.querySelector('.details-panel');
+    const isSelected = buttonElement.classList.contains('selected');
+
+    // Close all other panels in the same time slot
+    const timeSlotContainer = buttonElement.closest('[data-day][data-time]');
+    timeSlotContainer.querySelectorAll('.option-bar.selected').forEach(bar => {
+        if (bar !== buttonElement) {
+            bar.classList.remove('selected');
+            bar.closest('.option-container').querySelector('.details-panel').classList.remove('open');
+        }
+    });
+
+    buttonElement.classList.toggle('selected');
+    detailsPanel.classList.toggle('open');
+    
+    // Update selection object
+    if (!isSelected) {
+        selections[day][time] = jejuDatabase[placeId];
+        if (detailsPanel.innerHTML.trim() === '<!-- Details will be loaded here -->') {
+            detailsPanel.innerHTML = generateDetailsPanelContent(jejuDatabase[placeId]);
+            setupDetailsTabs(detailsPanel);
+        }
+    } else {
+        delete selections[day][time];
+    }
+    updateAllDisplays();
+}
+
+function generateDetailsPanelContent(place) {
+    const hasMenu = place.menu && place.menu.length > 0;
+    const hasReviews = place.reviews && place.reviews.length > 0;
+    return `
+        <div class="details-tabs">
+            ${hasMenu ? `<button class="details-tab active" data-tab="menu">대표 메뉴</button>` : ''}
+            ${hasReviews ? `<button class="details-tab ${!hasMenu ? 'active' : ''}" data-tab="reviews">리뷰 요약</button>` : ''}
+        </div>
+        <div class="details-content ${hasMenu ? 'active' : ''}" data-content="menu">
+            ${hasMenu ? place.menu.map(item => `
+                <div class="flex justify-between items-center py-2 border-b"><span class="font-semibold">${item.item}</span><span class="font-bold text-blue-600">₩${item.price.toLocaleString()}</span></div>
+            `).join('') : '<p>메뉴 정보가 없습니다.</p>'}
+        </div>
+        <div class="details-content ${!hasMenu && hasReviews ? 'active' : ''}" data-content="reviews">
+            ${hasReviews ? place.reviews.map(review => `
+                <div class="border-b pb-3 mb-3">
+                    <div class="flex justify-between items-center mb-1"><span class="font-semibold">${review.author}</span><div class="rating-box text-sm">${'★'.repeat(review.rating)}${'☆'.repeat(5-review.rating)}</div></div>
+                    <p class="text-gray-700 text-sm">"${review.text}"</p>
+                </div>
+            `).join('') : '<p>리뷰 정보가 없습니다.</p>'}
+        </div>
+    `;
+}
+
+function setupDetailsTabs(panel) {
+    const tabs = panel.querySelectorAll('.details-tab');
+    const contents = panel.querySelectorAll('.details-content');
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            tabs.forEach(t => t.classList.remove('active'));
+            contents.forEach(c => c.classList.remove('active'));
+            tab.classList.add('active');
+            panel.querySelector(`[data-content="${tab.dataset.tab}"]`).classList.add('active');
+        });
+    });
+}
+
+function initMapAndServices() {
+    googleMap = new google.maps.Map(document.getElementById('map'), { center: { lat: 33.385, lng: 126.55 }, zoom: 9, disableDefaultUI: true, zoomControl: true });
+    placesService = new google.maps.places.PlacesService(googleMap);
+    directionsService = new google.maps.DirectionsService();
+    directionsRenderer = new google.maps.DirectionsRenderer({ suppressMarkers: true, polylineOptions: { strokeColor: '#4f46e5', strokeWeight: 5, strokeOpacity: 0.8 } });
+    directionsRenderer.setMap(googleMap);
+}
+
+function setupInitialState() {
+    Object.keys(itineraryData).forEach(dayKey => {
+        const day = parseInt(dayKey.replace('day', ''));
+        selections[day] = {};
+        itineraryData[dayKey].options.forEach(slot => {
+            const placeId = slot.places[0];
+            selections[day][slot.time] = jejuDatabase[placeId];
+            const button = document.querySelector(`.option-bar[data-day="${day}"][data-time="${slot.time}"]`);
+            if(button) button.classList.add('selected');
+        });
+    });
+    updateAllDisplays();
+}
+
+function setupEventListeners() {
+    document.getElementById('cost-calculator').addEventListener('input', e => { updateCostDisplay(); });
+    
+    const bottomNav = document.getElementById('bottom-nav');
+    window.addEventListener('scroll', () => {
+        if (window.scrollY + window.innerHeight >= document.body.scrollHeight - 50) {
+            bottomNav.classList.add('visible');
+        } else {
+            bottomNav.classList.remove('visible');
+        }
+    });
+
+    document.getElementById('prev-day-btn').onclick = () => { if (activeDay > 1) switchDay(activeDay - 1); };
+    document.getElementById('next-day-btn').onclick = () => { if (activeDay < 4) switchDay(activeDay + 1); };
+}
+
+function switchDay(day) {
+    activeDay = day;
+    // Update tabs
+    document.querySelectorAll('.day-tab').forEach(tab => tab.classList.toggle('active', parseInt(tab.dataset.day) === day));
+    // Show/hide content
+    document.querySelectorAll('.day-content').forEach(content => content.classList.toggle('hidden', parseInt(content.id.replace('-content','')) !== day));
+    
+    // Update bottom nav
+    document.getElementById('bottom-nav-day').textContent = day;
+    document.getElementById('prev-day-btn').disabled = (day === 1);
+    document.getElementById('next-day-btn').disabled = (day === Object.keys(itineraryData).length);
+    
+    updateAllDisplays();
+}
+
+function updateAllDisplays() {
+    updateCostDisplay();
+    updateSelectedItemsDisplay();
+    updateMapForDay(activeDay);
+}
+
+function updateCostDisplay() {
+    const costs = { food: 0, activity: 0, etc: 0 };
+    let hotelCost = 0;
+    Object.values(selections).forEach(daySels => {
+        Object.values(daySels).forEach(sel => {
+            if (!sel) return;
+            const type = sel.type === 'cafe' ? 'etc' : sel.type;
+            if (type === 'accommodation') hotelCost += sel.cost || 0;
+            else if (costs.hasOwnProperty(type)) costs[type] += sel.cost || 0;
+        });
+    });
+    
+    document.getElementById('hotel-cost').value = hotelCost;
+    const flightCost = parseInt(document.getElementById('flight-cost').value) || 0;
+    
+    document.getElementById('cost-food').textContent = `₩${costs.food.toLocaleString()}`;
+    document.getElementById('cost-activity').textContent = `₩${costs.activity.toLocaleString()}`;
+    document.getElementById('cost-etc').textContent = `₩${costs.etc.toLocaleString()}`;
+    const total = costs.food + costs.activity + costs.etc + flightCost + hotelCost;
+    document.getElementById('total-cost').textContent = `₩${total.toLocaleString()}`;
+}
+
+function updateSelectedItemsDisplay() {
+    const container = document.getElementById('selected-items-container');
+    const daySelections = selections[activeDay] || {};
+    const sortedTimes = Object.keys(daySelections).sort();
+    if (sortedTimes.length === 0) {
+        container.innerHTML = '<p class="text-center text-gray-500 py-6">선택된 일정이 없습니다.</p>';
+        return;
+    }
+    container.innerHTML = `<div class="space-y-3">${sortedTimes.map(time => {
+        const sel = daySelections[time];
+        if (sel && sel.type !== 'accommodation') {
+            return `<div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg"><div class="flex items-center"><span class="text-sm font-bold text-blue-600 w-12">${time}</span><span class="font-medium">${sel.name}</span></div><span class="text-sm font-bold">₩${(sel.cost||0).toLocaleString()}</span></div>`;
+        } return '';
+    }).join('')}</div>`;
+}
+
+function updateMapForDay(day) {
+    if (!googleMap) return;
+    const daySelections = Object.entries(selections[day] || {}).filter(([t, s]) => s && s.lat && s.lng).sort(([tA], [tB]) => tA.localeCompare(tB)).map(([t, s]) => s);
+    
+    clearMarkers();
+    directionsRenderer.setDirections({routes: []});
+    
+    if (daySelections.length === 0) return;
+    const bounds = new google.maps.LatLngBounds();
+    daySelections.forEach((sel, index) => {
+        const pos = { lat: sel.lat, lng: sel.lng };
+        bounds.extend(pos);
+        const marker = new google.maps.Marker({
+            position: pos, map: googleMap, label: { text: `${index + 1}`, color: 'white', fontWeight: 'bold' },
+            icon: { path: google.maps.SymbolPath.CIRCLE, scale: 15, fillColor: '#4f46e5', fillOpacity: 1, strokeColor: 'white', strokeWeight: 2 },
+            title: sel.name
+        });
+        themeMarkers.push(marker);
+    });
+    if (daySelections.length > 1) {
+        const request = {
+            origin: { lat: daySelections[0].lat, lng: daySelections[0].lng },
+            destination: { lat: daySelections[daySelections.length - 1].lat, lng: daySelections[daySelections.length - 1].lng },
+            waypoints: daySelections.slice(1, -1).map(s => ({ location: { lat: s.lat, lng: s.lng } })),
+            travelMode: google.maps.TravelMode.DRIVING
+        };
+        directionsService.route(request, (result, status) => { if (status === 'OK') directionsRenderer.setDirections(result); });
+    }
+    googleMap.fitBounds(bounds);
+    if (googleMap.getZoom() > 15) googleMap.setZoom(15);
+}
+
+function clearMarkers() {
+    themeMarkers.forEach(marker => marker.setMap(null));
+    themeMarkers = [];
+    infoWindows.forEach(infoWindow => infoWindow.close());
+    infoWindows = [];
+}
+
+function searchByTheme(type) {
+    const jejuBounds = { south: 33.1, west: 126.1, north: 33.6, east: 127.0 };
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(position => {
+            const { latitude, longitude } = position.coords;
+            if (latitude > jejuBounds.south && latitude < jejuBounds.north && longitude > jejuBounds.west && longitude < jejuBounds.east) {
+                if (confirm("현재 위치 근처(10km)에서 검색할까요?")) {
+                    executePlaceSearch(type, { lat: latitude, lng: longitude }, 10000);
+                    return;
+                }
+            }
+            executePlaceSearch(type, { lat: 33.385, lng: 126.55 }, 30000);
+        }, () => {
+             executePlaceSearch(type, { lat: 33.385, lng: 126.55 }, 30000);
+        });
+    } else {
+        executePlaceSearch(type, { lat: 33.385, lng: 126.55 }, 30000);
+    }
+}
+
+function executePlaceSearch(type, location, radius) {
+    const keywordMap = { restaurant: '맛집', cafe: '카페', tourist_attraction: '관광지', beach: '해수욕장', shopping: '쇼핑', activity: '체험' };
+    const request = {
+        location: new google.maps.LatLng(location.lat, location.lng),
+        radius: radius,
+        keyword: `제주 ${keywordMap[type]}`,
+        language: 'ko'
+    };
+    placesService.nearbySearch(request, (results, status) => {
+        if (status === google.maps.places.PlacesServiceStatus.OK && results) {
+            clearMarkers();
+            const bounds = new google.maps.LatLngBounds();
+            const filtered = results.filter(p => p.rating && p.rating >= 4.0).slice(0, 20);
+            filtered.forEach(place => {
+                const marker = new google.maps.Marker({ position: place.geometry.location, map: googleMap, title: place.name });
+                bounds.extend(place.geometry.location);
+                marker.addListener('click', () => showThemeInfoWindow(marker, place.place_id));
+                themeMarkers.push(marker);
+            });
+            googleMap.fitBounds(bounds);
+        } else {
+            alert('검색 결과가 없습니다.');
+        }
+    });
+}
+
+function showThemeInfoWindow(marker, placeId) {
+    placesService.getDetails({
+        placeId: placeId,
+        fields: ['name', 'rating', 'user_ratings_total', 'reviews', 'price_level']
+    }, (place, status) => {
+        if (status === google.maps.places.PlacesServiceStatus.OK && place) {
+            infoWindows.forEach(iw => iw.close());
+            
+            let priceText = '';
+            if (place.price_level) {
+                priceText = '₩'.repeat(place.price_level);
+            }
+            
+            let menuSummary = '<p>메뉴 정보 없음</p>';
+            if (place.reviews) {
+                const menuItems = new Set();
+                place.reviews.forEach(review => {
+                    const found = review.text.match(/(\S+)(가|이) 맛있/);
+                    if (found) menuItems.add(found[1]);
+                });
+                if (menuItems.size > 0) {
+                    menuSummary = [...menuItems].slice(0,3).map(item => `<div class="menu-item"><span>${item}</span> <span>${priceText}</span></div>`).join('');
+                }
+            }
+
+            const content = `
+                <div class="info-window-content">
+                    <h3>${place.name}</h3>
+                    <div class="rating">
+                        ${'★'.repeat(Math.round(place.rating || 0))}${'☆'.repeat(5 - Math.round(place.rating || 0))}
+                        <strong> ${place.rating || 'N/A'}</strong> (${place.user_ratings_total || 0}개)
+                    </div>
+                    <div class="menu-title">대표 메뉴 (추정)</div>
+                    ${menuSummary}
+                </div>
+            `;
+            const infoWindow = new google.maps.InfoWindow({ content: content });
+            infoWindow.open(googleMap, marker);
+            infoWindows.push(infoWindow);
+        }
+    });
+}
+
+
+window.addEventListener('load', () => {
+    if (typeof google === 'undefined' || typeof google.maps === 'undefined') {
+        console.error("Google Maps script failed to load. Retrying...");
+        setTimeout(initApp, 1500);
+    } else {
+        initApp();
+    }
+});
 </script>
 </body>
 </html>
