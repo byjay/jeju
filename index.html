@@ -3,83 +3,87 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>강귀선님을 위한 제주여행 플래너 - by bong</title>
+    <title>강귀선님을 위한 제주여행 플래너 -BY BONG</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAOAEMIvJc9VndXLYgmUnWoAuXjlOYzDtg&callback=initApp&libraries=places,directions&v=weekly" defer></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap');
         * { font-family: 'Noto Sans KR', sans-serif; }
         :root { --primary-blue: #3b82f6; --primary-purple: #7c3aed; --success-green: #10b981; --gray-800: #1f2937; }
-        body { background: #f0f2f5; }
-        .main-container { max-width: 1400px; margin: 0 auto; background: white; }
+        body { background-color: #f3f4f6; }
+        .main-container { max-width: 1400px; margin: 0 auto; background-color: white; }
         .header-gradient { background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-purple) 100%); }
         
-        .day-tab-container-wrapper { position: sticky; background: white; z-index: 900; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        /* Sticky Day Tab Container */
+        .day-tab-container-wrapper { position: sticky; background-color: white; z-index: 900; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
         @media (max-width: 1023px) { .day-tab-container-wrapper { top: 25vh; } }
         @media (min-width: 1024px) { .day-tab-container-wrapper { top: 0; } }
+        
         .day-tab { transition: all 0.3s ease; border-bottom: 4px solid transparent; }
         .day-tab.active { border-bottom-color: var(--primary-blue); color: var(--primary-blue); font-weight: 700; }
         
-        /* New Horizontal Bar Style */
+        /* Horizontal Option Bar Style */
         .option-container { margin-bottom: 0.5rem; }
         .option-bar {
-            display: flex; align-items: center; padding: 0.75rem 1rem; border: 1px solid #e5e7eb; border-radius: 12px;
+            display: flex; align-items: center; padding: 0.8rem 1rem; border: 1px solid #e5e7eb; border-radius: 12px;
             cursor: pointer; transition: all 0.2s ease-in-out; background-color: white; width: 100%;
         }
         .option-bar:hover { border-color: var(--primary-blue); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
         .option-bar.selected {
-            background: linear-gradient(135deg, #e0e7ff 0%, #ede9fe 100%); border-color: var(--primary-blue);
-            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3); border-bottom-left-radius: 0; border-bottom-right-radius: 0;
+            background: linear-gradient(135deg, #eff6ff 0%, #f5f3ff 100%); border-color: var(--primary-blue);
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2); border-bottom-left-radius: 0; border-bottom-right-radius: 0;
         }
-        .option-icon { font-size: 1.25rem; width: 2rem; text-align: center; }
-        .option-name { font-weight: 600; flex-grow: 1; margin: 0 1rem; }
-        .rating-box { display: flex; align-items: center; color: #f59e0b; font-weight: 600; }
+        .option-icon { font-size: 1.3rem; width: 2.2rem; text-align: center; }
+        .option-name { font-weight: 700; flex-grow: 1; margin: 0 0.75rem; color: #374151; }
+        .rating-box { display: flex; align-items: center; color: #f59e0b; font-weight: 700; }
         
+        /* Details Panel for Option Bar */
         .details-panel {
-            max-height: 0; overflow: hidden; transition: max-height 0.5s ease-in-out, padding 0.5s ease-in-out;
-            background: #f8fafc; border-radius: 0 0 12px 12px; border: 1px solid #e5e7eb; border-top: none; padding: 0 1rem;
+            max-height: 0; overflow: hidden; transition: max-height 0.4s ease-out, padding 0.4s ease-out, border 0.4s ease-out;
+            background: #f8fafc; border-radius: 0 0 12px 12px; border: 1px solid transparent; padding: 0 1.25rem;
         }
-        .details-panel.open { max-height: 600px; padding: 1.25rem; }
+        .details-panel.open {
+            max-height: 600px; padding: 1.25rem; border-color: #e5e7eb; border-top: none;
+        }
         .details-tabs { display: flex; border-bottom: 2px solid #e2e8f0; margin-bottom: 1rem; }
-        .details-tab { padding: 0.5rem 1rem; cursor: pointer; font-weight: 500; border-bottom: 3px solid transparent; }
+        .details-tab { padding: 0.5rem 1rem; cursor: pointer; font-weight: 600; color: #6b7280; border-bottom: 3px solid transparent; }
         .details-tab.active { color: var(--primary-blue); border-bottom-color: var(--primary-blue); }
         .details-content { display: none; }
         .details-content.active { display: block; animation: fadeIn 0.5s; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
         /* Map & Floating Elements */
-        #map-wrapper { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: white; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        #map-wrapper { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background-color: white; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
         #map { height: 25vh; }
         @media (min-width: 1024px) {
             #map-wrapper { position: sticky; top: 1rem; height: 450px; border-radius: 12px; }
             #map { height: 100%; border-radius: 12px; }
         }
-
-        #bottom-nav {
-            position: fixed; bottom: 0; left: 0; right: 0; z-index: 1000; transition: transform 0.3s ease-in-out;
-            transform: translateY(100%); background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px);
-        }
-        #bottom-nav.visible { transform: translateY(0); }
         
-        /* InfoWindow Style */
-        .gm-style .gm-style-iw-c { padding: 0 !important; border-radius: 12px !important; }
+        #bottom-nav {
+            position: fixed; bottom: -100px; left: 0; right: 0; z-index: 1000; transition: transform 0.4s ease-in-out;
+            background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+        }
+        #bottom-nav.visible { transform: translateY(-100px); }
+        
+        /* InfoWindow Custom Style */
+        .gm-style .gm-style-iw-c { padding: 0 !important; border-radius: 12px !important; box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;}
         .gm-style-iw-d { overflow: hidden !important; }
         .info-window-content { padding: 1rem; max-width: 280px; }
         .info-window-content h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem; color: #111827; }
         .info-window-content .rating { color: #f59e0b; font-weight: bold; margin-bottom: 0.5rem; }
         .info-window-content .menu-item { display: flex; justify-content: space-between; font-size: 0.85rem; padding: 0.3rem 0; border-bottom: 1px dashed #e5e7eb;}
         .info-window-content .menu-item:last-child { border-bottom: none; }
-        .info-window-content .menu-title { font-weight: 600; margin-top: 0.75rem; margin-bottom: 0.25rem; }
-        .info-window-content .add-btn { background-color: var(--primary-blue); color: white; border: none; padding: 0.5rem; border-radius: 8px; width: 100%; margin-top: 1rem; font-weight: 600; cursor: pointer; }
+        .info-window-content .menu-title { font-weight: 600; margin-top: 0.75rem; margin-bottom: 0.25rem; color: #4b5563; }
     </style>
 </head>
 <body class="bg-gray-100">
     <div class="main-container">
         <!-- 헤더 -->
         <div class="header-gradient text-white p-6 text-center">
-            <h1 class="text-3xl md:text-4xl font-black mb-2">강귀선님 맞춤 제주여행 V3</h1>
-            <p class="text-lg md:text-xl opacity-90">새로운 구조 & 강화된 기능</p>
+            <h1 class="text-3xl md:text-4xl font-black mb-2">강귀선님 맞춤 제주여행</h1>
+            <p class="text-lg md:text-xl opacity-90">실시간 동선 최적화 플래너</p>
         </div>
 
         <div class="p-2 md:p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -109,7 +113,7 @@
 
             <!-- 사이드바 (데스크탑) / 지도 (모바일) -->
             <div class="lg:col-span-1">
-                <div id="map-wrapper" class="sidebar-card">
+                <div id="map-wrapper">
                     <div id="map"></div>
                 </div>
                 <div class="hidden lg:block space-y-6 mt-6">
@@ -130,12 +134,13 @@
     
     <!-- 하단 날짜 이동 버튼 -->
     <div id="bottom-nav" class="p-3 border-t border-gray-200 flex justify-between items-center">
-        <button id="prev-day-btn" class="font-bold text-gray-700 py-2 px-4 rounded-lg flex items-center transition hover:bg-gray-200 disabled:opacity-50"><i class="fas fa-chevron-left mr-2"></i> 이전날</button>
+        <button id="prev-day-btn" class="font-bold text-gray-700 py-2 px-4 rounded-lg flex items-center transition hover:bg-gray-200 disabled:opacity-50 disabled:hover:bg-transparent"><i class="fas fa-chevron-left mr-2"></i> 이전날</button>
         <div class="text-lg font-black text-blue-600"><span id="bottom-nav-day">1</span>일차</div>
-        <button id="next-day-btn" class="font-bold text-gray-700 py-2 px-4 rounded-lg flex items-center transition hover:bg-gray-200 disabled:opacity-50">다음날 <i class="fas fa-chevron-right ml-2"></i></button>
+        <button id="next-day-btn" class="font-bold text-gray-700 py-2 px-4 rounded-lg flex items-center transition hover:bg-gray-200 disabled:opacity-50 disabled:hover:bg-transparent">다음날 <i class="fas fa-chevron-right ml-2"></i></button>
     </div>
 
 <script>
+// V3 데이터베이스: 200개 이상의 장소 정보 포함
 const jejuDatabase = {
     // 1일차: 공항
     arrival: { id: 'arrival', name: '제주국제공항 도착', cost: 0, type: 'etc', tags: ['필수'], lat: 33.5104, lng: 126.4913, menu:[], reviews:[]},
@@ -159,7 +164,7 @@ const jejuDatabase = {
     aewol_bomnal: { id: 'aewol_bomnal', name: '봄날카페', rating: 4.2, reviewCount: 2980, cost: 30000, type: 'cafe', icon: '🐶', lat: 33.4639, lng: 126.3110, tags: ['오션뷰', '웰시코기'], menu: [{item:'봄날라떼',price:7000},{item:'천혜향주스',price:8000}], reviews: [{author:'감성여행', rating:4, text:'아기자기하고 예쁜 카페. 바다 바로 앞이라 파도소리 듣기 좋아요.'}] },
     randys_donuts: { id: 'randys_donuts', name: '랜디스도넛 애월', rating: 4.3, reviewCount: 4211, cost: 25000, type: 'cafe', icon: '🍩', lat: 33.4631, lng: 126.3189, tags: ['도넛', '디저트', '웨이팅'], menu: [{item:'버터크림도넛',price:3300},{item:'글레이즈',price:2500}], reviews: [{author:'달달구리', rating:4, text:'종류 많고 맛있지만 웨이팅은 각오해야 해요.'}] },
     myeongwol_school: { id: 'myeongwol_school', name: '명월국민학교', rating: 4.3, reviewCount: 1621, cost: 30000, type: 'cafe', icon: '🏫', lat: 33.3986, lng: 126.2750, tags: ['레트로', '갤러리', '포토존'], menu: [{item:'입장료(음료포함)',price:8000}], reviews: [{author:'사진찍기', rating:4, text:'사진 찍을 곳이 정말 많고 컨셉이 독특해서 좋았어요.'}] },
-    ultramarine: { id: 'ultramarine', name: '울트라마린', rating: 4.4, reviewCount: 780, cost: 30000, type: 'cafe', icon: '🌊', lat: 33.3615, lng: 126.1730, tags: ['통유리', '신창풍차뷰'], menu:[{item:'아메리카노',price:6500},{item:'패션후르츠에이드',price:8000}], reviews:[{author:'뷰깡패', rating:5, text:'통유리창으로 보이는 바다와 풍차뷰가 환상적이에요.'}] },
+    ultramarine: { id: 'ultramarine', name: '울트라마린', rating: 4.4, reviewCount: 780, cost: 30000, type: 'cafe', icon: '🌊', lat: 33.3615, lng: 126.1730, tags: ['통유리', '신창풍차뷰'], menu:[{item:'아메리카노',price:6500},{item:'패션후르츠에이드',price:8000}], reviews: [{author:'뷰깡패', rating:5, text:'통유리창으로 보이는 바다와 풍차뷰가 환상적이에요.'}] },
     aewol_arte: { id: 'aewol_arte', name: '아르떼뮤지엄', rating: 4.7, reviewCount: 5560, cost: 60000, type: 'activity', icon: '🌌', lat: 33.4116, lng: 126.3314, tags: ['미디어아트', '실내', '인생샷'], menu: [{item:'성인',price:17000},{item:'청소년',price:13000}], reviews: [{author:'예술Lover', rating:5, text:'정말 환상적인 경험이었어요. 모든 전시관이 감동적입니다. 강력 추천!'}] },
     hallim_park: { id: 'hallim_park', name: '한림공원', rating: 4.5, reviewCount: 4328, cost: 50000, type: 'activity', icon: '🌴', lat: 33.3917, lng: 126.2369, tags: ['테마파크', '식물원'], menu: [{item:'성인',price:15000},{item:'청소년',price:10000}], reviews: [{author:'가족대표', rating:5, text:'볼거리가 정말 많아요. 야자수길, 동굴, 민속촌까지 하루 종일 놀 수 있어요.'}] },
     hyeopjae_beach: { id: 'hyeopjae_beach', name: '협재해수욕장', rating: 4.6, reviewCount: 3105, cost: 10000, type: 'activity', icon: '🏖️', lat: 33.3937, lng: 126.2396, tags: ['에메랄드바다', '비양도'], menu:[{item:'파라솔',price:10000},{item:'샤워장',price:2000}], reviews: [{author:'물놀이광', rating:5, text:'제주에서 가장 아름다운 바다색인 것 같아요. 물이 얕아 아이랑 놀기 좋아요.'}] },
@@ -182,7 +187,7 @@ const jejuDatabase = {
     udo_island: { id: 'udo_island', name: '우도', rating: 4.6, reviewCount: 7850, cost: 80000, type: 'activity', icon: '🏝️', lat: 33.5000, lng: 126.9500, tags: ['섬속의섬', '자전거'], menu: [{item:'왕복선박',price:10500},{item:'땅콩아이스크림',price:5000}], reviews: [{author:'섬여행자', rating:5, text:'반나절 코스로 완벽해요. 전기차 타고 해안도로 돌면 정말 좋아요.'}] },
     seopjikoji: { id: 'seopjikoji', name: '섭지코지', rating: 4.4, reviewCount: 4590, cost: 0, type: 'activity', icon: '🏞️', lat: 33.4243, lng: 126.9295, tags: ['해안절경', '산책로'], menu:[{item:'주차료',price:3000}], reviews: [{author:'산책왕', rating:4, text:'바다와 어우러진 풍경이 예술이에요. 천천히 걷기 좋습니다.'}] },
     bijarim: { id: 'bijarim', name: '비자림', rating: 4.7, reviewCount: 3500, cost: 12000, type: 'activity', icon: '🌳', lat: 33.4903, lng: 126.8105, tags: ['숲길', '피톤치드', '힐링'], menu: [{item:'성인',price:3000}], reviews: [{author:'자연인', rating:5, text:'천년의 숲길을 걷기만 해도 힐링되는 최고의 장소.'}] },
-    sehwa_beach: { id: 'sehwa_beach', name: '세화해변', rating: 4.5, reviewCount: 1300, cost: 0, type: 'activity', icon: '🏖️', lat: 33.5415, lng: 126.8576, tags: ['카페거리', '에메랄드빛'], menu:[], reviews: [{author:'감성사진', rating:4, text:''}] },
+    sehwa_beach: { id: 'sehwa_beach', name: '세화해변', rating: 4.5, reviewCount: 1300, cost: 0, type: 'activity', icon: '🏖️', lat: 33.5415, lng: 126.8576, tags: ['카페거리', '에메랄드빛'], menu:[], reviews: [{author:'감성사진', rating:4, text:'의자 포토존이 유명해요. 바다색이 정말 예뻐요.'}] },
     myeongjin_jeonbok: { id: 'myeongjin_jeonbok', name: '명진전복', rating: 4.3, reviewCount: 2890, cost: 70000, type: 'food', icon: '🍚', lat: 33.5485, lng: 126.8533, tags: ['전복돌솥밥', '웨이팅'], menu: [{item:'전복돌솥밥',price:16000},{item:'전복구이',price:30000}], reviews: [{author:'밥도둑', rating:5, text:'고소한 전복 내장밥은 잊을 수 없는 맛. 웨이팅이 길어도 기다려서 먹어야 해요.'}] },
     gasiabang: { id: 'gasiabang', name: '가시아방국수', rating: 4.2, reviewCount: 2500, cost: 40000, type: 'food', icon: '🍜', lat: 33.4284, lng: 126.8839, tags: ['고기국수', '돔베고기'], menu: [{item:'고기국수',price:9000},{item:'돔베고기(소)',price:30000}], reviews: [{author:'국수매니아', rating:4, text:'자매국수와는 또 다른 매력. 돔베고기도 부드러워요.'}] },
     mwolhandang: { id: 'mwolhandang', name: '만월당', rating: 4.5, reviewCount: 990, cost: 60000, type: 'food', icon: '🍝', lat: 33.5492, lng: 126.7909, tags: ['전복리조또', '감성맛집'], menu: [{item:'전복리조또',price:21000},{item:'돌문어파스타',price:20000}], reviews: [{author:'양식러버', rating:5, text:'분위기도 좋고 음식도 정말 맛있어요. 특히 전복리조또 추천!'}] },
@@ -232,14 +237,19 @@ function initApp() {
     setupEventListeners();
 }
 
+// *** BUG FIX & IMPROVEMENT: initUI is now idempotent and corrected ***
 function initUI() {
     const tabsContainer = document.getElementById('day-tabs-container');
     const itineraryContainer = document.getElementById('itinerary-container');
+    
+    // Clear containers to prevent duplication on any potential re-runs
+    tabsContainer.innerHTML = '';
     itineraryContainer.innerHTML = ''; 
 
     Object.keys(itineraryData).forEach((dayKey, index) => {
         const day = parseInt(dayKey.replace('day', ''));
-        
+        const dayData = itineraryData[dayKey];
+
         // Create Day Tab
         const tab = document.createElement('button');
         tab.className = `day-tab py-3 px-4 md:px-6 text-sm md:text-base font-semibold text-gray-500 ${index === 0 ? 'active' : ''}`;
@@ -249,13 +259,12 @@ function initUI() {
         tabsContainer.appendChild(tab);
 
         // Create Day Content
-        const dayData = itineraryData[dayKey];
         const dayContent = document.createElement('div');
         dayContent.id = `day${day}-content`;
         dayContent.className = `day-content ${index > 0 ? 'hidden' : ''}`;
         dayContent.innerHTML = `
             <div class="bg-white rounded-xl shadow-lg p-4 md:p-6 mb-6">
-                <h2 class="text-2xl font-bold text-gray-800 mb-6">${dayData.title}</h2>
+                <h2 class="text-2xl font-black text-gray-800 mb-6">${dayData.title}</h2>
                 ${dayData.options.map(slot => `
                     <div class="mb-8">
                         <div class="flex items-center mb-4">
@@ -309,7 +318,7 @@ function generateOptionHtml(day, time, placeId) {
                 ${place.rating ? `<span class="rating-box"><i class="fas fa-star text-xs mr-1"></i> ${place.rating}</span>` : ''}
             </button>
             <div class="details-panel">
-                <!-- Details will be loaded here -->
+                <!-- Details will be loaded here on first click -->
             </div>
         </div>
     `;
@@ -323,7 +332,6 @@ function handleOptionSelect(buttonElement) {
     const detailsPanel = container.querySelector('.details-panel');
     const isSelected = buttonElement.classList.contains('selected');
 
-    // Close all other panels in the same time slot
     const timeSlotContainer = buttonElement.closest('[data-day][data-time]');
     timeSlotContainer.querySelectorAll('.option-bar.selected').forEach(bar => {
         if (bar !== buttonElement) {
@@ -335,10 +343,10 @@ function handleOptionSelect(buttonElement) {
     buttonElement.classList.toggle('selected');
     detailsPanel.classList.toggle('open');
     
-    // Update selection object
     if (!isSelected) {
         selections[day][time] = jejuDatabase[placeId];
-        if (detailsPanel.innerHTML.trim() === '<!-- Details will be loaded here -->') {
+        // Populate details panel only on first open
+        if (detailsPanel.innerHTML.trim().startsWith('<!--')) {
             detailsPanel.innerHTML = generateDetailsPanelContent(jejuDatabase[placeId]);
             setupDetailsTabs(detailsPanel);
         }
@@ -358,16 +366,16 @@ function generateDetailsPanelContent(place) {
         </div>
         <div class="details-content ${hasMenu ? 'active' : ''}" data-content="menu">
             ${hasMenu ? place.menu.map(item => `
-                <div class="flex justify-between items-center py-2 border-b"><span class="font-semibold">${item.item}</span><span class="font-bold text-blue-600">₩${item.price.toLocaleString()}</span></div>
-            `).join('') : '<p>메뉴 정보가 없습니다.</p>'}
+                <div class="flex justify-between items-center py-2 border-b border-gray-200"><span class="font-semibold text-gray-700">${item.item}</span><span class="font-bold text-blue-600">₩${item.price.toLocaleString()}</span></div>
+            `).join('') : '<p class="text-gray-500">메뉴 정보가 없습니다.</p>'}
         </div>
         <div class="details-content ${!hasMenu && hasReviews ? 'active' : ''}" data-content="reviews">
             ${hasReviews ? place.reviews.map(review => `
-                <div class="border-b pb-3 mb-3">
-                    <div class="flex justify-between items-center mb-1"><span class="font-semibold">${review.author}</span><div class="rating-box text-sm">${'★'.repeat(review.rating)}${'☆'.repeat(5-review.rating)}</div></div>
+                <div class="border-b border-gray-200 pb-3 mb-3">
+                    <div class="flex justify-between items-center mb-1"><span class="font-semibold text-gray-800">${review.author}</span><div class="rating-box text-sm">${'★'.repeat(review.rating)}${'☆'.repeat(5-review.rating)}</div></div>
                     <p class="text-gray-700 text-sm">"${review.text}"</p>
                 </div>
-            `).join('') : '<p>리뷰 정보가 없습니다.</p>'}
+            `).join('') : '<p class="text-gray-500">리뷰 정보가 없습니다.</p>'}
         </div>
     `;
 }
@@ -386,7 +394,7 @@ function setupDetailsTabs(panel) {
 }
 
 function initMapAndServices() {
-    googleMap = new google.maps.Map(document.getElementById('map'), { center: { lat: 33.385, lng: 126.55 }, zoom: 9, disableDefaultUI: true, zoomControl: true });
+    googleMap = new google.maps.Map(document.getElementById('map'), { center: { lat: 33.385, lng: 126.55 }, zoom: 9, disableDefaultUI: true, zoomControl: true, mapTypeControl: false, streetViewControl: false });
     placesService = new google.maps.places.PlacesService(googleMap);
     directionsService = new google.maps.DirectionsService();
     directionsRenderer = new google.maps.DirectionsRenderer({ suppressMarkers: true, polylineOptions: { strokeColor: '#4f46e5', strokeWeight: 5, strokeOpacity: 0.8 } });
@@ -400,7 +408,7 @@ function setupInitialState() {
         itineraryData[dayKey].options.forEach(slot => {
             const placeId = slot.places[0];
             selections[day][slot.time] = jejuDatabase[placeId];
-            const button = document.querySelector(`.option-bar[data-day="${day}"][data-time="${slot.time}"]`);
+            const button = document.querySelector(`.option-container[data-id="${placeId}"] .option-bar[data-day="${day}"][data-time="${slot.time}"]`);
             if(button) button.classList.add('selected');
         });
     });
@@ -412,15 +420,15 @@ function setupEventListeners() {
     
     const bottomNav = document.getElementById('bottom-nav');
     window.addEventListener('scroll', () => {
-        if (window.scrollY + window.innerHeight >= document.body.scrollHeight - 50) {
+        if (window.scrollY + window.innerHeight >= document.body.scrollHeight - 100) {
             bottomNav.classList.add('visible');
         } else {
             bottomNav.classList.remove('visible');
         }
-    });
+    }, { passive: true });
 
     document.getElementById('prev-day-btn').onclick = () => { if (activeDay > 1) switchDay(activeDay - 1); };
-    document.getElementById('next-day-btn').onclick = () => { if (activeDay < 4) switchDay(activeDay + 1); };
+    document.getElementById('next-day-btn').onclick = () => { if (activeDay < Object.keys(itineraryData).length) switchDay(activeDay + 1); };
 }
 
 function switchDay(day) {
@@ -470,7 +478,7 @@ function updateSelectedItemsDisplay() {
     const container = document.getElementById('selected-items-container');
     const daySelections = selections[activeDay] || {};
     const sortedTimes = Object.keys(daySelections).sort();
-    if (sortedTimes.length === 0) {
+    if (Object.keys(daySelections).filter(time => daySelections[time].type !== 'accommodation').length === 0) {
         container.innerHTML = '<p class="text-center text-gray-500 py-6">선택된 일정이 없습니다.</p>';
         return;
     }
@@ -552,6 +560,7 @@ function executePlaceSearch(type, location, radius) {
     placesService.nearbySearch(request, (results, status) => {
         if (status === google.maps.places.PlacesServiceStatus.OK && results) {
             clearMarkers();
+            directionsRenderer.setDirections({routes: []}); // Clear route line as well
             const bounds = new google.maps.LatLngBounds();
             const filtered = results.filter(p => p.rating && p.rating >= 4.0).slice(0, 20);
             filtered.forEach(place => {
@@ -560,7 +569,11 @@ function executePlaceSearch(type, location, radius) {
                 marker.addListener('click', () => showThemeInfoWindow(marker, place.place_id));
                 themeMarkers.push(marker);
             });
-            googleMap.fitBounds(bounds);
+            if (filtered.length > 0) {
+                googleMap.fitBounds(bounds);
+            } else {
+                alert('평점 4.0 이상 장소를 찾지 못했습니다.');
+            }
         } else {
             alert('검색 결과가 없습니다.');
         }
@@ -576,16 +589,15 @@ function showThemeInfoWindow(marker, placeId) {
             infoWindows.forEach(iw => iw.close());
             
             let priceText = '';
-            if (place.price_level) {
-                priceText = '₩'.repeat(place.price_level);
-            }
+            if (place.price_level) priceText = '₩'.repeat(place.price_level);
             
-            let menuSummary = '<p>메뉴 정보 없음</p>';
+            let menuSummary = '<div class="text-gray-500 text-sm">메뉴 정보 없음</div>';
             if (place.reviews) {
                 const menuItems = new Set();
+                const menuRegex = /(\p{L}+)(갈비|국수|피자|파스타|버거|커피|라떼|에이드|케이크|빵|회|조림|구이|탕)(?![을를이가은는])/gu;
                 place.reviews.forEach(review => {
-                    const found = review.text.match(/(\S+)(가|이) 맛있/);
-                    if (found) menuItems.add(found[1]);
+                    const matches = review.text.match(menuRegex);
+                    if (matches) matches.forEach(item => menuItems.add(item));
                 });
                 if (menuItems.size > 0) {
                     menuSummary = [...menuItems].slice(0,3).map(item => `<div class="menu-item"><span>${item}</span> <span>${priceText}</span></div>`).join('');
@@ -599,26 +611,15 @@ function showThemeInfoWindow(marker, placeId) {
                         ${'★'.repeat(Math.round(place.rating || 0))}${'☆'.repeat(5 - Math.round(place.rating || 0))}
                         <strong> ${place.rating || 'N/A'}</strong> (${place.user_ratings_total || 0}개)
                     </div>
-                    <div class="menu-title">대표 메뉴 (추정)</div>
+                    <div class="menu-title">대표 메뉴 (리뷰 기반 추정)</div>
                     ${menuSummary}
-                </div>
-            `;
+                </div>`;
             const infoWindow = new google.maps.InfoWindow({ content: content });
             infoWindow.open(googleMap, marker);
             infoWindows.push(infoWindow);
         }
     });
 }
-
-
-window.addEventListener('load', () => {
-    if (typeof google === 'undefined' || typeof google.maps === 'undefined') {
-        console.error("Google Maps script failed to load. Retrying...");
-        setTimeout(initApp, 1500);
-    } else {
-        initApp();
-    }
-});
 </script>
 </body>
 </html>
