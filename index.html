@@ -83,7 +83,7 @@
     <div class="main-container">
         <div class="header-gradient text-white p-6 text-center">
             <h1 class="text-3xl md:text-4xl font-black mb-2">강귀선님 맞춤 제주여행</h1>
-            <p class="text-lg md:text-xl opacity-90">실시간 동선 최적화 플래너</p>
+            <p class="text-lg md:text-xl opacity-90">실시간 동선 최적화 플래너-BY BONG</p>
         </div>
         <div class="p-2 md:p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div class="lg:col-span-2">
@@ -413,16 +413,22 @@ function setupEventListeners() {
 
 function switchDay(day) {
     activeDay = day;
-    // Update tabs
-    document.querySelectorAll('.day-tab').forEach(tab => tab.classList.toggle('active', parseInt(tab.dataset.day) === day));
-    // Show/hide content
-    document.querySelectorAll('.day-content').forEach(content => content.classList.toggle('hidden', parseInt(content.id.replace('-content','')) !== day));
-    
+
+    // Update active tab
+    document.querySelectorAll('.day-tab').forEach(tab => {
+        tab.classList.toggle('active', tab.dataset.day == day);
+    });
+
+    // Show/hide day content
+    document.querySelectorAll('.day-content').forEach(content => {
+        content.classList.toggle('hidden', content.id !== `day${day}-content`);
+    });
+
     // Update bottom nav
     document.getElementById('bottom-nav-day').textContent = day;
     document.getElementById('prev-day-btn').disabled = (day === 1);
     document.getElementById('next-day-btn').disabled = (day === Object.keys(itineraryData).length);
-    
+
     updateAllDisplays();
 }
 
