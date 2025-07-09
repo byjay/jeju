@@ -1,4 +1,3 @@
-모든게 안된다 다시 아래코드에서 시작해
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -7,7 +6,6 @@
     <title>강귀선님을위한 제주여행 플래너 </title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- 요청하신 API 키를 직접 반영했습니다. -->
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDkmhTzFKcxxfQIrYlkcFjXAgIDdTZMdvU&callback=initApp&libraries=places,directions,geometry&v=weekly" defer></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap');
@@ -16,12 +14,9 @@
         .option-card { transition: all 0.2s ease-in-out; border-width: 2px; }
         .option-card:hover { transform: translateY(-2px); box-shadow: 0 8px 15px rgba(0,0,0,0.1); }
         .option-card.selected { border-color: #6366f1; background-color: #eef2ff; box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3); }
-        .details-panel { overflow: hidden; transition: all 0.3s ease-in-out; height: 0; margin-top: 0; opacity: 0; }
+        .details-panel { overflow: hidden; transition: all 0.3s ease-in-out; height: 0; margin-top: 0; opacity: 0; display: flex; gap: 1rem;}
         .details-panel.open { margin-top: 1rem; opacity: 1; }
-        .details-tab { cursor: pointer; padding: 0.5rem 1rem; border-bottom: 3px solid transparent; transition: all 0.2s; }
-        .details-tab.active { border-bottom-color: #4f46e5; color: #4f46e5; font-weight: 600; }
-        .details-content { display: none; }
-        .details-content.active { display: block; }
+        .details-section { flex: 1; min-width: 0; }
         .loading-container { display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 80px; color: #6b7280; text-align: center;}
         .spinner { border: 3px solid #f3f3f3; border-top: 3px solid #4f46e5; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; margin-bottom: 0.5rem;}
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -44,19 +39,21 @@
         .place-card:hover { background-color: #f9fafb; }
         .place-card.selected { background-color: #dbeafe; border-left: 4px solid #3b82f6; }
 
+        .category-btn { background-color: #e5e7eb; color: #374151; }
+        .category-btn.active { background-color: #4f46e5; color: white; }
+
         .place-detail-modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; border-radius: 1rem; padding: 2rem; max-width: 500px; width: 90%; max-height: 80vh; overflow-y: auto; z-index: 10002; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); display: none; }
         .place-detail-modal.active { display: block; }
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10001; display: none; }
         .modal-overlay.active { display: block; }
 
-        @media print {
-            body { background-color: white !important; }
-            .no-print { display: none !important; }
-        }
         @media (max-width: 1024px) {
             .fullscreen-content { flex-direction: column-reverse; }
             .map-sidebar { width: 100%; height: 50%; }
             .fullscreen-map-container { height: 50%; }
+        }
+        @media (max-width: 768px) {
+            .details-panel { flex-direction: column; }
         }
     </style>
 </head>
@@ -74,7 +71,7 @@
         <div class="flex flex-wrap justify-center items-center mb-4 bg-white p-2 rounded-xl shadow-md gap-2 no-print">
             <div class="flex-grow flex justify-center" id="day-tabs-container"></div>
             <button id="theme-search-toggle" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg transition">
-                <i class="fas fa-search-location mr-2"></i>주변 맛집/카페 검색
+                <i class="fas fa-search-location mr-2"></i>제주 전체 장소 검색
             </button>
             <button id="reset-button" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg transition">
                 <i class="fas fa-undo mr-2"></i>리셋
@@ -116,9 +113,9 @@
                             <div class="border-t pt-3">
                                 <h4 class="font-semibold text-gray-700 mb-2 text-sm">현지 경비</h4>
                                 <div class="space-y-1 text-xs">
-                                    <div class="flex justify-between items-center"><span class="text-gray-600">🍴 식비</span><span class="font-semibold" id="cost-food">₩0</span></div>
-                                    <div class="flex justify-between items-center"><span class="text-gray-600">🎟️ 체험/입장</span><span class="font-semibold" id="cost-activity">₩0</span></div>
-                                    <div class="flex justify-between items-center"><span class="text-gray-600">☕ 기타</span><span class="font-semibold" id="cost-etc">₩0</span></div>
+                                    <div class="flex justify-between items-center"><span class="text-gray-600">🍴 식비/카페</span><span class="font-semibold" id="cost-food">₩0</span></div>
+                                    <div class="flex justify-between items-center"><span class="text-gray-600">🎟️ 체험/관광</span><span class="font-semibold" id="cost-activity">₩0</span></div>
+                                    <div class="flex justify-between items-center"><span class="text-gray-600">🚗 기타</span><span class="font-semibold" id="cost-etc">₩0</span></div>
                                 </div>
                             </div>
                             <div class="pt-3 border-t-2 text-center bg-yellow-50 p-2 rounded-lg">
@@ -133,7 +130,7 @@
                          <div class="p-3 space-y-2 text-xs">
                             <div class="border-b pb-2"><p class="font-semibold">1일차 숙소</p><a href="https://www.agoda.com/sl/cmP0tfukS0y" target="_blank" class="text-blue-600 hover:underline">체크인호텔 제주</a></div>
                             <div class="border-b pb-2"><p class="font-semibold">2일차 숙소</p><a href="https://www.agoda.com/sl/GPG0yhcNtzR" target="_blank" class="text-blue-600 hover:underline">더 퍼스트 70 호텔</a></div>
-                            <div><p class="font-semibold">3일차 숙소</p><a href="https://www.genspark.ai/agents?id=27c0c28f-babb-4e5a-a594-7d2b396e6722" target="_blank" class="text-blue-600 hover:underline">판포포구 프리미엄 스테이</a></div>
+                            <div><p class="font-semibold">3일차 숙소</p><a href="https://www.agoda.com/sl/Hl5xYmPAnWn" target="_blank" class="text-blue-600 hover:underline">판포포구 프리미엄 스테이</a></div>
                          </div>
                     </div>
                 </div>
@@ -141,16 +138,21 @@
         </div>
     </div>
 
-    <!-- 전체화면 테마 검색 모달 -->
+    <!-- 전체화면 검색 모달 -->
     <div id="fullscreen-modal" class="fullscreen-modal">
-        <div class="fullscreen-header p-4 flex justify-between items-center"><h2 class="text-xl font-bold">주변 맛집/카페 검색</h2><button id="close-fullscreen" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition"><i class="fas fa-times mr-2"></i>닫기</button></div>
+        <div class="fullscreen-header p-4 flex justify-between items-center"><h2 class="text-xl font-bold">제주 전체 장소 검색</h2><button id="close-fullscreen" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition"><i class="fas fa-times mr-2"></i>닫기</button></div>
         <div class="fullscreen-content">
             <div class="map-sidebar">
                 <div class="sidebar-header">
-                    <div class="mb-4"><input type="text" id="theme-keyword-search" class="w-full p-2 border border-gray-300 rounded-lg" placeholder="키워드 검색 (예: 흑돼지, 오션뷰)"></div>
-                    <div class="flex gap-2">
-                        <select id="theme-category-filter" class="w-1/2 p-2 border border-gray-300 rounded-lg"><option value="all">맛집 & 카페</option><option value="restaurant">맛집만</option><option value="cafe">카페만</option></select>
-                        <select id="theme-sort-order" class="w-1/2 p-2 border border-gray-300 rounded-lg"><option value="score">추천순</option><option value="rating">별점순</option><option value="distance">거리순</option></select>
+                    <div class="flex gap-2 mb-4">
+                        <input type="text" id="theme-keyword-search" class="w-full p-2 border border-gray-300 rounded-lg" placeholder="키워드 검색 (예: 흑돼지)">
+                        <button id="theme-search-button" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition"><i class="fas fa-search"></i></button>
+                    </div>
+                    <div id="theme-category-buttons" class="grid grid-cols-4 gap-2">
+                        <button data-category="all" class="category-btn py-2 rounded-lg text-sm font-semibold transition active">전체</button>
+                        <button data-category="food" class="category-btn py-2 rounded-lg text-sm font-semibold transition">맛집</button>
+                        <button data-category="cafe" class="category-btn py-2 rounded-lg text-sm font-semibold transition">카페</button>
+                        <button data-category="activity" class="category-btn py-2 rounded-lg text-sm font-semibold transition">관광/체험</button>
                     </div>
                 </div>
                 <div id="search-results" class="sidebar-content"></div>
@@ -158,88 +160,128 @@
             <div class="fullscreen-map-container"><div id="fullscreen-map" class="fullscreen-map"></div></div>
         </div>
     </div>
-    <!-- 장소 상세 정보 모달 -->
+    
+    <!-- [복원] 상세 정보 팝업 모달 -->
     <div id="modal-overlay" class="modal-overlay"></div>
     <div id="place-detail-modal" class="place-detail-modal">
         <div class="flex justify-between items-center mb-4"><h2 id="place-name" class="text-xl font-bold"></h2><button id="close-detail-modal" class="text-gray-500 hover:text-gray-700"><i class="fas fa-times text-xl"></i></button></div>
         <div id="place-details" class="space-y-4"></div>
     </div>
-<script>
-// --- 데이터베이스 ---
 
-// 제주패스 가맹점 시뮬레이션 데이터
-const jejuPassData = [
-    { id: 'jp_snoopy', name: '스누피가든', type: 'activity', lat: 33.4253, lng: 126.7958, cost: 36000, tags: ['테마파크', '포토존', '동부'] },
-    { id: 'jp_arte', name: '아르떼뮤지엄 제주', type: 'activity', lat: 33.4116, lng: 126.3059, cost: 34000, tags: ['미디어아트', '실내', '서부'] },
-    { id: 'jp_981', name: '9.81파크', type: 'activity', lat: 33.4147, lng: 126.3228, cost: 99000, tags: ['그래비티레이싱', '액티비티', '서부'] },
-    { id: 'jp_wind1947', name: '윈드1947카트테마파크', type: 'activity', lat: 33.2758, lng: 126.5516, cost: 50000, tags: ['카트', '액티비티', '남부'] },
-    { id: 'jp_ecoland', name: '에코랜드 테마파크', type: 'activity', lat: 33.4533, lng: 126.6713, cost: 28000, tags: ['기차여행', '곶자왈', '동부'] },
-    { id: 'jp_camellia', name: '카멜리아힐', type: 'activity', lat: 33.2913, lng: 126.3688, cost: 18000, tags: ['수목원', '꽃', '남서부'] },
-    { id: 'jp_skywater', name: '스카이워터쇼', type: 'activity', lat: 33.3941, lng: 126.7937, cost: 40000, tags: ['공연', '실내', '동부'] },
-    { id: 'jp_hueree', name: '휴애리 자연생활공원', type: 'activity', lat: 33.2872, lng: 126.6025, cost: 26000, tags: ['자연', '동물먹이주기', '남부'] },
-    { id: 'jp_aerospace', name: '제주항공우주박물관', type: 'activity', lat: 33.3039, lng: 126.2917, cost: 20000, tags: ['박물관', '아이와함께', '서부'] },
-    { id: 'jp_shinhwa', name: '신화워터파크', type: 'activity', lat: 33.3000, lng: 126.3150, cost: 78000, tags: ['워터파크', '여름', '서부'] },
-    { id: 'jp_maze', name: '메이즈랜드', type: 'activity', lat: 33.5042, lng: 126.7865, cost: 22000, tags: ['미로공원', '동부'] },
-    { id: 'jp_alive', name: '박물관은 살아있다', type: 'activity', lat: 33.2505, lng: 126.4111, cost: 24000, tags: ['트릭아트', '실내', '남서부'] },
-    { id: 'jp_teddy', name: '테디베어뮤지엄', type: 'activity', lat: 33.2500, lng: 126.4120, cost: 26000, tags: ['박물관', '인형', '남서부'] },
-    { id: 'jp_utopia', name: '뽀로로&타요 테마파크', type: 'activity', lat: 33.2933, lng: 126.3638, cost: 80000, tags: ['키즈파크', '아이와함께', '남서부'] },
-    { id: 'jp_folkvillage', name: '제주민속촌', type: 'activity', lat: 33.3196, lng: 126.9099, cost: 22000, tags: ['전통', '역사', '동부'] },
-    { id: 'jp_glasscastle', name: '유리의성', type: 'activity', lat: 33.3294, lng: 126.2753, cost: 24000, tags: ['유리공예', '포토존', '서부'] },
-    { id: 'jp_ilchul', name: '일출랜드', type: 'activity', lat: 33.3643, lng: 126.8631, cost: 18000, tags: ['미천굴', '수목원', '동부'] },
-    { id: 'jp_atv', name: '제주 성읍랜드 ATV', type: 'activity', lat: 33.3853, lng: 126.8062, cost: 50000, tags: ['ATV', '액티비티', '동부'] },
-    { id: 'jp_ulsan', name: '울산큰애기', type: 'etc', lat: 33.2408, lng: 126.5645, cost: 20000, tags: ['카페', '서귀포', '남부'] },
-    { id: 'jp_sungsan', name: '스타벅스 제주성산DT', type: 'etc', lat: 33.4522, lng: 126.9149, cost: 20000, tags: ['카페', '성산', '동부'] }
+<script>
+// --- [최종] 데이터베이스: 모든 장소 정보 통합 및 강화 ---
+const allJejuPlaces = [
+    // 동부
+    {id: 'p_snoopy', name: '스누피가든', type: 'activity', region: 'east', lat: 33.4253, lng: 126.7958, cost: 18000, tags: ['테마파크', '피너츠'], menu: [{item: '성인 입장권', price: 18000}, {item: '청소년', price: 15000}, {item: '어린이', price: 12000}]},
+    {id: 'p_ecoland', name: '에코랜드', type: 'activity', region: 'east', lat: 33.4533, lng: 126.6713, cost: 14000, tags: ['기차', '곶자왈'], menu: [{item: '성인 입장권', price: 14000}, {item: '청소년', price: 12000}, {item: '어린이', price: 10000}]},
+    {id: 'p_ilchul', name: '일출랜드', type: 'activity', region: 'east', lat: 33.3643, lng: 126.8631, cost: 9000, tags: ['미천굴', '수목원'], menu: [{item: '성인 입장권', price: 9000}, {item: '청소년', price: 6000}, {item: '어린이', price: 5000}]},
+    {id: 'p_seopjikoji', name: '섭지코지', type: 'activity', region: 'east', lat: 33.4238, lng: 126.9317, cost: 0, tags: ['자연', '해안', '관광지'], menu: [{item: '입장료', price: 0}]},
+    {id: 'p_seongsan', name: '성산일출봉', type: 'activity', region: 'east', lat: 33.4581, lng: 126.9427, cost: 5000, tags: ['세계자연유산', '오름', '관광지'], menu: [{item: '성인 입장료', price: 5000}, {item: '청소년/어린이', price: 2500}]},
+    {id: 'p_bijarim', name: '비자림', type: 'activity', region: 'east', lat: 33.4893, lng: 126.8117, cost: 3000, tags: ['숲길', '천년의숲', '관광지'], menu: [{item: '성인 입장료', price: 3000}, {item: '청소년/어린이', price: 1500}]},
+    {id: 'p_maze', name: '메이즈랜드', type: 'activity', region: 'east', lat: 33.5042, lng: 126.7865, cost: 11000, tags: ['미로공원', '돌미로', '체험'], menu: [{item: '성인 입장권', price: 11000}, {item: '청소년', price: 9000}, {item: '어린이', price: 8000}]},
+    {id: 'p_haenyeo', name: '해녀박물관', type: 'activity', region: 'east', lat: 33.5350, lng: 126.8559, cost: 1100, tags: ['박물관', '해녀문화', '관광지'], menu: [{item: '성인 입장료', price: 1100}]},
+    {id: 'p_aquaplanet', name: '아쿠아플라넷 제주', type: 'activity', region: 'east', lat: 33.4310, lng: 126.9272, cost: 42400, tags: ['수족관', '오션아레나', '체험'], menu: [{item: '종합권(성인)', price: 42400}, {item: '종합권(청소년/경로)', price: 40800}]},
+    {id: 'p_folk', name: '제주민속촌', type: 'activity', region: 'east', lat: 33.3196, lng: 126.9099, cost: 15000, tags: ['전통가옥', '역사', '관광지'], menu: [{item: '성인 입장권', price: 15000}, {item: '청소년/경로', price: 12000}, {item: '어린이', price: 11000}]},
+    {id: 'p_skywater', name: '스카이워터쇼', type: 'activity', region: 'east', lat: 33.3941, lng: 126.7937, cost: 20000, tags: ['공연', '실내', '체험'], menu: [{item: '공연관람권', price: 20000}]},
+    {id: 'p_plnt827', name: '플래닛827', type: 'cafe', region: 'east', lat: 33.4300, lng: 126.9230, cost: 20000, tags: ['베이커리', '오션뷰'], menu: [{item: '아메리카노', price: 6500}, {item: '돌하르방 케이크', price: 9500, recommended: true}]},
+    {id: 'p_orrrn', name: '오르롸', type: 'cafe', region: 'east', lat: 33.4612, lng: 126.9388, cost: 20000, tags: ['성산뷰', '루프탑'], menu: [{item: '아인슈페너', price: 8000, recommended: true}, {item: '제주 당근 케이크', price: 8500}]},
+    {id: 'p_gamgyul', name: '귤꽃카페', type: 'cafe', region: 'east', lat: 33.5011, lng: 126.7834, cost: 18000, tags: ['감귤밭', '포토존'], menu: [{item: '아메리카노', price: 5000}, {item: '감귤주스', price: 7000}]},
+    {id: 'p_myeongjin', name: '명진전복', type: 'food', region: 'east', lat: 33.5323, lng: 126.8624, cost: 60000, tags: ['전복', '향토음식'], menu: [{item: '전복 돌솥밥', price: 16000, recommended: true}, {item: '전복죽', price: 13000}, {item: '전복 구이', price: 30000}]},
+
+    // 서부
+    {id: 'p_osulloc', name: '오설록 티 뮤지엄', type: 'activity', region: 'west', lat: 33.3059, lng: 126.2895, cost: 0, tags: ['녹차밭', '뮤지엄', '관광지'], menu: [{item: '입장료', price: 0}, {item: '녹차 아이스크림', price: 5500}, {item: '그린티 롤케익', price: 6500}]},
+    {id: 'p_shinhwa', name: '신화월드', type: 'activity', region: 'west', lat: 33.3000, lng: 126.3150, cost: 45000, tags: ['테마파크', '리조트', '체험'], menu: [{item: '테마파크 BIG3', price: 30000}, {item: '워터파크 종일권', price: 45000}]},
+    {id: 'p_arte', name: '아르떼뮤지엄', type: 'activity', region: 'west', lat: 33.4116, lng: 126.3059, cost: 17000, tags: ['미디어아트', '실내', '관광지'], menu: [{item: '성인 입장권', price: 17000}, {item: '청소년', price: 13000}, {item: '어린이', price: 10000}]},
+    {id: 'p_981', name: '9.81파크', type: 'activity', region: 'west', lat: 33.4147, lng: 126.3228, cost: 59000, tags: ['레이싱', '액티비티', '체험'], menu: [{item: 'RACE 981 3회권', price: 49500}, {item: '풀패키지', price: 59000}]},
+    {id: 'p_glass', name: '유리의성', type: 'activity', region: 'west', lat: 33.3294, lng: 126.2753, cost: 12000, tags: ['유리공예', '포토존', '관광지'], menu: [{item: '성인 입장권', price: 12000}, {item: '청소년/어린이', price: 10000}]},
+    {id: 'p_hallimpark', name: '한림공원', type: 'activity', region: 'west', lat: 33.3912, lng: 126.2396, cost: 15000, tags: ['협재굴', '야자수길', '관광지'], menu: [{item: '성인 입장권', price: 15000}, {item: '청소년', price: 10000}, {item: '어린이', price: 9000}]},
+    {id: 'p_norimae', name: '노리매공원', type: 'activity', region: 'west', lat: 33.3236, lng: 126.3184, cost: 9000, tags: ['매화', '사진명소', '관광지'], menu: [{item: '성인 입장권', price: 9000}]},
+    {id: 'p_hyeopjae', name: '협재해수욕장', type: 'activity', region: 'west', lat: 33.3941, lng: 126.2394, cost: 0, tags: ['바다', '비양도뷰', '관광지'], menu: [{item: '입장료', price: 0}]},
+    {id: 'p_themama', name: '더마파크', type: 'activity', region: 'west', lat: 33.4005, lng: 126.3056, cost: 18000, tags: ['말공연', '카트', '체험'], menu: [{item: '말공연 관람', price: 18000}, {item: '카트 1인', price: 25000}]},
+    {id: 'p_saebiloreum', name: '새별오름', type: 'activity', region: 'west', lat: 33.3664, lng: 126.3533, cost: 0, tags: ['오름', '억새', '관광지'], menu: [{item: '입장료', price: 0}]},
+    {id: 'p_aewolcafe', name: '아이유스뮤지엄', type: 'activity', region: 'west', lat: 33.4735, lng: 126.3888, cost: 15000, tags: ['얼음동굴', '포토존', '체험'], menu: [{item: '3D+5D+VR 1회', price: 15000}]},
+    {id: 'p_bomnal', name: '봄날카페', type: 'cafe', region: 'west', lat: 33.4635, lng: 126.3107, cost: 20000, tags: ['오션뷰', '유명카페'], menu: [{item: '아메리카노', price: 5000}, {item: '한라봉에이드', price: 8000, recommended: true}, {item: '땅콩라떼', price: 7000}]},
+    {id: 'p_randys', name: '랜디스도넛', type: 'cafe', region: 'west', lat: 33.4627, lng: 126.3853, cost: 20000, tags: ['도넛', '웨이팅'], menu: [{item: '글레이즈 도넛', price: 2500}, {item: '엠앤엠 도넛', price: 3500, recommended: true}, {item: '텍사스 도넛', price: 3300}]},
+    {id: 'p_saebilcafe', name: '새빌카페', type: 'cafe', region: 'west', lat: 33.3725, lng: 126.3518, cost: 22000, tags: ['새별오름뷰', '대형카페'], menu: [{item: '새빌 시그니처', price: 8500, recommended: true}, {item: '팡도르', price: 7000}, {item: '아메리카노', price: 6000}]},
+    {id: 'p_korikocafe', name: '코리코카페 제주점', type: 'cafe', region: 'west', lat: 33.4566, lng: 126.3050, cost: 22000, tags: ['지브리', '캐릭터'], menu: [{item: '아메리카노', price: 6000}, {item: '초코 케이크', price: 9000, recommended: true}, {item: '플라워 에이드', price: 7500}]},
+
+    // 남부 & 서귀포
+    {id: 'p_cheonjeyeon', name: '천제연폭포', type: 'activity', region: 'south', lat: 33.2503, lng: 126.4215, cost: 2500, tags: ['폭포', '선임교', '관광지'], menu: [{item: '성인 입장료', price: 2500}, {item: '청소년/어린이', price: 1350}]},
+    {id: 'p_jusangjeolli', name: '주상절리대', type: 'activity', region: 'south', lat: 33.2384, lng: 126.4247, cost: 2000, tags: ['자연경관', '화산지형', '관광지'], menu: [{item: '성인 입장료', price: 2000}]},
+    {id: 'p_camellia', name: '카멜리아힐', type: 'activity', region: 'south', lat: 33.2913, lng: 126.3688, cost: 10000, tags: ['동백꽃', '수국', '관광지'], menu: [{item: '성인 입장권', price: 10000}, {item: '청소년', price: 8000}, {item: '어린이', price: 7000}]},
+    {id: 'p_wind1947', name: '윈드1947카트', type: 'activity', region: 'south', lat: 33.2758, lng: 126.5516, cost: 35000, tags: ['카트', '액티비티', '체험'], menu: [{item: '성인 카트 3회전', price: 35000}, {item: '2인승 카트', price: 45000}]},
+    {id: 'p_hueree', name: '휴애리', type: 'activity', region: 'south', lat: 33.2872, lng: 126.6025, cost: 13000, tags: ['자연공원', '동물체험', '관광지'], menu: [{item: '성인 입장권', price: 13000}, {item: '흑돼지쇼 관람 포함', price: 0}]},
+    {id: 'p_yakcheonsa', name: '약천사', type: 'activity', region: 'south', lat: 33.2429, lng: 126.4678, cost: 0, tags: ['사찰', '건축', '관광지'], menu: [{item: '입장료', price: 0}]},
+    {id: 'p_alive', name: '박물관은살아있다', type: 'activity', region: 'south', lat: 33.2505, lng: 126.4111, cost: 12000, tags: ['트릭아트', '실내', '체험'], menu: [{item: '성인 입장권', price: 12000}]},
+    {id: 'p_teddy', name: '테디베어뮤지엄', type: 'activity', region: 'south', lat: 33.2500, lng: 126.4120, cost: 12000, tags: ['인형', '박물관', '관광지'], menu: [{item: '성인 입장권', price: 12000}]},
+    {id: 'p_vadada', name: '바다다', type: 'cafe', region: 'south', lat: 33.2388, lng: 126.4447, cost: 30000, tags: ['라운지', '오션뷰'], menu: [{item: '아메리카노', price: 10000}, {item: '모히또', price: 15000, recommended: true}, {item: '피자', price: 25000}]},
+    {id: 'p_oneandonly', name: '원앤온리', type: 'cafe', region: 'south', lat: 33.2443, lng: 126.3725, cost: 25000, tags: ['산방산뷰', '야자수'], menu: [{item: '산방산 케이크', price: 12000, recommended: true}, {item: '피넛 라떼', price: 9000}, {item: '아메리카노', price: 7000}]},
+    {id: 'p_deokseong', name: '덕성원', type: 'food', region: 'south', lat: 33.2494, lng: 126.5615, cost: 50000, tags: ['중식', '꽃게짬뽕'], menu: [{item: '꽃게짬뽕', price: 12000, recommended: true}, {item: '짜장면', price: 7000}, {item: '탕수육(소)', price: 22000}]},
+    {id: 'p_ollehmarket', name: '올레시장', type: 'food', region: 'south', lat: 33.2497, lng: 126.5654, cost: 40000, tags: ['시장', '향토음식'], menu: [{item: '마농치킨', price: 19000, recommended: true}, {item: '모닥치기', price: 10000}, {item: '흑돼지 꼬치구이', price: 7000}]},
+    {id: 'p_honeymoon', name: '허니문하우스', type: 'cafe', region: 'south', lat: 33.2411, lng: 126.5325, cost: 25000, tags: ['오션뷰', '정원'], menu: [{item: '아메리카노', price: 8000}, {item: '파인애플 주스', price: 12000}, {item: '치즈케이크', price: 9000}]},
+    {id: 'p_jungmunbyul', name: '중문별장', type: 'cafe', region: 'south', lat: 33.2508, lng: 126.4208, cost: 22000, tags: ['빈티지', '디저트'], menu: [{item: '별장커피', price: 7500, recommended: true}, {item: '레몬 파운드', price: 7000}]},
+    {id: 'p_lavarr', name: '라바르', type: 'cafe', region: 'south', lat: 33.2461, lng: 126.4355, cost: 20000, tags: ['커피', '베이커리'], menu: [{item: '플랫화이트', price: 6500}, {item: '크루아상', price: 4500}]},
+    {id: 'p_gojip_jungmun', name: '고집돌우럭 중문점', type: 'food', region: 'south', lat: 33.2515, lng: 126.4259, cost: 80000, tags: ['갈치', '향토음식'], menu: [{item: '런치A세트(1인)', price: 31000, recommended: true}, {item: '갈치조림(소)', price: 68000}, {item: '우럭조림(소)', price: 68000}]},
+    {id: 'p_alssam', name: '알쌈닭', type: 'food', region: 'south', lat: 33.2467, lng: 126.5600, cost: 55000, tags: ['닭갈비', '치즈'], menu: [{item: '알쌈닭(2인)', price: 28000}, {item: '치즈 닭갈비(2인)', price: 30000, recommended: true}]},
+    
+    // 제주시
+    {id: 'p_yongduam', name: '용두암', type: 'activity', region: 'city', lat: 33.5133, lng: 126.5113, cost: 0, tags: ['바위', '해안도로', '관광지'], menu: [{item: '입장료', price: 0}]},
+    {id: 'p_dongmun', name: '동문시장', type: 'food', region: 'city', lat: 33.5126, lng: 126.5292, cost: 40000, tags: ['야시장', '향토음식'], menu: [{item: '딱새우회', price: 20000, recommended: true}, {item: '흑돼지 김치말이', price: 8000}, {item: '오메기떡', price: 6000}]},
+    {id: 'p_sistersnoodle', name: '자매국수', type: 'food', region: 'city', lat: 33.4879, lng: 126.5458, cost: 35000, tags: ['고기국수', '향토음식'], menu: [{item: '고기국수', price: 9000, recommended: true}, {item: '비빔국수', price: 9000}, {item: '돔베고기(소)', price: 15000}]},
+    {id: 'p_jejukim', name: '제주김만복', type: 'food', region: 'city', lat: 33.5111, lng: 126.5188, cost: 25000, tags: ['김밥', '공항근처'], menu: [{item: '만복이네김밥', price: 7500, recommended: true}, {item: '오징어무침', price: 5500}, {item: '통전복주먹밥', price: 6500}]},
+    {id: 'p_myeongjin_city', name: '명진전복(시내점)', type: 'food', region: 'city', lat: 33.4912, lng: 126.5057, cost: 60000, tags: ['전복', '향토음식'], menu: [{item: '전복 돌솥밥', price: 16000, recommended: true}, {item: '전복죽', price: 13000}, {item: '전복 구이', price: 30000}]},
+    {id: 'p_gojip_airport', name: '고집돌우럭 공항점', type: 'food', region: 'city', lat: 33.5042, lng: 126.5034, cost: 80000, tags: ['갈치', '공항근처', '향토음식'], menu: [{item: '런치A세트(1인)', price: 31000, recommended: true}, {item: '갈치조림(소)', price: 68000}, {item: '우럭조림(소)', price: 68000}]},
+    {id: 'p_asalam', name: '아살람 레스토랑', type: 'food', region: 'city', lat: 33.5011, lng: 126.5330, cost: 60000, tags: ['할랄', '인도음식', '레스토랑'], menu: [{item: '치킨 마크니 커리', price: 15000, recommended: true}, {item: '탄두리 치킨', price: 20000}, {item: '갈릭 난', price: 3000}]},
+    {id: 'p_jeonbok', name: '전복식당', type: 'food', region: 'city', lat: 33.5140, lng: 126.5160, cost: 70000, tags: ['전복', '향토음식'], menu: [{item: '전복코스요리(1인)', price: 50000, recommended: true}, {item: '전복돌솥밥', price: 15000}]},
+    {id: 'p_songlim', name: '송림식당', type: 'food', region: 'city', lat: 33.5132, lng: 126.5225, cost: 45000, tags: ['해장국', '현지인맛집'], menu: [{item: '소고기해장국', price: 9000, recommended: true}, {item: '내장탕', price: 10000}]},
 ];
 
-// 여행 일정 데이터 (jejuPassSearch 추가)
+
+// --- 여행 일정 데이터: 검색 결과 확대를 위해 radius 및 max 값 상향 조정 ---
 const itineraryData = {
     day1: {
         title: "제주 도착 & 설레는 첫날 밤",
         slots: {
-            '18:00': { icon: '✈️', category: '공항 도착', options: { arrival: { id: 'arrival', name: '제주국제공항', cost: 0, type: 'etc', tags: ['필수'], lat: 33.5104, lng: 126.4913 } } },
-            '19:00': { icon: '🏨', category: '숙소 체크인', options: { checkin_hotel: { id: 'checkin_hotel', name: '체크인호텔 제주', cost: 0, type: 'accommodation', tags: ['1일차 숙소'], lat: 33.5015, lng: 126.5050 } } },
-            '19:30': { icon: '🍴', category: '저녁 식사', dynamicSearch: { type: 'food', keywords: ['흑돼지', '고기국수', '해물탕'], radius: 3000, minResults: 4 } },
-            '21:00': { icon: '☕', category: '야간 카페', dynamicSearch: { type: 'cafe', keywords: ['야경 카페', '디저트'], radius: 5000, minResults: 4 } }
+            '18:00': { icon: '✈️', category: '공항 도착', fixed: { id: 'arrival', name: '제주국제공항', cost: 0, type: 'etc', lat: 33.5104, lng: 126.4913 } },
+            '19:00': { icon: '🏨', category: '숙소 체크인', fixed: { id: 'checkin_hotel', name: '체크인호텔 제주', cost: 0, type: 'accommodation', lat: 33.5015, lng: 126.5050 } },
+            '19:30': { icon: '🍴', category: '저녁 식사', search: { type: 'food', keywords: ['흑돼지', '고기국수', '해물탕'], radius: 5000, max: 12 } },
+            '21:00': { icon: '☕', category: '야간 카페', search: { type: 'cafe', keywords: ['야경 카페', '디저트'], radius: 7000, max: 8 } }
         }
     },
     day2: {
         title: "환상의 동쪽 해안도로 일주",
         slots: {
-            '09:00': { icon: '🍳', category: '아침 식사', options: {
-                dongmun: { id: 'dongmun', name: '동문시장', cost: 30000, type: 'food', tags: ['포장', '시장'], lat: 33.5126, lng: 126.5292, 
-                    menu: [{item:'모둠회(소)', price:20000}, {item:'떡볶이', price:5000}] },
-                brunch_d2: { id: 'brunch_d2', name: '이도동 브런치 카페', cost: 50000, type: 'food', tags: ['브런치'], lat: 33.5002, lng: 126.5310 }
-            }},
-            '10:30': { icon: '🎟️', category: '오전 활동 (PASS)', jejuPassSearch: { radius: 25000, minResults: 4 } }, // 제주패스 검색
-            '13:00': { icon: '🍴', category: '점심 식사', dynamicSearch: { type: 'food', keywords: ['해물라면', '전복', '갈치'], radius: 7000, minResults: 4 } },
-            '15:00': { icon: '🎟️', category: '오후 활동 (PASS)', jejuPassSearch: { radius: 15000, minResults: 4 } }, // 제주패스 검색
-            '18:30': { icon: '🏨', category: '숙소 체크인', options: { thefirst70: { id: 'thefirst70', name: '더 퍼스트 70 호텔', cost: 0, type: 'accommodation', tags: ['2일차 숙소'], lat: 33.2476, lng: 126.5615 } } },
-            '19:30': { icon: '🍢', category: '저녁 식사', dynamicSearch: { type: 'food', keywords: ['흑돼지', '횟집', '올레시장'], radius: 1500, minResults: 4 } }
+            '09:00': { icon: '🍳', category: '아침 식사', search: { type: 'food', keywords: ['해장국', '전복죽', '김밥'], radius: 15000, max: 12 }},
+            '10:30': { icon: '🎟️', category: '오전 활동', search: { type: 'activity', tags: ['관광지', '체험'], max: 6 } }, // 활동은 DB 기준
+            '13:00': { icon: '🍴', category: '점심 식사', search: { type: 'food', keywords: ['해물라면', '갈치조림', '전복'], radius: 10000, max: 12 } },
+            '15:00': { icon: '☕', category: '오후 카페', search: { type: 'cafe', keywords: ['오션뷰 카페', '베이커리'], radius: 12000, max: 8 } },
+            '18:30': { icon: '🏨', category: '숙소 체크인', fixed: { id: 'thefirst70', name: '더 퍼스트 70 호텔', cost: 0, type: 'accommodation', lat: 33.2476, lng: 126.5615 } },
+            '19:30': { icon: '🍢', category: '저녁 식사', search: { type: 'food', keywords: ['흑돼지', '횟집', '시장'], radius: 4000, max: 12 } }
         }
     },
     day3: {
         title: "서귀포 자연과 서쪽의 낭만",
         slots: {
-            '09:30': { icon: '🎟️', category: '오전 활동 (PASS)', jejuPassSearch: { radius: 20000, minResults: 4 } }, // 제주패스 검색
-            '12:30': { icon: '🍴', category: '점심 식사', dynamicSearch: { type: 'food', keywords: ['갈치조림', '보말칼국수'], radius: 8000, minResults: 4 } },
-            '14:30': { icon: '🎟️', category: '오후 활동 (PASS)', jejuPassSearch: { radius: 15000, minResults: 4 } }, // 제주패스 검색
-            '17:00': { icon: '🏨', category: '숙소 체크인', options: { airbnb: { id: 'airbnb', name: '판포포구 프리미엄 스테이', cost: 0, type: 'accommodation', tags: ['3일차 숙소'], lat: 33.3857, lng: 126.2104 } } },
-            '18:30': { icon: '🌅', category: '저녁 식사', dynamicSearch: { type: 'food', keywords: ['흑돼지', '오션뷰 레스토랑'], radius: 5000, minResults: 4 } }
+            '09:30': { icon: '🎟️', category: '오전 활동', search: { type: 'activity', tags: ['관광지', '체험'], max: 6 } }, // 활동은 DB 기준
+            '12:30': { icon: '🍴', category: '점심 식사', search: { type: 'food', keywords: ['갈치조림', '중식', '향토음식'], radius: 12000, max: 12 } },
+            '14:30': { icon: '🎟️', category: '오후 활동', search: { type: 'activity', tags: ['관광지', '체험'], max: 6 } }, // 활동은 DB 기준
+            '17:00': { icon: '🏨', category: '숙소 체크인', fixed: { id: 'airbnb', name: '판포포구 프리미엄 스테이', cost: 0, type: 'accommodation', lat: 33.3857, lng: 126.2104 } },
+            '18:30': { icon: '🌅', category: '저녁 식사', search: { type: 'food', keywords: ['흑돼지', '오션뷰 레스토랑'], radius: 8000, max: 12 } }
         }
     },
     day4: {
         title: "아쉬운 마지막 날 & 출발",
         slots: {
-            '10:00': { icon: '🎟️', category: '오전 활동 (PASS)', jejuPassSearch: { radius: 15000, minResults: 4 } }, // 제주패스 검색
-            '13:00': { icon: '🍴', category: '마지막 점심', dynamicSearch: { type: 'food', keywords: ['해물라면', '수제버거'], radius: 10000, minResults: 4 } },
-            '14:30': { icon: '🎁', category: '기념품 & 반납', options: { shopping: { id: 'shopping', name: '렌트카 반납', cost: 50000, type: 'etc', tags: ['쇼핑'], lat: 33.5049, lng: 126.4950 } } },
-            '18:00': { icon: '🛫', category: '제주공항 출발', options: { departure: { id: 'departure', name: '여행 마무리', cost: 0, type: 'etc', tags: ['필수'], lat: 33.5104, lng: 126.4913 } } }
+            '10:00': { icon: '☕', category: '마지막 카페', search: { type: 'cafe', keywords: ['애월 카페', '공항근처 카페'], radius: 15000, max: 8 } },
+            '13:00': { icon: '🍴', category: '마지막 점심', search: { type: 'food', keywords: ['공항근처 맛집', '해물라면'], radius: 8000, max: 12 } },
+            '14:30': { icon: '🎁', category: '기념품 & 반납', fixed: { id: 'shopping', name: '렌트카 반납 & 공항 이동', cost: 0, type: 'etc', lat: 33.5049, lng: 126.4950 }},
+            '18:00': { icon: '🛫', category: '제주공항 출발', fixed: { id: 'departure', name: '여행 마무리', cost: 0, type: 'etc', lat: 33.5104, lng: 126.4913 } }
         }
     }
 };
 
 // --- 전역 변수 ---
-let googleMap, fullscreenMap, placesService, directionsService, directionsRenderer;
+let googleMap, fullscreenMap, placesService, directionsService, directionsRenderer, infoWindow;
 let activeDay = 1;
 const selections = {};
 let originalSelections = {};
@@ -248,10 +290,8 @@ let watchId = null;
 let userLocationMarker = null;
 let fullscreenUserMarker = null;
 let fullscreenMarkers = [];
-let allThemeResults = [];
-let currentSearchLocation = null;
 const fixedCosts = { flight: 0, hotel: 0 };
-
+const placeDetailsCache = {};
 
 // --- 초기화 및 UI 설정 함수 ---
 function initApp() {
@@ -273,17 +313,136 @@ function initUI() {
         tab.textContent = `${day}일차`;
         tab.dataset.day = day;
         tabsContainer.appendChild(tab);
+        
         const dayContent = document.createElement('div');
         dayContent.id = `day${day}`;
         dayContent.className = `day-content space-y-3 ${index > 0 ? 'hidden' : ''}`;
         dayContent.innerHTML = `<h2 class="text-xl font-bold text-gray-800">${itineraryData[dayKey].title}</h2>`;
+        
         Object.entries(itineraryData[dayKey].slots).forEach(([time, slot]) => {
-            dayContent.innerHTML += `<div class="compact-timeline relative"><div class="absolute left-0 top-1 h-full border-l-2 border-gray-300"></div><div class="timeline-dot absolute bg-blue-500 rounded-full border-2 border-white"></div><div class="bg-white rounded-lg shadow-md p-4"><div class="flex items-center mb-3"><span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-semibold mr-3">${time}</span><h3 class="text-base font-bold text-gray-800">${slot.icon} ${slot.category}</h3><div class="distance-info" data-day="${day}" data-time="${time}"></div></div><div class="options-grid grid grid-cols-1 md:grid-cols-2 gap-3" data-day="${day}" data-time="${time}">${slot.options ? generateOptionsHtml(day, time, slot.options) : ''}</div></div></div>`;
+            dayContent.innerHTML += `<div class="compact-timeline relative"><div class="absolute left-0 top-1 h-full border-l-2 border-gray-300"></div><div class="timeline-dot absolute bg-blue-500 rounded-full border-2 border-white"></div><div class="bg-white rounded-lg shadow-md p-4"><div class="flex items-center mb-3"><span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-semibold mr-3">${time}</span><h3 class="text-base font-bold text-gray-800">${slot.icon} ${slot.category}</h3><div class="distance-info" data-day="${day}" data-time="${time}"></div></div><div class="options-grid grid grid-cols-1 md:grid-cols-2 gap-3" data-day="${day}" data-time="${time}"><div class="loading-container"><div class="spinner"></div><span class="text-xs mt-2">추천 장소 검색 중...</span></div></div></div></div>`;
         });
         itineraryContainer.appendChild(dayContent);
     });
     
     setupInitialState();
+}
+
+async function setupInitialState() {
+    for (const dayKey of Object.keys(itineraryData)) {
+        const day = parseInt(dayKey.replace('day', ''));
+        selections[day] = {};
+        let lastLocation = null;
+        for (const [time, slot] of Object.entries(itineraryData[dayKey].slots)) {
+            const grid = document.querySelector(`.options-grid[data-day="${day}"][data-time="${time}"]`);
+            let options = await generateSlotOptions(slot, lastLocation);
+            
+            grid.innerHTML = generateOptionsHtml(day, time, options);
+
+            const firstOptionKey = Object.keys(options)[0];
+            if (firstOptionKey) {
+                const optionData = options[firstOptionKey];
+                selections[day][time] = { ...optionData };
+                lastLocation = { lat: optionData.lat, lng: optionData.lng };
+                const card = grid.querySelector(`.option-card`);
+                if(card) card.classList.add('selected');
+            }
+        }
+    }
+    originalSelections = JSON.parse(JSON.stringify(selections));
+    updateAllDisplays();
+}
+
+// [핵심 개선] DB와 API를 통합하여 옵션을 생성하는 함수
+async function generateSlotOptions(slot, location) {
+    if (slot.fixed) return { [slot.fixed.id]: slot.fixed };
+    if (!slot.search) return {};
+
+    const searchType = slot.search.type;
+    const maxResults = slot.search.max || 6;
+
+    // 활동/관광지는 자체 DB에서만 검색
+    if (searchType === 'activity') {
+        let dbResults = allJejuPlaces.filter(p => p.type === 'activity' && (slot.search.tags || []).some(tag => p.tags.includes(tag)));
+        if (location) {
+            const startPoint = new google.maps.LatLng(location.lat, location.lng);
+            dbResults.forEach(p => p.distance = google.maps.geometry.spherical.computeDistanceBetween(startPoint, new google.maps.LatLng(p.lat, p.lng)));
+            dbResults.sort((a, b) => a.distance - b.distance);
+        }
+        const options = {};
+        dbResults.slice(0, maxResults).forEach(p => options[p.id] = p);
+        return options;
+    }
+
+    // 맛집/카페는 DB + API 통합 검색
+    if (searchType === 'food' || searchType === 'cafe') {
+        const dbPromise = (async () => {
+            return allJejuPlaces.filter(p => p.type === searchType && (slot.search.keywords || []).some(kw => p.tags.some(tag => tag.includes(kw)) || p.name.includes(kw)));
+        })();
+        
+        const apiPromise = new Promise((resolve) => {
+            if (!placesService || !location) { resolve([]); return; }
+            placesService.nearbySearch({
+                location: new google.maps.LatLng(location.lat, location.lng), 
+                radius: slot.search.radius, 
+                keyword: slot.search.keywords.join(' OR '),
+                type: searchType,
+                language: 'ko'
+            }, (results, status) => {
+                if (status === google.maps.places.PlacesServiceStatus.OK && results) {
+                    resolve(results
+                        .filter(p => p.rating && p.user_ratings_total && p.rating >= 4.0 && p.user_ratings_total >= 100 && p.business_status === 'OPERATIONAL')
+                        .map(p => ({ 
+                            id: p.place_id, 
+                            name: p.name, 
+                            cost: estimateDynamicCost(searchType), 
+                            type: searchType, 
+                            tags: [`⭐ ${p.rating}`, `${p.user_ratings_total.toLocaleString()} 리뷰`], 
+                            lat: p.geometry.location.lat(), 
+                            lng: p.geometry.location.lng() 
+                        }))
+                    );
+                } else {
+                    resolve([]);
+                }
+            });
+        });
+
+        const [dbResults, apiResults] = await Promise.all([dbPromise, apiPromise]);
+        
+        const uniquePlaces = new Map();
+        dbResults.forEach(p => uniquePlaces.set(p.name, p));
+        apiResults.forEach(p => {
+            if (!uniquePlaces.has(p.name)) {
+                uniquePlaces.set(p.name, p);
+            }
+        });
+
+        const combinedResults = Array.from(uniquePlaces.values());
+
+        if (location) {
+            const startPoint = new google.maps.LatLng(location.lat, location.lng);
+            combinedResults.forEach(p => {
+                if (!p.distance) {
+                    p.distance = google.maps.geometry.spherical.computeDistanceBetween(startPoint, new google.maps.LatLng(p.lat, p.lng));
+                }
+            });
+            combinedResults.sort((a, b) => a.distance - b.distance);
+        }
+
+        const options = {};
+        combinedResults.slice(0, maxResults).forEach(p => options[p.id] = p);
+        return options;
+    }
+
+    return {};
+}
+
+
+function estimateDynamicCost(type) {
+    if (type === 'food') return Math.floor(Math.random() * 4 + 6) * 10000;
+    if (type === 'cafe') return Math.floor(Math.random() * 1.5 + 2) * 10000;
+    return 0;
 }
 
 function initMap() {
@@ -294,6 +453,7 @@ function initMap() {
         placesService = new google.maps.places.PlacesService(googleMap);
         directionsService = new google.maps.DirectionsService();
         directionsRenderer = new google.maps.DirectionsRenderer({ suppressMarkers: true, polylineOptions: { strokeColor: '#4f46e5', strokeWeight: 4, strokeOpacity: 0.8 } });
+        infoWindow = new google.maps.InfoWindow();
         directionsRenderer.setMap(googleMap);
         updateMapForDay(1);
     } catch (e) { document.getElementById('map').innerHTML = '<div class="flex items-center justify-center h-full text-red-500 text-sm">지도 로딩 실패</div>'; }
@@ -306,186 +466,177 @@ function setupEventListeners() {
     document.getElementById('reset-button').onclick = resetToOriginal;
     document.getElementById('navi-mode-toggle').onclick = toggleNaviMode;
     document.getElementById('close-fullscreen').onclick = closeFullscreenModal;
-    document.getElementById('close-detail-modal').onclick = closeDetailModal;
-    document.getElementById('modal-overlay').onclick = closeDetailModal;
     document.getElementById('flight-cost').onchange = e => { fixedCosts.flight = parseInt(e.target.value) || 0; updateAllDisplays(); };
     document.getElementById('hotel-cost').onchange = e => { fixedCosts.hotel = parseInt(e.target.value) || 0; updateAllDisplays(); };
     
-    document.getElementById('theme-keyword-search').addEventListener('input', renderFilteredResults);
-    document.getElementById('theme-category-filter').addEventListener('change', renderFilteredResults);
-    document.getElementById('theme-sort-order').addEventListener('change', renderFilteredResults);
-}
-
-async function setupInitialState() {
-    for (const dayKey of Object.keys(itineraryData)) {
-        const day = parseInt(dayKey.replace('day', ''));
-        selections[day] = {};
-        let lastLocation = null;
-        for (const [time, slot] of Object.entries(itineraryData[dayKey].slots)) {
-            if (slot.options) {
-                const firstOptionKey = Object.keys(slot.options)[0];
-                const optionData = slot.options[firstOptionKey];
-                selections[day][time] = { ...optionData };
-                lastLocation = { lat: optionData.lat, lng: optionData.lng };
-                const card = document.querySelector(`.options-grid[data-day="${day}"][data-time="${time}"] .option-card`);
-                if(card) card.classList.add('selected');
-            } else if (lastLocation && day === 1) { // 1일차만 미리 검색
-                 if (slot.dynamicSearch) await performNearbySearch(day, time, lastLocation, slot.dynamicSearch);
-                 if (slot.jejuPassSearch) await performJejuPassSearch(day, time, lastLocation, slot.jejuPassSearch);
-            }
+    document.getElementById('theme-search-button').addEventListener('click', renderFilteredResults);
+    document.getElementById('theme-keyword-search').addEventListener('keyup', (e) => { if (e.key === 'Enter') renderFilteredResults(); });
+    document.getElementById('theme-category-buttons').addEventListener('click', e => {
+        if(e.target.tagName === 'BUTTON') {
+            document.querySelectorAll('#theme-category-buttons button').forEach(btn => btn.classList.remove('active'));
+            e.target.classList.add('active');
+            renderFilteredResults();
         }
-    }
-    originalSelections = JSON.parse(JSON.stringify(selections));
-    updateAllDisplays();
+    });
+
+    // [복원] 상세 정보 모달 닫기 이벤트
+    document.getElementById('close-detail-modal').onclick = closeDetailModal;
+    document.getElementById('modal-overlay').onclick = closeDetailModal;
 }
 
 
-// --- 테마 검색 (맛집/카페) 기능 ---
+// --- 전체화면 검색 기능 ---
 function openThemeSearchModal() {
-    const useCurrentLocation = confirm("현재 위치를 기준으로 검색하시겠습니까?\n(취소를 누르면 제주도 중심으로 검색합니다)");
-    if (useCurrentLocation) {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(position => {
-                const userLoc = { lat: position.coords.latitude, lng: position.coords.longitude };
-                startThemeSearch(userLoc);
-            }, () => {
-                alert("위치 정보를 가져올 수 없습니다. 제주도 중심으로 검색합니다.");
-                startThemeSearch({ lat: 33.385, lng: 126.55 });
-            });
-        } else {
-            alert("브라우저가 위치 정보를 지원하지 않습니다. 제주도 중심으로 검색합니다.");
-            startThemeSearch({ lat: 33.385, lng: 126.55 });
-        }
-    } else {
-        startThemeSearch({ lat: 33.385, lng: 126.55 });
-    }
-}
-
-async function startThemeSearch(location) {
-    currentSearchLocation = location;
     document.getElementById('fullscreen-modal').classList.add('active');
-    fullscreenMap.setCenter(location);
-    fullscreenMap.setZoom(11);
+    startThemeSearch();
+}
 
-    const searchResultsContainer = document.getElementById('search-results');
-    searchResultsContainer.innerHTML = `<div class="loading-container p-8"><div class="spinner"></div><span>맛집과 카페를 검색 중입니다...</span></div>`;
-
+function startThemeSearch() {
+    fullscreenMap.setCenter({ lat: 33.385, lng: 126.55 });
+    fullscreenMap.setZoom(9.5);
     clearFullscreenMarkers();
-    
-    if (fullscreenUserMarker) fullscreenUserMarker.setMap(null);
-    fullscreenUserMarker = new google.maps.Marker({
-        position: location,
-        map: fullscreenMap,
-        icon: { path: google.maps.SymbolPath.CIRCLE, scale: 8, fillColor: '#4285F4', fillOpacity: 1, strokeColor: 'white', strokeWeight: 2 },
-        title: "검색 기준 위치"
-    });
-
-    const restaurantPromise = nearbySearchPromise({ location, keyword: '제주도 식당', type: 'restaurant', radius: 20000 });
-    const cafePromise = nearbySearchPromise({ location, keyword: '제주도 카페', type: 'cafe', radius: 20000 });
-
-    try {
-        const [restaurantResults, cafeResults] = await Promise.all([restaurantPromise, cafePromise]);
-        const combinedResults = [...restaurantResults, ...cafeResults];
-        const uniqueResults = Array.from(new Map(combinedResults.map(item => [item.place_id, item])).values());
-        
-        allThemeResults = uniqueResults
-            .filter(p => p.rating && p.rating >= 4.0 && p.user_ratings_total > 30 && p.business_status === 'OPERATIONAL')
-            .map(p => {
-                const distance = google.maps.geometry.spherical.computeDistanceBetween( new google.maps.LatLng(location.lat, location.lng), p.geometry.location) / 1000;
-                const score = (p.rating * 2) + Math.log10(p.user_ratings_total + 1);
-                return { ...p, distance, score, types: p.types || [] };
-            });
-        renderFilteredResults();
-    } catch (error) {
-        searchResultsContainer.innerHTML = `<div class="p-8 text-center text-red-500">검색 중 오류가 발생했습니다: ${error.message}</div>`;
-    }
+    renderFilteredResults();
 }
 
-function nearbySearchPromise(request) {
-    const fullscreenPlacesService = new google.maps.places.PlacesService(fullscreenMap);
-    return new Promise((resolve, reject) => {
-        fullscreenPlacesService.nearbySearch(request, (results, status) => {
-            if (status === google.maps.places.PlacesServiceStatus.OK || status === google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
-                resolve(results || []);
-            } else { reject(new Error(`Places API Error: ${status}`)); }
-        });
-    });
-}
+async function renderFilteredResults() {
+    const container = document.getElementById('search-results');
+    container.innerHTML = `<div class="p-8"><div class="loading-container"><div class="spinner"></div><span>장소 검색 중...</span></div></div>`;
 
-function renderFilteredResults() {
     const keyword = document.getElementById('theme-keyword-search').value.toLowerCase();
-    const category = document.getElementById('theme-category-filter').value;
-    const sortOrder = document.getElementById('theme-sort-order').value;
-    let filtered = allThemeResults;
-    if (category !== 'all') { filtered = filtered.filter(p => p.types.includes(category)); }
-    if (keyword) { filtered = filtered.filter(p => p.name.toLowerCase().includes(keyword) || (p.vicinity && p.vicinity.toLowerCase().includes(keyword))); }
-    switch(sortOrder) {
-        case 'rating': filtered.sort((a,b) => b.rating - a.rating); break;
-        case 'distance': filtered.sort((a,b) => a.distance - b.distance); break;
-        case 'score': default: filtered.sort((a,b) => b.score - a.score); break;
+    const activeCategoryBtn = document.querySelector('#theme-category-buttons .active');
+    const category = activeCategoryBtn ? activeCategoryBtn.dataset.category : 'all';
+    
+    // 1. 자체 DB 검색
+    let dbResults = allJejuPlaces;
+    if (category !== 'all') dbResults = dbResults.filter(p => p.type === category);
+    if (keyword) dbResults = dbResults.filter(p => p.name.toLowerCase().includes(keyword) || p.tags.some(t => t.toLowerCase().includes(keyword)));
+
+    // 2. Google API 검색 (맛집/카페일 경우 & 키워드 있을 경우)
+    let apiResults = [];
+    if ((category === 'food' || category === 'cafe' || category === 'all') && keyword) {
+        apiResults = await new Promise(resolve => {
+            placesService.textSearch({
+                query: `제주 ${keyword} ${category === 'food' ? '맛집' : ''} ${category === 'cafe' ? '카페' : ''}`,
+                language: 'ko',
+            }, (results, status) => {
+                 if (status === google.maps.places.PlacesServiceStatus.OK && results) {
+                    resolve(results
+                        .filter(p => p.rating && p.user_ratings_total && p.rating >= 4.0 && p.user_ratings_total >= 100 && p.business_status === 'OPERATIONAL')
+                        .map(p => ({ 
+                            id: p.place_id, 
+                            name: p.name, 
+                            cost: estimateDynamicCost(p.types.includes('cafe') ? 'cafe' : 'food'), 
+                            type: p.types.includes('cafe') ? 'cafe' : 'food', 
+                            tags: [`⭐ ${p.rating}`, `${p.user_ratings_total.toLocaleString()} 리뷰`, p.formatted_address], 
+                            lat: p.geometry.location.lat(), 
+                            lng: p.geometry.location.lng() 
+                        }))
+                    );
+                } else {
+                    resolve([]);
+                }
+            });
+        });
     }
-    displaySearchResults(filtered);
-    createFullscreenMarkers(filtered);
+
+    // 3. 결과 통합
+    const uniquePlaces = new Map();
+    dbResults.forEach(p => uniquePlaces.set(p.name, p));
+    apiResults.forEach(p => {
+        if (!uniquePlaces.has(p.name)) uniquePlaces.set(p.name, p);
+    });
+    
+    const combinedResults = Array.from(uniquePlaces.values());
+    displaySearchResults(combinedResults);
+    createFullscreenMarkers(combinedResults);
 }
 
 function displaySearchResults(results) {
     const container = document.getElementById('search-results');
     if (results.length === 0) { container.innerHTML = `<div class="p-8 text-center text-gray-500">조건에 맞는 검색 결과가 없습니다.</div>`; return; }
+    
+    const centerPoint = new google.maps.LatLng(33.4996, 126.5312);
+    results.forEach(place => {
+        if(place.lat && place.lng) place.distance = google.maps.geometry.spherical.computeDistanceBetween(centerPoint, new google.maps.LatLng(place.lat, place.lng)) / 1000;
+        else place.distance = Infinity;
+    });
+    results.sort((a,b) => a.distance - b.distance);
+
     container.innerHTML = results.map(place => generatePlaceCardHtml(place)).join('');
     container.querySelectorAll('.place-card').forEach(card => {
         card.addEventListener('click', () => {
-            const placeId = card.dataset.placeId;
-            const place = results.find(p => p.place_id === placeId);
-            container.querySelectorAll('.place-card').forEach(c => c.classList.remove('selected'));
-            card.classList.add('selected');
-            selectPlaceOnMap(place);
-            showPlaceDetail(place);
+             const place = results.find(p => p.id === card.dataset.placeId);
+             if(place) showDetailModal(place); // 상세 모달 띄우기
         });
     });
 }
 
 function generatePlaceCardHtml(place) {
-    const isRestaurant = place.types.includes('restaurant');
-    return `<div class="place-card" data-place-id="${place.place_id}"><div class="flex justify-between items-start"><h3 class="font-bold text-base pr-2">${isRestaurant ? '🍽️' : '☕'} ${place.name}</h3><span class="text-sm font-bold text-blue-600">${place.distance.toFixed(1)}km</span></div><div class="flex items-center text-sm text-gray-600 mt-1"><span class="text-yellow-500">⭐</span><span class="font-semibold ml-1">${place.rating}</span><span class="ml-2">(${place.user_ratings_total} 리뷰)</span><span class="ml-auto text-xs bg-gray-200 px-2 py-1 rounded-full">${isRestaurant ? '맛집' : '카페'}</span></div><p class="text-xs text-gray-500 mt-2">${place.vicinity || ''}</p></div>`;
+    const typeMap = { 'food': '맛집', 'cafe': '카페', 'activity': '관광/체험', 'etc': '기타' };
+    const iconMap = { 'food': '🍽️', 'cafe': '☕', 'activity': '🎟️', 'etc': '📍' };
+    return `<div class="place-card" data-place-id="${place.id}"><div class="flex justify-between items-start"><h3 class="font-bold text-base pr-2">${iconMap[place.type] || '📍'} ${place.name}</h3>${place.distance !== Infinity ? `<span class="text-sm font-bold text-blue-600">${place.distance.toFixed(1)}km</span>` : ''}</div><div class="flex items-center text-sm text-gray-600 mt-1"><p class="text-xs text-gray-500">${(place.tags || []).slice(0, 3).join(', ')}</p><span class="ml-auto text-xs bg-gray-200 px-2 py-1 rounded-full">${typeMap[place.type]}</span></div></div>`;
 }
 
 function createFullscreenMarkers(places) {
     clearFullscreenMarkers(false);
     const bounds = new google.maps.LatLngBounds();
-    if(fullscreenUserMarker) bounds.extend(fullscreenUserMarker.getPosition());
+    const iconMap = { 'food': 'https://maps.google.com/mapfiles/ms/icons/restaurant.png', 'cafe': 'https://maps.google.com/mapfiles/ms/icons/coffeehouse.png', 'activity': 'https://maps.google.com/mapfiles/ms/icons/flag.png' };
     places.forEach(place => {
+        if (!place.lat || !place.lng) return;
         const marker = new google.maps.Marker({
-            position: place.geometry.location, map: fullscreenMap, title: place.name,
-            icon: { url: place.types.includes('restaurant') ? 'https://maps.google.com/mapfiles/ms/icons/restaurant.png' : 'https://maps.google.com/mapfiles/ms/icons/coffeehouse.png', scaledSize: new google.maps.Size(32, 32) }
+            position: {lat: place.lat, lng: place.lng}, map: fullscreenMap, title: place.name,
+            icon: { url: iconMap[place.type] || 'https://maps.google.com/mapfiles/ms/icons/red-dot.png', scaledSize: new google.maps.Size(32, 32) }
         });
-        marker.addListener('click', () => {
-            const card = document.querySelector(`.place-card[data-place-id="${place.place_id}"]`);
-            if (card) { document.querySelectorAll('.place-card').forEach(c => c.classList.remove('selected')); card.classList.add('selected'); card.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
-            showPlaceDetail(place);
-        });
+        marker.addListener('click', () => { showDetailModal(place); }); // 마커 클릭 시 모달 띄우기
         fullscreenMarkers.push(marker);
-        bounds.extend(place.geometry.location);
+        bounds.extend({lat: place.lat, lng: place.lng});
     });
-    if (places.length > 0) { fullscreenMap.fitBounds(bounds); if (places.length === 1) fullscreenMap.setZoom(15); }
+    if (places.length > 0 && !bounds.isEmpty()) { 
+        fullscreenMap.fitBounds(bounds); 
+        if (fullscreenMap.getZoom() > 15) fullscreenMap.setZoom(15);
+    }
 }
 
-function selectPlaceOnMap(place) { fullscreenMap.panTo(place.geometry.location); fullscreenMap.setZoom(15); }
-function showPlaceDetail(place) {
+// --- [복원] 상세 정보 모달 관련 함수 ---
+function showDetailModal(placeData) {
+    selectPlaceOnMap(placeData); // 지도를 먼저 이동시킴
+
     const modal = document.getElementById('place-detail-modal'), overlay = document.getElementById('modal-overlay');
-    document.getElementById('place-name').textContent = place.name;
+    document.getElementById('place-name').textContent = placeData.name;
     const detailsContainer = document.getElementById('place-details');
     detailsContainer.innerHTML = `<div class="loading-container"><div class="spinner"></div><span>상세 정보 로딩 중...</span></div>`;
     modal.classList.add('active'); overlay.classList.add('active');
-    placesService.getDetails({
-        placeId: place.place_id, fields: ['name', 'formatted_address', 'formatted_phone_number', 'website', 'rating', 'user_ratings_total', 'reviews', 'photos', 'types', 'url'], language: 'ko'
-    }, (detail, status) => {
-        if (status === google.maps.places.PlacesServiceStatus.OK && detail) { displayPlaceDetail(detail); } 
-        else { detailsContainer.innerHTML = '<div class="text-center text-gray-500 py-4">상세 정보를 불러올 수 없습니다.</div>'; }
-    });
+    
+    const cacheKey = placeData.id;
+    if (placeDetailsCache[cacheKey] && placeDetailsCache[cacheKey].reviews) {
+        displayDetailModalContent(placeDetailsCache[cacheKey]);
+        return;
+    }
+    
+    const placeIdToSearch = placeData.id.startsWith('p_') ? null : placeData.id;
+
+    const getDetailsCallback = (detail, status) => {
+        if (status === google.maps.places.PlacesServiceStatus.OK && detail) {
+            placeDetailsCache[cacheKey] = detail;
+            displayDetailModalContent(detail);
+        } else {
+             detailsContainer.innerHTML = '<div class="text-center text-gray-500 py-4">상세 정보를 불러올 수 없습니다.</div>';
+        }
+    };
+    
+    if(placeIdToSearch) {
+         placesService.getDetails({ placeId: placeIdToSearch, fields: ['name', 'formatted_address', 'formatted_phone_number', 'website', 'rating', 'user_ratings_total', 'reviews', 'photos', 'types', 'url'], language: 'ko' }, getDetailsCallback);
+    } else {
+        placesService.findPlaceFromQuery({ query: placeData.name, locationBias: { lat: placeData.lat, lng: placeData.lng }, fields: ['place_id'] }, (results, status) => {
+            if (status === google.maps.places.PlacesServiceStatus.OK && results && results[0]) {
+                 placesService.getDetails({ placeId: results[0].place_id, fields: ['name', 'formatted_address', 'formatted_phone_number', 'website', 'rating', 'user_ratings_total', 'reviews', 'photos', 'types', 'url'], language: 'ko' }, getDetailsCallback);
+            } else { getDetailsCallback(null, status); }
+        });
+    }
 }
 
-function displayPlaceDetail(place) {
-    let html = `<div class="space-y-4"><div class="border-b pb-4"><div class="flex items-center justify-between mb-2"><div class="flex items-center"><span class="text-yellow-500 mr-1">⭐</span><span class="font-bold">${place.rating||'N/A'}</span><span class="text-gray-500 ml-2">(${place.user_ratings_total||0} 리뷰)</span></div></div><p class="text-sm text-gray-600 mb-2">${place.formatted_address||''}</p>${place.formatted_phone_number?`<p class="text-sm text-blue-600">📞 ${place.formatted_phone_number}</p>`:''}${place.website?`<a href="${place.website}" target="_blank" class="text-sm text-blue-600 hover:underline">🌐 웹사이트</a>`:''}</div>`;
+function displayDetailModalContent(place) {
+    let html = `<div class="space-y-4"><div class="border-b pb-4"><div class="flex items-center justify-between mb-2"><div class="flex items-center"><span class="text-yellow-500 mr-1">⭐</span><span class="font-bold">${place.rating||'N/A'}</span><span class="text-gray-500 ml-2">(${(place.user_ratings_total||0).toLocaleString()} 리뷰)</span></div></div><p class="text-sm text-gray-600 mb-2">${place.formatted_address||''}</p>${place.formatted_phone_number?`<p class="text-sm text-blue-600">📞 ${place.formatted_phone_number}</p>`:''}${place.website?`<a href="${place.website}" target="_blank" class="text-sm text-blue-600 hover:underline">🌐 웹사이트</a>`:''}</div>`;
     if (place.types) html += `<div class="border-b pb-4"><h4 class="font-bold mb-2">📋 카테고리</h4><div class="flex flex-wrap gap-2">${place.types.map(t=>`<span class="text-xs bg-gray-100 text-gray-800 px-2 py-1 rounded-full">${t}</span>`).join('')}</div></div>`;
     if (place.photos) html += `<div class="border-b pb-4"><h4 class="font-bold mb-2">📸 사진</h4><div class="grid grid-cols-2 gap-2">${place.photos.slice(0,4).map(p=>`<img src="${p.getUrl({maxWidth:200,maxHeight:150})}" class="w-full h-24 object-cover rounded-lg" onclick="window.open('${p.getUrl()}','_blank')">`).join('')}</div></div>`;
     if (place.reviews) html += `<div class="border-b pb-4"><h4 class="font-bold mb-2">💬 최근 리뷰</h4><div class="space-y-3 max-h-64 overflow-y-auto pr-2">${place.reviews.slice(0,10).map(r=>`<div class="bg-gray-50 p-3 rounded-lg"><div class="flex items-center justify-between mb-2"><div class="flex items-center"><span class="font-semibold text-sm">${r.author_name}</span><span class="ml-2 text-yellow-500">${'⭐'.repeat(r.rating)}</span></div><span class="text-xs text-gray-500">${r.relative_time_description}</span></div><p class="text-sm text-gray-700">${r.text}</p></div>`).join('')}</div></div>`;
@@ -493,288 +644,95 @@ function displayPlaceDetail(place) {
     document.getElementById('place-details').innerHTML = html + `</div>`;
 }
 
-function clearFullscreenMarkers(includeUserMarker = true) {
-    fullscreenMarkers.forEach(marker => marker.setMap(null)); fullscreenMarkers = [];
-    if (includeUserMarker && fullscreenUserMarker) { fullscreenUserMarker.setMap(null); fullscreenUserMarker = null; }
-}
-function closeFullscreenModal() {
-    document.getElementById('fullscreen-modal').classList.remove('active'); clearFullscreenMarkers(); allThemeResults = [];
-    document.getElementById('theme-keyword-search').value = ''; document.getElementById('theme-category-filter').value = 'all'; document.getElementById('theme-sort-order').value = 'score';
-}
 function closeDetailModal() {
     document.getElementById('place-detail-modal').classList.remove('active'); document.getElementById('modal-overlay').classList.remove('active');
 }
-
-
-// --- 메인 플래너 관련 함수 ---
-function switchDay(day) {
-    activeDay = day;
-    document.querySelectorAll('.day-tab').forEach(tab => {
-        const tabDay = parseInt(tab.dataset.day);
-        tab.classList.toggle('active', tabDay === day); tab.classList.toggle('bg-gray-200', tabDay !== day); tab.classList.toggle('text-gray-600', tabDay !== day);
-    });
-    document.querySelectorAll('.day-content').forEach(content => { content.classList.toggle('hidden', parseInt(content.id.replace('day', '')) !== day); });
-    updateMapForDay(day); updateSelectedItemsDisplay();
-}
-
+// --- 나머지 코드 (이전 답변과 동일) ---
+function selectPlaceOnMap(place) { fullscreenMap.panTo({lat: place.lat, lng: place.lng}); fullscreenMap.setZoom(15); }
+function clearFullscreenMarkers(includeUserMarker = true) { fullscreenMarkers.forEach(marker => marker.setMap(null)); fullscreenMarkers = []; if (includeUserMarker && fullscreenUserMarker) { fullscreenUserMarker.setMap(null); fullscreenUserMarker = null; } }
+function closeFullscreenModal() { document.getElementById('fullscreen-modal').classList.remove('active'); clearFullscreenMarkers(); }
 async function handleOptionSelect(day, time, cardElement) {
     const grid = cardElement.parentElement;
     const isAlreadySelected = cardElement.classList.contains('selected');
-    
-    const existingDetailsPanel = document.querySelector('.details-panel');
+    const existingDetailsPanel = grid.querySelector('.details-panel');
     if (existingDetailsPanel) { existingDetailsPanel.remove(); }
-
     grid.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
-
     if (isAlreadySelected) { delete selections[day][time]; updateAllDisplays(); return; }
-
     cardElement.classList.add('selected');
-    
-    const optionData = {
-        id: cardElement.dataset.id, name: cardElement.dataset.name, cost: parseInt(cardElement.dataset.cost), type: cardElement.dataset.type, 
-        lat: parseFloat(cardElement.dataset.lat), lng: parseFloat(cardElement.dataset.lng), menu: JSON.parse(cardElement.dataset.menu || 'null')
-    };
+    const optionData = { id: cardElement.dataset.id, name: cardElement.dataset.name, cost: parseInt(cardElement.dataset.cost), type: cardElement.dataset.type, lat: parseFloat(cardElement.dataset.lat), lng: parseFloat(cardElement.dataset.lng), menu: JSON.parse(cardElement.dataset.menu || 'null') };
     selections[day][time] = optionData;
-    
     showDetailsPanel(cardElement, optionData);
-
     const allTimes = Object.keys(itineraryData[`day${day}`].slots);
     const currentIndex = allTimes.indexOf(time);
     if (currentIndex < allTimes.length - 1) {
         const nextTime = allTimes[currentIndex + 1];
         const nextSlot = itineraryData[`day${day}`].slots[nextTime];
-        if (nextSlot) {
-            delete selections[day][nextTime]; // 다음 슬롯 초기화
-            const currentLoc = { lat: optionData.lat, lng: optionData.lng };
-            if (nextSlot.dynamicSearch) await performNearbySearch(day, nextTime, currentLoc, nextSlot.dynamicSearch);
-            if (nextSlot.jejuPassSearch) await performJejuPassSearch(day, nextTime, currentLoc, nextSlot.jejuPassSearch);
+        const nextGrid = document.querySelector(`.options-grid[data-day="${day}"][data-time="${nextTime}"]`);
+        if (nextSlot && (nextSlot.search || nextSlot.fixed)) {
+            delete selections[day][nextTime];
+            nextGrid.innerHTML = `<div class="loading-container"><div class="spinner"></div><span class="text-xs mt-2">다음 추천 장소 검색 중...</span></div>`;
+            setTimeout(async () => {
+                const currentLoc = { lat: optionData.lat, lng: optionData.lng };
+                const newOptions = await generateSlotOptions(nextSlot, currentLoc);
+                nextGrid.innerHTML = generateOptionsHtml(day, nextTime, newOptions);
+                const firstNewOptionKey = Object.keys(newOptions)[0];
+                if (firstNewOptionKey) {
+                    const firstCard = nextGrid.querySelector('.option-card');
+                    if(firstCard) {
+                        firstCard.classList.add('selected');
+                        selections[day][nextTime] = newOptions[firstNewOptionKey];
+                    }
+                }
+                updateAllDisplays();
+            }, 200);
         }
     }
     updateAllDisplays();
 }
-
 function showDetailsPanel(cardElement, optionData) {
     const detailsPanel = document.createElement('div');
     detailsPanel.className = 'details-panel col-span-1 md:col-span-2 bg-gray-50 p-3 rounded-lg border';
-    cardElement.parentElement.appendChild(detailsPanel);
-    
-    const hasMenu = optionData.menu && optionData.menu.length > 0;
-    detailsPanel.innerHTML = `<div class="flex border-b mb-2 text-xs font-semibold text-gray-500">${hasMenu ? `<div class="details-tab active" data-tab="menu">대표 메뉴</div>` : ''}<div class="details-tab ${!hasMenu ? 'active' : ''}" data-tab="reviews">실시간 리뷰/정보</div></div><div class="details-content ${hasMenu ? 'active' : ''}" data-content="menu"></div><div class="details-content ${!hasMenu ? 'active' : ''}" data-content="reviews"></div>`;
-    if (hasMenu) { detailsPanel.querySelector('[data-content="menu"]').innerHTML = generateMenuHtml(optionData.menu); }
-    
-    fetchLiveReviews(detailsPanel.querySelector('[data-content="reviews"]'), optionData);
-
-    detailsPanel.querySelectorAll('.details-tab').forEach(tab => {
-        tab.onclick = (e) => {
-            e.stopPropagation();
-            detailsPanel.querySelectorAll('.details-tab, .details-content').forEach(el => el.classList.remove('active'));
-            tab.classList.add('active'); detailsPanel.querySelector(`[data-content="${tab.dataset.tab}"]`).classList.add('active');
-            detailsPanel.style.height = detailsPanel.scrollHeight + 'px';
-        };
-    });
-    requestAnimationFrame(() => { detailsPanel.classList.add('open'); detailsPanel.style.height = detailsPanel.scrollHeight + 'px'; });
+    cardElement.insertAdjacentElement('afterend', detailsPanel);
+    detailsPanel.innerHTML = `<div class="details-section" data-content="menu"><h4 class="text-sm font-bold mb-2 border-b pb-1">📋 대표 메뉴/가격</h4><div class="menu-content-area"></div></div><div class="details-section" data-content="reviews"><h4 class="text-sm font-bold mb-2 border-b pb-1">💬 실시간 리뷰/정보</h4><div class="review-content-area"></div></div>`;
+    const menuContainer = detailsPanel.querySelector('.menu-content-area');
+    if (optionData.menu && optionData.menu.length > 0) { menuContainer.innerHTML = generateMenuHtml(optionData.menu); } else { menuContainer.innerHTML = '<p class="text-center text-xs text-gray-500 py-2">메뉴 정보가 없습니다.</p>'; }
+    fetchLiveReviews(detailsPanel.querySelector('.review-content-area'), optionData);
+    requestAnimationFrame(() => { detailsPanel.classList.add('open'); detailsPanel.style.height = 'auto'; detailsPanel.style.height = detailsPanel.scrollHeight + 'px'; });
 }
-
-function generateMenuHtml(menu) {
-    const displayMenu = menu.slice(0, 5); const familyPrice = displayMenu.reduce((sum, item) => sum + item.price, 0) * 1.3;
-    let html = displayMenu.map(item => `<div class="flex justify-between items-center text-xs py-1 border-b border-gray-200 last:border-b-0"><span class="text-gray-700">${item.item}</span><span class="font-semibold">₩${item.price.toLocaleString()}</span></div>`).join('');
-    html += `<div class="mt-2 text-right text-xs font-bold text-blue-600">4인 예상: ₩${(Math.ceil(familyPrice / 1000) * 1000).toLocaleString()}</div>`; return html;
-}
-
-// 리뷰/정보 가져오기 (제주패스 장소 로직 추가)
+function generateMenuHtml(menu) { const recommended = menu.filter(item => item.recommended); const normal = menu.filter(item => !item.recommended); const sortedMenu = [...normal, ...recommended]; let html = sortedMenu.map(item => `<div class="flex justify-between items-center text-xs py-1.5 border-b border-gray-200 last:border-b-0"><span class="text-gray-700">${item.recommended ? '⭐ ' : ''}${item.item}</span><span class="font-semibold">₩${item.price.toLocaleString()}</span></div>`).join(''); if(recommended.length > 0) { html += '<p class="text-right text-xs mt-2 text-blue-600">⭐ 추천 메뉴</p>';} return html; }
 function fetchLiveReviews(container, optionData) {
-    container.innerHTML = `<div class="loading-container"><div class="spinner"></div><span class="text-xs">실시간 정보 로딩 중...</span></div>`;
-    if (!placesService) { container.innerHTML = '<p class="text-center text-xs text-gray-500 py-2">리뷰 서비스를 사용할 수 없습니다.</p>'; return; }
-
+    container.innerHTML = `<div class="loading-container" style="min-height: 100px;"><div class="spinner"></div></div>`;
+    const cacheKey = optionData.id;
+    if (placeDetailsCache[cacheKey] && placeDetailsCache[cacheKey].reviews) { displayReviewContent(container, placeDetailsCache[cacheKey]); return; }
     const getDetailsCallback = (place, status) => {
-        if (status === google.maps.places.PlacesServiceStatus.OK && place) {
-            let reviewHtml = '<p class="text-center text-xs text-gray-500 py-2">리뷰 정보가 없습니다.</p>';
-            if (place.reviews) {
-                reviewHtml = place.reviews.slice(0, 3).map(review => `<div class="bg-gray-100 p-2 rounded-md mb-2"><p class="text-xs text-gray-700">${review.text.substring(0, 80)}...</p><div class="text-right text-xs mt-1 text-gray-500">${'⭐'.repeat(review.rating)} by ${review.author_name}</div></div>`).join('');
-            }
-            container.innerHTML = `<div class="space-y-2"><div class="flex items-center justify-between text-xs"><span class="font-semibold">평점: ⭐ ${place.rating || 'N/A'}/5.0</span><span class="text-gray-500">(${place.user_ratings_total || 0} 리뷰)</span></div>${reviewHtml}<a href="${place.url}" target="_blank" onclick="event.stopPropagation()" class="block w-full text-center mt-2 bg-gray-200 text-gray-700 font-semibold py-1 rounded text-xs hover:bg-gray-300 transition"><i class="fab fa-google mr-1"></i>구글맵에서 더 보기</a></div>`;
-        } else {
-            container.innerHTML = '<p class="text-center text-xs text-gray-500 py-2">장소 정보를 불러올 수 없습니다.</p>';
-        }
-        const panel = container.closest('.details-panel');
-        if (panel && panel.classList.contains('open')) panel.style.height = panel.scrollHeight + 'px';
+        if (status === google.maps.places.PlacesServiceStatus.OK && place) { placeDetailsCache[cacheKey] = place; displayReviewContent(container, place); } else { container.innerHTML = '<p class="text-center text-xs text-gray-500 py-2">장소 정보를 불러올 수 없습니다.</p>'; }
+        const panel = container.closest('.details-panel'); if (panel && panel.classList.contains('open')) { panel.style.height = 'auto'; panel.style.height = panel.scrollHeight + 'px'; }
     };
-
-    // 제주패스 또는 기타 ID 기반 장소 처리
-    if (optionData.id.startsWith('jp_') || (optionData.name && optionData.lat)) {
-        placesService.findPlaceFromQuery({
-            query: optionData.name, locationBias: { lat: optionData.lat, lng: optionData.lng }, fields: ['place_id']
-        }, (results, status) => {
-            if (status === google.maps.places.PlacesServiceStatus.OK && results && results[0]) {
-                placesService.getDetails({ placeId: results[0].place_id, fields: ['rating', 'user_ratings_total', 'reviews', 'url'], language: 'ko' }, getDetailsCallback);
-            } else {
-                getDetailsCallback(null, status);
-            }
-        });
-    } 
-    // 기존 Google Place ID 기반 장소 처리
-    else if (!optionData.id.startsWith('static_') && optionData.id) {
-        placesService.getDetails({ placeId: optionData.id, fields: ['rating', 'user_ratings_total', 'reviews', 'url'], language: 'ko' }, getDetailsCallback);
-    } 
-    // 리뷰를 가져올 수 없는 경우 (공항 등)
-    else {
-        container.innerHTML = '<p class="text-center text-xs text-gray-500 py-2">이 장소는 리뷰가 제공되지 않습니다.</p>';
-    }
+    const placeIdToSearch = optionData.id.startsWith('p_') ? null : optionData.id;
+    if (placeIdToSearch) { placesService.getDetails({ placeId: placeIdToSearch, fields: ['rating', 'user_ratings_total', 'reviews', 'url', 'name'], language: 'ko' }, getDetailsCallback); } else { placesService.findPlaceFromQuery({ query: optionData.name, locationBias: { lat: optionData.lat, lng: optionData.lng }, fields: ['place_id'] }, (results, status) => { if (status === google.maps.places.PlacesServiceStatus.OK && results && results[0]) { placesService.getDetails({ placeId: results[0].place_id, fields: ['rating', 'user_ratings_total', 'reviews', 'url', 'name'], language: 'ko' }, getDetailsCallback); } else { getDetailsCallback(null, status); } }); }
 }
-
-// 제주패스 장소 검색 함수
-async function performJejuPassSearch(day, time, location, searchConfig) {
-    const grid = document.querySelector(`.options-grid[data-day="${day}"][data-time="${time}"]`);
-    grid.innerHTML = `<div class="loading-container"><div class="spinner"></div><span class="text-xs">근처 PASS 가맹점 검색 중...</span></div>`;
-    
-    const startPoint = new google.maps.LatLng(location.lat, location.lng);
-    const nearbyPlaces = jejuPassData
-        .map(place => ({
-            ...place,
-            distance: google.maps.geometry.spherical.computeDistanceBetween(startPoint, new google.maps.LatLng(place.lat, place.lng))
-        }))
-        .filter(place => place.distance <= searchConfig.radius)
-        .sort((a, b) => a.distance - b.distance)
-        .slice(0, searchConfig.minResults);
-
-    if(nearbyPlaces.length > 0) {
-        const options = {};
-        nearbyPlaces.forEach(place => { options[place.id] = place; });
-        grid.innerHTML = generateOptionsHtml(day, time, options);
-    } else {
-        grid.innerHTML = `<div class="loading-container text-red-500 text-xs">근처 ${searchConfig.radius/1000}km 내에 PASS 가맹점이 없습니다.</div>`;
-    }
+function displayReviewContent(container, place) {
+    let reviewHtml = '<p class="text-center text-xs text-gray-500 py-2">리뷰 정보가 없습니다.</p>';
+    if (place && place.reviews) { reviewHtml = place.reviews.slice(0, 3).map(review => `<div class="bg-gray-100 p-2 rounded-md mb-2"><p class="text-xs text-gray-700">${review.text.substring(0, 80)}...</p><div class="text-right text-xs mt-1 text-gray-500">${'⭐'.repeat(review.rating)} by ${review.author_name} (${review.relative_time_description})</div></div>`).join(''); }
+    container.innerHTML = `<div class="space-y-2"><div class="flex items-center justify-between text-xs"><span class="font-semibold">평점: ⭐ ${place.rating || 'N/A'}/5.0</span><span class="text-gray-500">(${(place.user_ratings_total || 0).toLocaleString()} 리뷰)</span></div>${reviewHtml}${place.url ? `<a href="${place.url}" target="_blank" onclick="event.stopPropagation()" class="block w-full text-center mt-2 bg-gray-200 text-gray-700 font-semibold py-1 rounded text-xs hover:bg-gray-300 transition"><i class="fab fa-google mr-1"></i>구글맵에서 더 보기</a>` : ''}</div>`;
 }
-
-// Google Places API 기반 검색 함수
-async function performNearbySearch(day, time, location, searchConfig) {
-    const grid = document.querySelector(`.options-grid[data-day="${day}"][data-time="${time}"]`);
-    grid.innerHTML = `<div class="loading-container"><div class="spinner"></div><span class="text-xs">${searchConfig.type==='food' ? '맛집' : '카페'} 검색 중...</span></div>`;
-    return new Promise((resolve) => {
-        if (!placesService) { resolve(); return; }
-        placesService.nearbySearch({
-            location: new google.maps.LatLng(location.lat, location.lng), radius: searchConfig.radius, keyword: `제주 ${searchConfig.keywords.join(' OR ')}`, language: 'ko'
-        }, (results, status) => {
-            if (status === google.maps.places.PlacesServiceStatus.OK && results) {
-                const filtered = results.filter(p => p.rating && p.user_ratings_total > 20 && p.rating >= 3.8 && p.business_status === 'OPERATIONAL').sort((a,b) => b.rating - a.rating).slice(0, searchConfig.minResults);
-                const options = {};
-                filtered.forEach(place => {
-                    options[place.place_id] = { id: place.place_id, name: place.name, cost: estimateDynamicCost(searchConfig.type), type: searchConfig.type, tags: [`⭐ ${place.rating}`, `${place.user_ratings_total} 리뷰`], lat: place.geometry.location.lat(), lng: place.geometry.location.lng() };
-                });
-                grid.innerHTML = generateOptionsHtml(day, time, options);
-            } else { grid.innerHTML = `<div class="loading-container text-red-500 text-xs">검색 결과가 없습니다.</div>`; }
-            resolve();
-        });
-    });
-}
-
 function generateOptionsHtml(day, time, options) {
     let html = '';
-    Object.entries(options).forEach(([id, opt]) => {
-        html += `<div class="option-card border-gray-200 rounded-lg p-3 cursor-pointer" data-id="${opt.id}" data-name="${opt.name}" data-cost="${opt.cost}" data-type="${opt.type}" data-lat="${opt.lat}" data-lng="${opt.lng}" data-menu='${JSON.stringify(opt.menu || null)}'><div class="flex justify-between items-start mb-2"><h4 class="font-bold text-gray-800 text-sm pr-2">${opt.name}</h4><span class="text-xs font-bold text-white bg-blue-500 px-2 py-1 rounded-full whitespace-nowrap">₩${opt.cost.toLocaleString()}</span></div><div class="flex flex-wrap gap-1 mt-2">${(opt.tags || []).map(tag => `<span class="text-xs font-semibold ${tag.startsWith('⭐') ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-100 text-gray-700'} px-2 py-1 rounded-full">${tag}</span>`).join('')}</div></div>`;
-    }); return html;
+    if (Object.keys(options).length === 0) { return `<div class="col-span-1 md:col-span-2 text-center text-sm text-gray-500 py-4">추천 장소를 찾지 못했습니다.<br>다른 장소를 선택해 보세요.</div>`; }
+    Object.entries(options).forEach(([id, opt]) => { const typeIcon = opt.type === 'food' ? '🍴' : (opt.type === 'cafe' ? '☕' : '🎟️'); html += `<div class="option-card border-gray-200 rounded-lg p-3 cursor-pointer" data-id="${opt.id}" data-name="${opt.name.replace(/"/g, '"')}" data-cost="${opt.cost || 0}" data-type="${opt.type}" data-lat="${opt.lat}" data-lng="${opt.lng}" data-menu='${JSON.stringify(opt.menu || null)}'><div class="flex justify-between items-start mb-2"><h4 class="font-bold text-gray-800 text-sm pr-2">${typeIcon} ${opt.name}</h4>${opt.cost > 0 ? `<span class="text-xs font-bold text-white bg-blue-500 px-2 py-1 rounded-full whitespace-nowrap">₩${(opt.cost || 0).toLocaleString()}</span>` : ''}</div><div class="flex flex-wrap gap-1 mt-2">${(opt.tags || []).slice(0, 3).map(tag => `<span class="text-xs font-semibold ${tag.startsWith('⭐') ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-100 text-gray-700'} px-2 py-1 rounded-full">${tag}</span>`).join('')}</div></div>`; }); return html;
 }
-
-function estimateDynamicCost(type) {
-    if (type === 'food') return Math.floor(Math.random() * 30000) + 70000;
-    if (type === 'cafe') return Math.floor(Math.random() * 15000) + 25000;
-    return Math.floor(Math.random() * 20000) + 10000;
-}
-
-function resetToOriginal() { if (confirm('원래 계획된 일정으로 되돌리시겠습니까?')) { selections = JSON.parse(JSON.stringify(originalSelections)); initUI(); switchDay(activeDay); } }
+function switchDay(day) { activeDay = day; document.querySelectorAll('.day-tab').forEach(tab => { tab.classList.toggle('active', parseInt(tab.dataset.day) === day); tab.classList.toggle('bg-gray-200', parseInt(tab.dataset.day) !== day); tab.classList.toggle('text-gray-600', parseInt(tab.dataset.day) !== day); }); document.querySelectorAll('.day-content').forEach(content => { content.classList.toggle('hidden', parseInt(content.id.replace('day', '')) !== day); }); updateAllDisplays(); }
+function resetToOriginal() { if (confirm('원래 계획된 일정으로 되돌리시겠습니까?')) { selections = JSON.parse(JSON.stringify(originalSelections)); initUI(); } }
 function updateAllDisplays() { updateCostDisplay(); updateSelectedItemsDisplay(); updateMapForDay(activeDay); }
-
-function updateCostDisplay() {
-    const costs = { food: 0, activity: 0, etc: 0 };
-    Object.values(selections).forEach(daySels => {
-        if(daySels) Object.values(daySels).forEach(sel => { if (sel && sel.type !== 'accommodation' && costs.hasOwnProperty(sel.type)) { costs[sel.type] += sel.cost; } });
-    });
-    Object.keys(costs).forEach(key => { const e = document.getElementById(`cost-${key}`); if (e) e.textContent = `₩${costs[key].toLocaleString()}`; });
-    const total = Object.values(costs).reduce((a, b) => a + b, 0) + fixedCosts.flight + fixedCosts.hotel;
-    document.getElementById('total-cost').textContent = `₩${total.toLocaleString()}`;
-}
-
-function updateSelectedItemsDisplay() {
-    const container = document.getElementById('selected-items-container'); container.innerHTML = '';
-    const daySelections = selections[activeDay] || {}; const sortedTimes = Object.keys(daySelections).sort();
-    if(sortedTimes.length === 0) { container.innerHTML = '<p class="text-center text-gray-500 py-3 text-xs">선택된 일정이 없습니다.</p>'; return; }
-    const list = document.createElement('div'); list.className = 'space-y-2 text-xs';
-    sortedTimes.forEach(time => { const sel = daySelections[time]; if (sel && sel.type !== 'accommodation') { list.innerHTML += `<div class="flex items-center"><span class="font-semibold text-blue-600 w-12">${time}</span><span class="flex-grow text-gray-700">${sel.name}</span><span class="font-semibold text-gray-800 text-right">₩${sel.cost.toLocaleString()}</span></div>`; } });
-    container.appendChild(list);
-}
-
-function updateMapForDay(day) {
-    if (!googleMap || !directionsRenderer) return;
-    const daySelections = Object.values(selections[day] || {}).filter(s => s && s.lat && s.lng);
-    daySelections.sort((a,b) => {
-        const tA = Object.keys(selections[day]).find(k=>selections[day][k]&&selections[day][k].id===a.id), tB = Object.keys(selections[day]).find(k=>selections[day][k]&&selections[day][k].id===b.id);
-        if(!tA||!tB) return 0; return tA.localeCompare(tB);
-    });
-    directionsRenderer.setDirections({routes: []}); if (window.dayMarkers) window.dayMarkers.forEach(m => m.setMap(null)); window.dayMarkers = [];
-    if(daySelections.length === 0) { googleMap.setCenter({ lat: 33.385, lng: 126.55 }); googleMap.setZoom(9); return; };
-    const bounds = new google.maps.LatLngBounds();
-    daySelections.forEach((sel, index) => {
-        const pos = { lat: sel.lat, lng: sel.lng }; bounds.extend(pos);
-        const marker = new google.maps.Marker({ position: pos, map: googleMap, label: { text: `${index + 1}`, color: 'white', fontWeight: 'bold' }, title: sel.name }); window.dayMarkers.push(marker);
-    });
-    if (daySelections.length > 1) {
-        const request = { origin: { lat: daySelections[0].lat, lng: daySelections[0].lng }, destination: { lat: daySelections[daySelections.length-1].lat, lng: daySelections[daySelections.length-1].lng }, waypoints: daySelections.slice(1, -1).map(s => ({ location: { lat: s.lat, lng: s.lng } })), travelMode: 'DRIVING' };
-        directionsService.route(request, (result, status) => { if (status === 'OK') directionsRenderer.setDirections(result); });
-    }
-    if (userLocationMarker) bounds.extend(userLocationMarker.getPosition());
-    googleMap.fitBounds(bounds); if(daySelections.length === 1 && !userLocationMarker) googleMap.setZoom(14);
-}
-
-function toggleNaviMode() {
-    const btn = document.getElementById('navi-mode-toggle'); isNaviModeActive = !isNaviModeActive;
-    if (isNaviModeActive) {
-        if (navigator.geolocation) { btn.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i>GPS 연결 중...`; watchId = navigator.geolocation.watchPosition(handleLocationUpdate, handleLocationError, { enableHighAccuracy: true }); } 
-        else { alert("이 브라우저는 위치 정보를 지원하지 않습니다."); isNaviModeActive = false; }
-    } else {
-        if (watchId !== null) navigator.geolocation.clearWatch(watchId); watchId = null;
-        if (userLocationMarker) userLocationMarker.setMap(null); userLocationMarker = null;
-        btn.innerHTML = `<i class="fas fa-location-arrow mr-2"></i>Live GPS`; document.querySelectorAll('.distance-info').forEach(el => el.innerHTML = '');
-    }
-}
-
-function handleLocationUpdate(position) {
-    const userLocation = { lat: position.coords.latitude, lng: position.coords.longitude };
-    document.getElementById('navi-mode-toggle').innerHTML = `<i class="fas fa-location-arrow mr-2"></i>GPS 연결됨`;
-    if (!userLocationMarker) { userLocationMarker = new google.maps.Marker({ position: userLocation, map: googleMap, icon: { path: google.maps.SymbolPath.CIRCLE, scale: 8, fillColor: '#4285F4', fillOpacity: 1, strokeColor: 'white', strokeWeight: 2 }, title: "현재 내 위치" }); } 
-    else { userLocationMarker.setPosition(userLocation); }
-    updateDistances(userLocation);
-}
-
-function handleLocationError(error) { alert(`위치 정보를 가져올 수 없습니다: ${error.message}`); toggleNaviMode(); }
-
-function updateDistances(userLocation) {
-    const daySels = selections[activeDay] || {}; const sortedTimes = Object.keys(daySels).sort();
-    const now = new Date(); const currentTimeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-    const nextTime = sortedTimes.find(time => time > currentTimeStr);
-    if (nextTime) {
-        const nextDest = daySels[nextTime];
-        if (nextDest) {
-            directionsService.route({ origin: userLocation, destination: { lat: nextDest.lat, lng: nextDest.lng }, travelMode: 'DRIVING' }, (result, status) => {
-                if (status === 'OK') {
-                    const leg = result.routes[0].legs[0]; document.querySelectorAll('.distance-info').forEach(el => el.innerHTML = '');
-                    const distEl = document.querySelector(`.distance-info[data-day="${activeDay}"][data-time="${nextTime}"]`);
-                    if (distEl) distEl.innerHTML = `📍 다음 목적지까지 ${leg.distance.text}, ${leg.duration.text}`;
-                }
-            });
-        }
-    }
-}
-
-function openInGoogleMaps() {
-    const daySels = Object.values(selections[activeDay] || {}).filter(s => s && s.lat);
-    daySels.sort((a,b) => { const tA = Object.keys(selections[activeDay]).find(k=>selections[activeDay][k].id===a.id), tB = Object.keys(selections[activeDay]).find(k=>selections[activeDay][k].id===b.id); return tA.localeCompare(tB); });
-    if(daySels.length < 1) { alert("먼저 장소를 선택해주세요."); return; }
-    let url = 'https://www.google.com/maps/dir/';
-    if (userLocationMarker) { const pos = userLocationMarker.getPosition(); url += `${pos.lat()},${pos.lng()}/`; }
-    daySels.forEach(sel => { url += `${sel.lat},${sel.lng}/`; }); window.open(url, '_blank');
-}
-
-window.addEventListener('load', () => { if (typeof google === 'undefined') { setTimeout(initApp, 1000); } });
+function updateCostDisplay() { const costs = { food: 0, activity: 0, etc: 0 }; Object.values(selections).flat().forEach(sel => { if (!sel || sel.type === 'accommodation' || !sel.cost) return; if (sel.type === 'food' || sel.type === 'cafe') costs.food += sel.cost; else if (sel.type === 'activity') costs.activity += sel.cost; else costs.etc += sel.cost; }); document.getElementById('cost-food').textContent = `₩${costs.food.toLocaleString()}`; document.getElementById('cost-activity').textContent = `₩${costs.activity.toLocaleString()}`; document.getElementById('cost-etc').textContent = `₩${costs.etc.toLocaleString()}`; const total = Object.values(costs).reduce((a, b) => a + b, 0) + fixedCosts.flight + fixedCosts.hotel; document.getElementById('total-cost').textContent = `₩${total.toLocaleString()}`; }
+function updateSelectedItemsDisplay() { const container = document.getElementById('selected-items-container'); container.innerHTML = ''; const daySelections = selections[activeDay] || {}; const sortedTimes = Object.keys(daySelections).sort(); if(Object.keys(daySelections).length === 0) { container.innerHTML = '<p class="text-center text-gray-500 py-3 text-xs">선택된 일정이 없습니다.</p>'; return; } const list = document.createElement('div'); list.className = 'space-y-2 text-xs'; sortedTimes.forEach(time => { const sel = daySelections[time]; if (sel && sel.type !== 'accommodation') { list.innerHTML += `<div class="flex items-center"><span class="font-semibold text-blue-600 w-12">${time}</span><span class="flex-grow text-gray-700">${sel.name}</span>${sel.cost > 0 ? `<span class="font-semibold text-gray-800 text-right">₩${sel.cost.toLocaleString()}</span>` : ''}</div>`; } }); container.appendChild(list); }
+function updateMapForDay(day) { if (!googleMap || !directionsRenderer) return; const daySelections = Object.values(selections[day] || {}).filter(s => s && s.lat && s.lng); daySelections.sort((a,b) => { const tA = Object.keys(selections[day]).find(k=>selections[day][k]&&selections[day][k].id===a.id), tB = Object.keys(selections[day]).find(k=>selections[day][k]&&selections[day][k].id===b.id); if(!tA||!tB) return 0; return tA.localeCompare(tB); }); if (window.dayMarkers) window.dayMarkers.forEach(m => m.setMap(null)); window.dayMarkers = []; infoWindow.close(); directionsRenderer.setDirections({routes: []}); if(daySelections.length === 0) { googleMap.setCenter({ lat: 33.385, lng: 126.55 }); googleMap.setZoom(9); return; }; const bounds = new google.maps.LatLngBounds(); daySelections.forEach((sel, index) => { const pos = { lat: sel.lat, lng: sel.lng }; bounds.extend(pos); const marker = new google.maps.Marker({ position: pos, map: googleMap, label: { text: `${index + 1}`, color: 'white', fontWeight: 'bold' }, title: sel.name }); marker.addListener('click', () => { infoWindow.setContent(`<div class="font-bold p-1">${sel.name}</div>`); infoWindow.open(googleMap, marker); }); window.dayMarkers.push(marker); }); if (daySelections.length > 1) { const request = { origin: { lat: daySelections[0].lat, lng: daySelections[0].lng }, destination: { lat: daySelections[daySelections.length-1].lat, lng: daySelections[daySelections.length-1].lng }, waypoints: daySelections.slice(1, -1).map(s => ({ location: { lat: s.lat, lng: s.lng } })), travelMode: 'DRIVING' }; directionsService.route(request, (result, status) => { if (status === 'OK') directionsRenderer.setDirections(result); }); } if (userLocationMarker) bounds.extend(userLocationMarker.getPosition()); googleMap.fitBounds(bounds); if(daySelections.length === 1 && !userLocationMarker) googleMap.setZoom(14); }
+function toggleNaviMode() { const btn = document.getElementById('navi-mode-toggle'); isNaviModeActive = !isNaviModeActive; btn.classList.toggle('active', isNaviModeActive); if (isNaviModeActive) { if (navigator.geolocation) { btn.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i>GPS 연결 중...`; watchId = navigator.geolocation.watchPosition(handleLocationUpdate, handleLocationError, { enableHighAccuracy: true }); } else { alert("이 브라우저는 위치 정보를 지원하지 않습니다."); isNaviModeActive = false; btn.classList.remove('active'); } } else { if (watchId !== null) navigator.geolocation.clearWatch(watchId); watchId = null; if (userLocationMarker) userLocationMarker.setMap(null); userLocationMarker = null; btn.innerHTML = `<i class="fas fa-location-arrow mr-2"></i>Live GPS`; document.querySelectorAll('.distance-info').forEach(el => el.innerHTML = ''); } }
+function handleLocationUpdate(position) { const userLocation = { lat: position.coords.latitude, lng: position.coords.longitude }; document.getElementById('navi-mode-toggle').innerHTML = `<i class="fas fa-location-arrow mr-2"></i>GPS 연결됨`; if (!userLocationMarker) { userLocationMarker = new google.maps.Marker({ position: userLocation, map: googleMap, icon: { path: google.maps.SymbolPath.CIRCLE, scale: 8, fillColor: '#4285F4', fillOpacity: 1, strokeColor: 'white', strokeWeight: 2 }, title: "현재 내 위치" }); } else { userLocationMarker.setPosition(userLocation); } updateDistances(userLocation); }
+function handleLocationError(error) { alert(`위치 정보를 가져올 수 없습니다: ${error.message}`); const btn = document.getElementById('navi-mode-toggle'); isNaviModeActive = false; btn.classList.remove('active'); btn.innerHTML = `<i class="fas fa-location-arrow mr-2"></i>Live GPS`; }
+function updateDistances(userLocation) { const daySels = selections[activeDay] || {}; const sortedTimes = Object.keys(daySels).sort(); const now = new Date(); const currentTimeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`; const nextTime = sortedTimes.find(time => time > currentTimeStr); document.querySelectorAll('.distance-info').forEach(el => el.innerHTML = ''); if (nextTime) { const nextDest = daySels[nextTime]; if (nextDest && nextDest.lat) { directionsService.route({ origin: userLocation, destination: { lat: nextDest.lat, lng: nextDest.lng }, travelMode: 'DRIVING' }, (result, status) => { if (status === 'OK') { const leg = result.routes[0].legs[0]; const distEl = document.querySelector(`.distance-info[data-day="${activeDay}"][data-time="${nextTime}"]`); if (distEl) distEl.innerHTML = `📍 다음 목적지까지 ${leg.distance.text}, ${leg.duration.text}`; } }); } } }
+function openInGoogleMaps() { const daySels = Object.values(selections[activeDay] || {}).filter(s => s && s.lat); daySels.sort((a,b) => { const tA = Object.keys(selections[activeDay]).find(k=>selections[activeDay][k].id===a.id), tB = Object.keys(selections[activeDay]).find(k=>selections[activeDay][k].id===b.id); if(!tA || !tB) return 0; return tA.localeCompare(tB); }); if(daySels.length < 1) { alert("먼저 장소를 선택해주세요."); return; } let url = 'https://www.google.com/maps/dir/'; if (userLocationMarker) { const pos = userLocationMarker.getPosition(); url += `${pos.lat()},${pos.lng()}/`; } daySels.forEach(sel => { url += `${sel.name.replace(/\s/g, '+')},+제주/@${sel.lat},${sel.lng}/`; }); window.open(url, '_blank'); }
+window.addEventListener('load', () => { if (typeof google === 'undefined') { console.log('Google Maps API not loaded, retrying...'); setTimeout(initApp, 1000); } });
 </script>
 </body>
 </html>
